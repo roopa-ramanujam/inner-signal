@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Search, Settings, RotateCcw, ChevronDown } from 'lucide-react';
 import { foodLibrary } from './data/foodData';
+import FoodImage from './FoodImage';
 
 const GlucoseTracker = ({ onNavigate }) => {
   const [selectedFoods, setSelectedFoods] = useState([]);
@@ -316,7 +317,9 @@ const GlucoseTracker = ({ onNavigate }) => {
     return lowerGlucose + (upperGlucose - lowerGlucose) * fraction;
   };
 
+  // Helper function to get food icon (keeping for backwards compatibility but now uses FoodImage)
   const getFoodIcon = (food) => {
+    // This function is kept for any edge cases, but we'll primarily use FoodImage component
     switch (food.category) {
       case 'exercise':
         return '🏃';
@@ -489,9 +492,11 @@ const GlucoseTracker = ({ onNavigate }) => {
                     onMouseDown={(e) => handleSliderStart(e, food)}
                     onTouchStart={(e) => handleSliderStart(e, food)}
                   >
-                    <div className="text-xl flex items-center justify-center">
-                      {getFoodIcon(food)}
-                    </div>
+                    <FoodImage 
+                      food={food} 
+                      size="slider" 
+                      className="w-full h-full flex items-center justify-center text-white"
+                    />
                   </div>
                   
                   <button 
@@ -575,11 +580,11 @@ const GlucoseTracker = ({ onNavigate }) => {
                     ${selectedFoods.length >= 3 && !selectedFoods.find(f => f.item === food.item) ? 'opacity-50 cursor-not-allowed' : ''}
                   `}
                 >
-                  <div className={`bg-gradient-to-br from-orange-400 to-red-500 rounded-lg mx-auto mb-2 flex items-center justify-center ${isFullScreen ? 'w-10 h-10' : 'w-12 h-12'}`}>
-                    <span className={`text-white ${isFullScreen ? 'text-lg' : 'text-xl'}`}>
-                      {getFoodIcon(food)}
-                    </span>
-                  </div>
+                  <FoodImage 
+                    food={food} 
+                    size={isFullScreen ? "small" : "medium"}
+                    className="mx-auto mb-2"
+                  />
                   <p className="text-xs font-medium text-gray-800">{food.item}</p>
                   <p className="text-xs text-gray-500">{food.serving_size}</p>
                 </button>
