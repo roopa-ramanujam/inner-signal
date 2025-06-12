@@ -1,32 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine } from 'recharts';
-import { Search, Settings, RotateCcw, GripVertical } from 'lucide-react';
+import { Search, Settings, RotateCcw, ChevronDown } from 'lucide-react';
+import { foodLibrary } from './data/foodData';
 
-// Sample food data
-const foodLibrary = [
-  { item: "Burger", category: "meat", serving_size: "1 piece", glucose_change: 45 },
-  { item: "Tacos", category: "meat", serving_size: "2 pieces", glucose_change: 40 },
-  { item: "Soda", category: "drink", serving_size: "12 oz", glucose_change: 35 },
-  { item: "30 min run", category: "exercise", serving_size: "30 minutes", glucose_change: -25 },
-  { item: "Chicken", category: "meat", serving_size: "4 oz", glucose_change: 5 },
-  { item: "White Rice", category: "grain", serving_size: "1 cup", glucose_change: 40 },
-  { item: "Broccoli", category: "vegetable", serving_size: "1 cup", glucose_change: 5 },
-  { item: "Apple", category: "fruit", serving_size: "1 medium", glucose_change: 15 },
-  { item: "Whole Wheat Bread", category: "grain", serving_size: "2 slices", glucose_change: 30 },
-];
-
-const GlucoseTracker = () => {
+const GlucoseTracker = ({ onNavigate }) => {
   const [selectedFoods, setSelectedFoods] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [glucoseData, setGlucoseData] = useState([]);
   const [baselineGlucose] = useState(100);
-  const [foodTimings, setFoodTimings] = useState({}); // Track continuous time positions (0-1 range)
+  const [foodTimings, setFoodTimings] = useState({});
   const [draggedFood, setDraggedFood] = useState(null);
   const [chartBounds, setChartBounds] = useState({ left: 0, width: 0 });
+  const [lastSelectedFood, setLastSelectedFood] = useState(null);
   const chartRef = useRef(null);
   
-  // Bottom sheet states - Updated for full screen support
-  const [bottomSheetHeight, setBottomSheetHeight] = useState(200); // Initial collapsed height
+  // Bottom sheet states
+  const [bottomSheetHeight, setBottomSheetHeight] = useState(200);
   const [isDraggingSheet, setIsDraggingSheet] = useState(false);
   const [startY, setStartY] = useState(0);
   const [startHeight, setStartHeight] = useState(0);
@@ -36,7 +25,6 @@ const GlucoseTracker = () => {
   const COLLAPSED_HEIGHT = 200;
   const EXPANDED_HEIGHT = 400;
   const FULL_SCREEN_HEIGHT = windowHeight;
-  const SNAP_THRESHOLD = 50;
 
   // Track window height changes
   useEffect(() => {
@@ -48,16 +36,16 @@ const GlucoseTracker = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Generate initial flat line data with more granular time points
+  // Generate initial flat line data
   useEffect(() => {
     const times = [];
     const startHour = 12;
     const endHour = 17;
-    const pointsPerHour = 4; // 15-minute intervals
+    const pointsPerHour = 4;
     
     for (let hour = startHour; hour <= endHour; hour++) {
       for (let quarter = 0; quarter < pointsPerHour; quarter++) {
-        if (hour === endHour && quarter > 0) break; // Don't go past 5 PM
+        if (hour === endHour && quarter > 0) break;
         
         const minutes = quarter * 15;
         const displayHour = hour === 12 ? 12 : hour > 12 ? hour - 12 : hour;
@@ -77,12 +65,12 @@ const GlucoseTracker = () => {
     setGlucoseData(times);
   }, [baselineGlucose]);
 
-  // Update chart bounds when component mounts or resizes
+  // Update chart bounds
   useEffect(() => {
     const updateChartBounds = () => {
       if (chartRef.current) {
         const rect = chartRef.current.getBoundingClientRect();
-        const margin = 40; // Chart margin
+        const margin = 40;
         setChartBounds({
           left: margin,
           width: rect.width - (margin * 2)
@@ -95,24 +83,19 @@ const GlucoseTracker = () => {
     return () => window.removeEventListener('resize', updateChartBounds);
   }, []);
 
-  // Update glucose curve when foods are selected or moved
+  // Update glucose curve
   useEffect(() => {
     if (selectedFoods.length === 0) {
-      // Reset to flat line
       setGlucoseData(prev => prev.map(point => ({ ...point, glucose: baselineGlucose })));
       return;
     }
 
-    // Calculate glucose effect based on continuous food timings
     setGlucoseData(prev => prev.map((point, timeIndex) => {
       let glucoseValue = baselineGlucose;
       
       selectedFoods.forEach((food) => {
-        // Get the continuous time position for this food (0-1 range)
         const foodTimePosition = foodTimings[food.item] !== undefined ? 
           foodTimings[food.item] : 0;
-        
-        // Convert to continuous time index (0 to length-1)
         const foodTimeIndex = foodTimePosition * (prev.length - 1);
         
         if (timeIndex >= foodTimeIndex) {
@@ -120,14 +103,11 @@ const GlucoseTracker = () => {
           let multiplier;
           
           if (timeSinceFood <= 1) {
-            // Gradual rise - smooth interpolation
             multiplier = timeSinceFood * 0.8;
           } else if (timeSinceFood <= 3) {
-            // Peak with smooth transitions
-            const peakProgress = (timeSinceFood - 1) / 2; // 0 to 1 over 2 time units
-            multiplier = 0.8 + (0.2 * (1 - Math.abs(peakProgress - 0.5) * 2)); // Smooth peak curve
+            const peakProgress = (timeSinceFood - 1) / 2;
+            multiplier = 0.8 + (0.2 * (1 - Math.abs(peakProgress - 0.5) * 2));
           } else {
-            // Gradual decline
             multiplier = Math.max(0.2, 1 - (timeSinceFood - 3) * 0.15);
           }
           
@@ -142,9 +122,9 @@ const GlucoseTracker = () => {
     }));
   }, [selectedFoods, baselineGlucose, foodTimings]);
 
-  // Bottom sheet drag handlers - Updated for 3-state system
+  // Bottom sheet handlers
   const handleSheetTouchStart = (e) => {
-    if (e.target.closest('.food-grid')) return; // Don't drag when interacting with food items
+    if (e.target.closest('.food-grid')) return;
     setIsDraggingSheet(true);
     setStartY(e.touches[0].clientY);
     setStartHeight(bottomSheetHeight);
@@ -155,7 +135,7 @@ const GlucoseTracker = () => {
     e.preventDefault();
     
     const currentY = e.touches[0].clientY;
-    const deltaY = startY - currentY; // Positive when dragging up
+    const deltaY = startY - currentY;
     const newHeight = Math.max(COLLAPSED_HEIGHT, Math.min(FULL_SCREEN_HEIGHT, startHeight + deltaY));
     
     setBottomSheetHeight(newHeight);
@@ -165,7 +145,6 @@ const GlucoseTracker = () => {
     if (!isDraggingSheet) return;
     setIsDraggingSheet(false);
     
-    // 3-state snapping logic
     const collapsedToExpanded = (COLLAPSED_HEIGHT + EXPANDED_HEIGHT) / 2;
     const expandedToFullScreen = (EXPANDED_HEIGHT + FULL_SCREEN_HEIGHT) / 2;
     
@@ -181,7 +160,6 @@ const GlucoseTracker = () => {
     setBottomSheetHeight(targetHeight);
   };
 
-  // Mouse handlers for desktop - Updated for 3-state system
   const handleSheetMouseDown = (e) => {
     if (e.target.closest('.food-grid')) return;
     setIsDraggingSheet(true);
@@ -203,7 +181,6 @@ const GlucoseTracker = () => {
     if (!isDraggingSheet) return;
     setIsDraggingSheet(false);
     
-    // 3-state snapping logic
     const collapsedToExpanded = (COLLAPSED_HEIGHT + EXPANDED_HEIGHT) / 2;
     const expandedToFullScreen = (EXPANDED_HEIGHT + FULL_SCREEN_HEIGHT) / 2;
     
@@ -219,7 +196,6 @@ const GlucoseTracker = () => {
     setBottomSheetHeight(targetHeight);
   };
 
-  // Add global mouse event listeners for sheet dragging
   useEffect(() => {
     if (isDraggingSheet) {
       document.addEventListener('mousemove', handleSheetMouseMove);
@@ -237,10 +213,10 @@ const GlucoseTracker = () => {
     if (selectedFoods.find(f => f.item === food.item)) return;
     
     setSelectedFoods([...selectedFoods, food]);
-    // Set default continuous timing for new food (0-1 range)
+    setLastSelectedFood(food);
     setFoodTimings(prev => ({
       ...prev,
-      [food.item]: (selectedFoods.length * 0.3) % 1 // Default spacing in continuous range
+      [food.item]: (selectedFoods.length * 0.3) % 1
     }));
   };
 
@@ -251,14 +227,20 @@ const GlucoseTracker = () => {
       delete newTimings[foodToRemove.item];
       return newTimings;
     });
+    
+    if (lastSelectedFood?.item === foodToRemove.item) {
+      const remainingFoods = selectedFoods.filter(food => food.item !== foodToRemove.item);
+      setLastSelectedFood(remainingFoods.length > 0 ? remainingFoods[remainingFoods.length - 1] : null);
+    }
   };
 
   const resetSelection = () => {
     setSelectedFoods([]);
     setFoodTimings({});
+    setLastSelectedFood(null);
   };
 
-  // Unified pointer event handlers for both mouse and touch
+  // Slider handlers
   const handleSliderStart = (e, food) => {
     e.preventDefault();
     setDraggedFood(food);
@@ -272,7 +254,6 @@ const GlucoseTracker = () => {
     const relativeX = mouseX - chartBounds.left;
     const percentage = Math.max(0, Math.min(1, relativeX / chartBounds.width));
     
-    // Store as continuous percentage (0-1)
     setFoodTimings(prev => ({
       ...prev,
       [draggedFood.item]: percentage
@@ -283,14 +264,12 @@ const GlucoseTracker = () => {
     setDraggedFood(null);
   };
 
-  // Mouse event handlers
   const handleSliderMouseMove = (e) => {
     handleSliderMove(e.clientX);
   };
 
-  // Touch event handlers
   const handleSliderTouchMove = (e) => {
-    e.preventDefault(); // Prevent scrolling
+    e.preventDefault();
     if (e.touches.length > 0) {
       handleSliderMove(e.touches[0].clientX);
     }
@@ -298,17 +277,13 @@ const GlucoseTracker = () => {
 
   useEffect(() => {
     if (draggedFood) {
-      // Mouse events
       document.addEventListener('mousemove', handleSliderMouseMove);
       document.addEventListener('mouseup', handleSliderEnd);
-      
-      // Touch events
       document.addEventListener('touchmove', handleSliderTouchMove, { passive: false });
       document.addEventListener('touchend', handleSliderEnd);
     }
 
     return () => {
-      // Clean up both mouse and touch events
       document.removeEventListener('mousemove', handleSliderMouseMove);
       document.removeEventListener('mouseup', handleSliderEnd);
       document.removeEventListener('touchmove', handleSliderTouchMove);
@@ -322,7 +297,6 @@ const GlucoseTracker = () => {
     return chartBounds.left + (timePosition * chartBounds.width);
   };
 
-  // Get glucose value at a specific time position
   const getGlucoseAtPosition = (food) => {
     const timePosition = foodTimings[food.item] || 0;
     const continuousIndex = timePosition * (glucoseData.length - 1);
@@ -336,7 +310,6 @@ const GlucoseTracker = () => {
       return glucoseData[lowerIndex]?.glucose || baselineGlucose;
     }
     
-    // Interpolate between two points
     const lowerGlucose = glucoseData[lowerIndex]?.glucose || baselineGlucose;
     const upperGlucose = glucoseData[upperIndex]?.glucose || baselineGlucose;
     
@@ -369,57 +342,60 @@ const GlucoseTracker = () => {
     food.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const formatYAxisTick = (value) => {
-    return value.toString();
-  };
-
-  // Updated state detection for 3 states
   const isFullScreen = bottomSheetHeight >= FULL_SCREEN_HEIGHT - 50;
-  const isExpanded = bottomSheetHeight > (COLLAPSED_HEIGHT + EXPANDED_HEIGHT) / 2 && !isFullScreen;
-
-  // Calculate chart height and vertical scale - Updated Y-axis range
-  const chartHeight = 240; // Height of the chart area in pixels
+  const chartHeight = 240;
   const yMin = 50;
-  const yMax = 200; // Adjusted to ensure 180 is visible
-  const chartPadding = 20; // Padding at top and bottom of chart
+  const yMax = 200;
+  const chartPadding = 20;
 
-  // Convert glucose value to pixel position
   const glucoseToPixel = (glucose) => {
     const scaledValue = (glucose - yMin) / (yMax - yMin);
     return chartHeight - chartPadding - (scaledValue * (chartHeight - 2 * chartPadding));
   };
 
+  const getEducationalText = () => {
+    if (selectedFoods.length === 0) {
+      return "Add different items to the timeline to see how they affect your blood sugar...";
+    }
+    
+    if (lastSelectedFood && lastSelectedFood.educational_text) {
+      return lastSelectedFood.educational_text;
+    }
+    
+    return "Drag the food icons below the chart to see how timing affects your glucose levels.";
+  };
+
   return (
-    <div className="max-w-md mx-auto min-h-screen bg-gray-50 relative overflow-hidden">
-      {/* Header - Hide when full screen */}
+    <>
+      {/* Header */}
       {!isFullScreen && (
         <div className="bg-gray-50 p-4 flex items-center justify-between border-b">
           <div className="flex items-center space-x-2">
-            <select className="border border-teal-500 text-teal-600 px-3 py-1 rounded text-sm">
-              <option>Blood Sugar</option>
-            </select>
+            <button 
+              onClick={() => onNavigate('blood-sugar')}
+              className="border border-teal-500 text-teal-600 px-3 py-1 rounded text-sm flex items-center space-x-1"
+            >
+              <span>Blood Sugar</span>
+              <ChevronDown className="w-4 h-4" />
+            </button>
           </div>
           <Settings className="w-5 h-5 text-gray-600" />
         </div>
       )}
 
-      {/* Educational Text - Hide when full screen */}
+      {/* Educational Text */}
       {!isFullScreen && (
         <div className="bg-gray-50 p-4 text-center">
           <p className="text-gray-700 text-sm leading-relaxed">
-            {selectedFoods.length === 0 
-              ? "Add different items to the timeline to see how they affect your blood sugar..."
-              : "Drag the food icons below the chart to see how timing affects your glucose levels."
-            }
+            {getEducationalText()}
           </p>
         </div>
       )}
 
-      {/* Chart with Draggable Sliders - Hide when full screen */}
+      {/* Chart */}
       {!isFullScreen && (
         <div className="bg-gray-50 relative" style={{ marginBottom: `${bottomSheetHeight}px` }}>
           <div className="bg-white p-4 h-64 relative" ref={chartRef} style={{ marginBottom: `${10}px` }}>
-            {/* Reset Button in top right corner */}
             {selectedFoods.length > 0 && (
               <button 
                 onClick={resetSelection}
@@ -436,8 +412,7 @@ const GlucoseTracker = () => {
                   tickLine={false}
                   tick={{ fontSize: 12, fill: '#666' }}
                   interval="preserveStartEnd"
-                  tickFormatter={(value, index) => {
-                    // Only show hour labels, skip quarter-hour labels
+                  tickFormatter={(value) => {
                     if (value.includes(':')) return '';
                     return value;
                   }}
@@ -448,7 +423,6 @@ const GlucoseTracker = () => {
                   tickLine={false}
                   tick={{ fontSize: 12, fill: '#666' }}
                   ticks={[70, 120, 180]}
-                  tickFormatter={formatYAxisTick}
                 />
                 <ReferenceLine y={70} stroke="#ef4444" strokeWidth={2} />
                 <ReferenceLine y={180} stroke="#3b82f6" strokeWidth={2} />
@@ -465,7 +439,7 @@ const GlucoseTracker = () => {
               </LineChart>
             </ResponsiveContainer>
 
-            {/* Custom vertical lines that stop at the curve */}
+            {/* Vertical lines */}
             {selectedFoods.map((food) => {
               const xPosition = getSliderPosition(food);
               const glucoseValue = getGlucoseAtPosition(food);
@@ -491,22 +465,20 @@ const GlucoseTracker = () => {
           {/* Draggable Food Sliders */}
           {selectedFoods.length > 0 && chartBounds.width > 0 && (
             <div className="absolute bottom-4 left-0 right-0 pointer-events-none">
-              {selectedFoods.map((food, index) => (
+              {selectedFoods.map((food) => (
                 <div
                   key={`slider-${food.item}`}
                   className="absolute pointer-events-auto"
                   style={{
-                    left: `${getSliderPosition(food) - 24}px`, // Center the 48px wide element
+                    left: `${getSliderPosition(food) - 24}px`,
                     bottom: '0px'
                   }}
                 >
-                  {/* Triangular arrows */}
                   <div className="flex items-center justify-center mb-1">
                       <div className="w-0 h-0 border-t-[6px] border-b-[6px] border-r-[8px] border-t-transparent border-b-transparent border-r-teal-600 mr-2"></div>
                       <div className="w-0 h-0 border-t-[6px] border-b-[6px] border-l-[8px] border-t-transparent border-b-transparent border-l-teal-600"></div>
                   </div>
                   
-                  {/* Draggable handle with food icon */}
                   <div 
                     className={`
                       bg-teal-600 rounded-xl p-2 shadow-lg border-3 border-white cursor-grab touch-none
@@ -522,7 +494,6 @@ const GlucoseTracker = () => {
                     </div>
                   </div>
                   
-                  {/* Remove button */}
                   <button 
                     onClick={() => removeFood(food)}
                     className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 z-10"
@@ -536,7 +507,7 @@ const GlucoseTracker = () => {
         </div>
       )}
 
-      {/* Bottom Sheet - Updated styling for full screen */}
+      {/* Bottom Sheet */}
       <div 
         ref={bottomSheetRef}
         className={`
@@ -554,7 +525,6 @@ const GlucoseTracker = () => {
         onTouchEnd={handleSheetTouchEnd}
         onMouseDown={handleSheetMouseDown}
       >
-        {/* Full Screen Header */}
         {isFullScreen && (
           <div className="bg-white p-4 flex items-center justify-between border-b">
             <div className="flex items-center space-x-2">
@@ -569,16 +539,13 @@ const GlucoseTracker = () => {
           </div>
         )}
 
-        {/* Drag Handle - Hide in full screen */}
         {!isFullScreen && (
           <div className="flex justify-center pt-3 pb-2">
             <div className="w-10 h-1 bg-gray-300 rounded-full cursor-grab active:cursor-grabbing"></div>
           </div>
         )}
 
-        {/* Content */}
         <div className={`px-4 h-full overflow-hidden flex flex-col ${isFullScreen ? 'pt-0' : ''}`}>
-          {/* Search and Selection Count */}
           <div className="flex items-center justify-between mb-4">
             <div className="relative flex-1 mr-4">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500 w-4 h-4" />
@@ -595,9 +562,6 @@ const GlucoseTracker = () => {
             </div>
           </div>
 
-
-
-          {/* Food Grid */}
           <div className="flex-1 overflow-y-auto food-grid">
             <div className={`grid gap-3 pb-6 ${isFullScreen ? 'grid-cols-4' : 'grid-cols-3'}`}>
               {filteredFoods.slice(0, isFullScreen ? 50 : 30).map((food, index) => (
@@ -624,7 +588,7 @@ const GlucoseTracker = () => {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
