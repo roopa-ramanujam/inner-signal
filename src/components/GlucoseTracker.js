@@ -4,13 +4,14 @@ import { Search, Settings, RotateCcw, ChevronDown } from 'lucide-react';
 import { foodLibrary } from './data/foodData';
 import FoodImage from './FoodImage';
 
-const GlucoseTracker = ({ onNavigate }) => {
+const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const [selectedFoods, setSelectedFoods] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [glucoseData, setGlucoseData] = useState([]);
   const [baselineGlucose] = useState(100);
   const [foodTimings, setFoodTimings] = useState({});
   const [draggedFood, setDraggedFood] = useState(null);
+  const [clickedFood, setClickedFood] = useState(null); // New state for clicked food
   const [chartBounds, setChartBounds] = useState({ left: 0, width: 0 });
   const [lastSelectedFood, setLastSelectedFood] = useState(null);
   const chartRef = useRef(null);
@@ -210,14 +211,25 @@ const GlucoseTracker = ({ onNavigate }) => {
   }, [isDraggingSheet, startY, startHeight, bottomSheetHeight]);
 
   const handleFoodSelect = (food) => {
+    // If food is already selected, remove it (deselect)
+    if (selectedFoods.find(f => f.item === food.item)) {
+      removeFood(food);
+      return;
+    }
+    
     if (selectedFoods.length >= 3) return;
-    if (selectedFoods.find(f => f.item === food.item)) return;
     
     setSelectedFoods([...selectedFoods, food]);
     setLastSelectedFood(food);
+    
+    // Space out the icons based on how many are already selected
+    const spacing = 0.25; // 25% spacing between icons
+    const startPosition = 0.1; // Start at 12 PM
+    const newPosition = startPosition + (selectedFoods.length * spacing);
+    
     setFoodTimings(prev => ({
       ...prev,
-      [food.item]: (selectedFoods.length * 0.3) % 1
+      [food.item]: Math.min(newPosition, 0.9) // Don't go past 90% to stay within bounds
     }));
   };
 
@@ -233,18 +245,33 @@ const GlucoseTracker = ({ onNavigate }) => {
       const remainingFoods = selectedFoods.filter(food => food.item !== foodToRemove.item);
       setLastSelectedFood(remainingFoods.length > 0 ? remainingFoods[remainingFoods.length - 1] : null);
     }
+
+    // Clear clicked food if it's being removed
+    if (clickedFood?.item === foodToRemove.item) {
+      setClickedFood(null);
+    }
   };
 
   const resetSelection = () => {
     setSelectedFoods([]);
     setFoodTimings({});
     setLastSelectedFood(null);
+    setClickedFood(null); // Clear clicked food on reset
   };
 
   // Slider handlers
   const handleSliderStart = (e, food) => {
     e.preventDefault();
     setDraggedFood(food);
+  };
+
+  // New handler for clicking on draggable icons
+  const handleSliderClick = (e, food) => {
+    // Only handle click if we're not dragging
+    if (!draggedFood) {
+      e.stopPropagation();
+      setClickedFood(clickedFood?.item === food.item ? null : food); // Toggle if same food
+    }
   };
 
   const handleSliderMove = (clientX) => {
@@ -317,29 +344,6 @@ const GlucoseTracker = ({ onNavigate }) => {
     return lowerGlucose + (upperGlucose - lowerGlucose) * fraction;
   };
 
-  // Helper function to get food icon (keeping for backwards compatibility but now uses FoodImage)
-  const getFoodIcon = (food) => {
-    // This function is kept for any edge cases, but we'll primarily use FoodImage component
-    switch (food.category) {
-      case 'exercise':
-        return '🏃';
-      case 'drink':
-        return '🥤';
-      case 'fruit':
-        return '🍎';
-      case 'meat':
-        return '🍗';
-      case 'grain':
-        return '🍞';
-      case 'vegetable':
-        return '🥦';
-      case 'dairy':
-        return '🥛';
-      default:
-        return '🍔';
-    }
-  };
-
   const filteredFoods = foodLibrary.filter(food =>
     food.item.toLowerCase().includes(searchTerm.toLowerCase()) ||
     food.category.toLowerCase().includes(searchTerm.toLowerCase())
@@ -361,11 +365,17 @@ const GlucoseTracker = ({ onNavigate }) => {
       return "Add different items to the timeline to see how they affect your blood sugar...";
     }
     
+    // Prioritize clicked food's educational text
+    if (clickedFood && clickedFood.educational_text) {
+      return clickedFood.educational_text;
+    }
+    
+    // Fall back to last selected food's educational text
     if (lastSelectedFood && lastSelectedFood.educational_text) {
       return lastSelectedFood.educational_text;
     }
     
-    return "Drag the food icons below the chart to see how timing affects your glucose levels.";
+    return "Drag the food icons below the chart to see how timing affects your glucose levels. Click on an icon to learn more about it.";
   };
 
   return (
@@ -467,7 +477,7 @@ const GlucoseTracker = ({ onNavigate }) => {
 
           {/* Draggable Food Sliders */}
           {selectedFoods.length > 0 && chartBounds.width > 0 && (
-            <div className="absolute bottom-4 left-0 right-0 pointer-events-none">
+            <div className="absolute bottom-[-20px] left-0 right-0 pointer-events-none">
               {selectedFoods.map((food) => (
                 <div
                   key={`slider-${food.item}`}
@@ -484,13 +494,16 @@ const GlucoseTracker = ({ onNavigate }) => {
                   
                   <div 
                     className={`
-                      bg-teal-600 rounded-xl p-2 shadow-lg border-3 border-white cursor-grab touch-none
+                      bg-teal-600 rounded-xl p-2 border-3 border-white cursor-grab touch-none
                       ${draggedFood?.item === food.item ? 'cursor-grabbing scale-110' : ''}
-                      transition-transform duration-150 hover:scale-105
+                      ${clickedFood?.item === food.item ? 'bg-gray-500' : ''}
+                      transition-all duration-150 hover:scale-105
+                      drop-shadow-2xl shadow-2xl
                     `}
                     style={{ width: '48px', height: '48px' }}
                     onMouseDown={(e) => handleSliderStart(e, food)}
                     onTouchStart={(e) => handleSliderStart(e, food)}
+                    onClick={(e) => handleSliderClick(e, food)}
                   >
                     <FoodImage 
                       food={food} 
@@ -501,7 +514,7 @@ const GlucoseTracker = ({ onNavigate }) => {
                   
                   <button 
                     onClick={() => removeFood(food)}
-                    className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 z-10"
+                    className="absolute -top-1 -right-1 bg-gray-300 text-gray-600 rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-gray-400 z-10 font-light"
                   >
                     ×
                   </button>
@@ -551,42 +564,42 @@ const GlucoseTracker = ({ onNavigate }) => {
         )}
 
         <div className={`px-4 h-full overflow-hidden flex flex-col ${isFullScreen ? 'pt-0' : ''}`}>
-          <div className="flex items-center justify-between mb-4">
-            <div className="relative flex-1 mr-4">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border-0 bg-gray-100 rounded-lg text-sm"
-              />
-            </div>
-            <div className="text-teal-600 text-sm font-medium whitespace-nowrap">
+          <div className="relative mb-4">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-teal-500 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 border-0 bg-gray-100 rounded-3xl text-lg"
+            />
+          </div>
+          
+          <div className="text-center mb-4">
+            <div className="text-teal-600 text-lg font-medium">
               {selectedFoods.length} selected
             </div>
           </div>
 
           <div className="flex-1 overflow-y-auto food-grid">
-            <div className={`grid gap-3 pb-6 ${isFullScreen ? 'grid-cols-4' : 'grid-cols-3'}`}>
+            <div className={`grid gap-4 pb-6 grid-cols-3 justify-items-center pt-4`}>
               {filteredFoods.slice(0, isFullScreen ? 50 : 30).map((food, index) => (
                 <button
                   key={index}
                   onClick={() => handleFoodSelect(food)}
                   disabled={selectedFoods.length >= 3 && !selectedFoods.find(f => f.item === food.item)}
                   className={`
-                    bg-white rounded-lg p-3 shadow-sm text-center hover:shadow-md transition-all
+                    bg-[#F1F1F1] rounded-2xl p-4 shadow-sm text-center hover:shadow-md transition-all w-24 h-24 flex flex-col justify-center items-center
                     ${selectedFoods.find(f => f.item === food.item) ? 'ring-2 ring-teal-500 bg-teal-50' : ''}
                     ${selectedFoods.length >= 3 && !selectedFoods.find(f => f.item === food.item) ? 'opacity-50 cursor-not-allowed' : ''}
                   `}
                 >
                   <FoodImage 
                     food={food} 
-                    size={isFullScreen ? "small" : "medium"}
+                    size="medium"
                     className="mx-auto mb-2"
                   />
-                  <p className="text-xs font-medium text-gray-800">{food.item}</p>
-                  <p className="text-xs text-gray-500">{food.serving_size}</p>
+                  <p className="text-sm font-semibold text-gray-900">{food.item}</p>
                 </button>
               ))}
             </div>
