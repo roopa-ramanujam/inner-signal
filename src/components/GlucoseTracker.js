@@ -399,7 +399,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       {/* Educational Text */}
       {!isFullScreen && (
         <div className="bg-gray-50 p-4 text-center">
-          <p className="text-gray-700 text-sm leading-relaxed">
+          <p className="text-gray-700 text-md font-semibold leading-relaxed">
             {getEducationalText()}
           </p>
         </div>
@@ -445,8 +445,8 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
                   type="monotone" 
                   dataKey="glucose" 
                   stroke="#0891b2" 
-                  strokeWidth={3}
-                  dot={{ fill: '#0891b2', strokeWidth: 2, r: 4 }}
+                  strokeWidth={2}
+                  dot={{ fill: '#0891b2', strokeWidth: 2, r: 2 }}
                   activeDot={{ r: 6, fill: '#0891b2' }}
                 />
               </LineChart>
