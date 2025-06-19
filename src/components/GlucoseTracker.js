@@ -24,7 +24,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const bottomSheetRef = useRef(null);
   
-  const COLLAPSED_HEIGHT = 350; // Increased from 200 to 350
+  const COLLAPSED_HEIGHT = 300; // Increased from 200 to 350
   const EXPANDED_HEIGHT = 500; // Increased from 400 to 500 for better proportions
   const FULL_SCREEN_HEIGHT = windowHeight;
 
