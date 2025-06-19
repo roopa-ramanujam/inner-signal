@@ -16,16 +16,16 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const [lastSelectedFood, setLastSelectedFood] = useState(null);
   const chartRef = useRef(null);
   
-  // Bottom sheet states
-  const [bottomSheetHeight, setBottomSheetHeight] = useState(200);
+  // Bottom sheet states - INCREASED COLLAPSED HEIGHT
+  const [bottomSheetHeight, setBottomSheetHeight] = useState(350); // Increased from 200
   const [isDraggingSheet, setIsDraggingSheet] = useState(false);
   const [startY, setStartY] = useState(0);
   const [startHeight, setStartHeight] = useState(0);
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const bottomSheetRef = useRef(null);
   
-  const COLLAPSED_HEIGHT = 200;
-  const EXPANDED_HEIGHT = 400;
+  const COLLAPSED_HEIGHT = 350; // Increased from 200 to 350
+  const EXPANDED_HEIGHT = 500; // Increased from 400 to 500 for better proportions
   const FULL_SCREEN_HEIGHT = windowHeight;
 
   // Track window height changes
