@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Search, Settings, RotateCcw, ChevronDown } from 'lucide-react';
-import { foodLibrary } from './data/foodData';
+import { itemLibrary } from './data/library';
 import FoodImage from './FoodImage';
 
 const GlucoseTracker = ({ onNavigate = () => {} }) => {
-  const [selectedFoods, setSelectedFoods] = useState([]);
+  const [selectedItems, setSelectedItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [glucoseData, setGlucoseData] = useState([]);
   const [baselineGlucose] = useState(100);
-  const [foodTimings, setFoodTimings] = useState({});
-  const [draggedFood, setDraggedFood] = useState(null);
-  const [clickedFood, setClickedFood] = useState(null); // New state for clicked food
+  const [itemTimings, setItemTimings] = useState({});
+  const [draggedItem, setDraggedItem] = useState(null);
+  const [clickedItem, setClickedItem] = useState(null); // New state for clicked food
   const [chartBounds, setChartBounds] = useState({ left: 0, width: 0 });
   const [lastSelectedFood, setLastSelectedFood] = useState(null);
   const chartRef = useRef(null);
@@ -87,7 +87,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
 
   // Update glucose curve
   useEffect(() => {
-    if (selectedFoods.length === 0) {
+    if (selectedItems.length === 0) {
       setGlucoseData(prev => prev.map(point => ({ ...point, glucose: baselineGlucose })));
       return;
     }
@@ -95,9 +95,9 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     setGlucoseData(prev => prev.map((point, timeIndex) => {
       let glucoseValue = baselineGlucose;
       
-      selectedFoods.forEach((food) => {
-        const foodTimePosition = foodTimings[food.item] !== undefined ? 
-          foodTimings[food.item] : 0;
+      selectedItems.forEach((food) => {
+        const foodTimePosition = itemTimings[food.item] !== undefined ? 
+          itemTimings[food.item] : 0;
         const foodTimeIndex = foodTimePosition * (prev.length - 1);
         
         if (timeIndex >= foodTimeIndex) {
@@ -122,7 +122,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
         glucose: Math.max(50, glucoseValue)
       };
     }));
-  }, [selectedFoods, baselineGlucose, foodTimings]);
+  }, [selectedItems, baselineGlucose, itemTimings]);
 
   // Bottom sheet handlers
   const handleSheetTouchStart = (e) => {
@@ -212,84 +212,84 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
 
   const handleFoodSelect = (food) => {
     // If food is already selected, remove it (deselect)
-    if (selectedFoods.find(f => f.item === food.item)) {
+    if (selectedItems.find(f => f.item === food.item)) {
       removeFood(food);
       return;
     }
     
-    if (selectedFoods.length >= 3) return;
+    if (selectedItems.length >= 3) return;
     
-    setSelectedFoods([...selectedFoods, food]);
+    setSelectedItems([...selectedItems, food]);
     setLastSelectedFood(food);
     
     // Space out the icons based on how many are already selected
     const spacing = 0.25; // 25% spacing between icons
     const startPosition = 0.1; // Start at 12 PM
-    const newPosition = startPosition + (selectedFoods.length * spacing);
+    const newPosition = startPosition + (selectedItems.length * spacing);
     
-    setFoodTimings(prev => ({
+    setItemTimings(prev => ({
       ...prev,
       [food.item]: Math.min(newPosition, 0.9) // Don't go past 90% to stay within bounds
     }));
   };
 
   const removeFood = (foodToRemove) => {
-    setSelectedFoods(selectedFoods.filter(food => food.item !== foodToRemove.item));
-    setFoodTimings(prev => {
+    setSelectedItems(selectedItems.filter(food => food.item !== foodToRemove.item));
+    setItemTimings(prev => {
       const newTimings = { ...prev };
       delete newTimings[foodToRemove.item];
       return newTimings;
     });
     
     if (lastSelectedFood?.item === foodToRemove.item) {
-      const remainingFoods = selectedFoods.filter(food => food.item !== foodToRemove.item);
+      const remainingFoods = selectedItems.filter(food => food.item !== foodToRemove.item);
       setLastSelectedFood(remainingFoods.length > 0 ? remainingFoods[remainingFoods.length - 1] : null);
     }
 
     // Clear clicked food if it's being removed
-    if (clickedFood?.item === foodToRemove.item) {
-      setClickedFood(null);
+    if (clickedItem?.item === foodToRemove.item) {
+      setClickedItem(null);
     }
   };
 
   const resetSelection = () => {
-    setSelectedFoods([]);
-    setFoodTimings({});
+    setSelectedItems([]);
+    setItemTimings({});
     setLastSelectedFood(null);
-    setClickedFood(null); // Clear clicked food on reset
+    setClickedItem(null); // Clear clicked food on reset
   };
 
   // Slider handlers
   const handleSliderStart = (e, food) => {
     e.preventDefault();
-    setDraggedFood(food);
+    setDraggedItem(food);
   };
 
   // New handler for clicking on draggable icons
   const handleSliderClick = (e, food) => {
     // Only handle click if we're not dragging
-    if (!draggedFood) {
+    if (!draggedItem) {
       e.stopPropagation();
-      setClickedFood(clickedFood?.item === food.item ? null : food); // Toggle if same food
+      setClickedItem(clickedItem?.item === food.item ? null : food); // Toggle if same food
     }
   };
 
   const handleSliderMove = (clientX) => {
-    if (!draggedFood || !chartBounds.width) return;
+    if (!draggedItem || !chartBounds.width) return;
 
     const rect = chartRef.current.getBoundingClientRect();
     const mouseX = clientX - rect.left;
     const relativeX = mouseX - chartBounds.left;
     const percentage = Math.max(0, Math.min(1, relativeX / chartBounds.width));
     
-    setFoodTimings(prev => ({
+    setItemTimings(prev => ({
       ...prev,
-      [draggedFood.item]: percentage
+      [draggedItem.item]: percentage
     }));
   };
 
   const handleSliderEnd = () => {
-    setDraggedFood(null);
+    setDraggedItem(null);
   };
 
   const handleSliderMouseMove = (e) => {
@@ -304,7 +304,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   };
 
   useEffect(() => {
-    if (draggedFood) {
+    if (draggedItem) {
       document.addEventListener('mousemove', handleSliderMouseMove);
       document.addEventListener('mouseup', handleSliderEnd);
       document.addEventListener('touchmove', handleSliderTouchMove, { passive: false });
@@ -317,16 +317,16 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       document.removeEventListener('touchmove', handleSliderTouchMove);
       document.removeEventListener('touchend', handleSliderEnd);
     };
-  }, [draggedFood, chartBounds]);
+  }, [draggedItem, chartBounds]);
 
   const getSliderPosition = (food) => {
     if (!chartBounds.width) return 0;
-    const timePosition = foodTimings[food.item] || 0;
+    const timePosition = itemTimings[food.item] || 0;
     return chartBounds.left + (timePosition * chartBounds.width);
   };
 
   const getGlucoseAtPosition = (food) => {
-    const timePosition = foodTimings[food.item] || 0;
+    const timePosition = itemTimings[food.item] || 0;
     const continuousIndex = timePosition * (glucoseData.length - 1);
     
     const lowerIndex = Math.floor(continuousIndex);
@@ -344,7 +344,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     return lowerGlucose + (upperGlucose - lowerGlucose) * fraction;
   };
 
-  const filteredFoods = foodLibrary.filter(food =>
+  const filteredItems = itemLibrary.filter(food =>
     food.item.toLowerCase().includes(searchTerm.toLowerCase()) ||
     food.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -361,13 +361,13 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   };
 
   const getEducationalText = () => {
-    if (selectedFoods.length === 0) {
+    if (selectedItems.length === 0) {
       return "Add different items to the timeline to see how they affect your blood sugar...";
     }
     
     // Prioritize clicked food's educational text
-    if (clickedFood && clickedFood.educational_text) {
-      return clickedFood.educational_text;
+    if (clickedItem && clickedItem.educational_text) {
+      return clickedItem.educational_text;
     }
     
     // Fall back to last selected food's educational text
@@ -409,7 +409,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       {!isFullScreen && (
         <div className="bg-gray-50 relative" style={{ marginBottom: `${bottomSheetHeight}px` }}>
           <div className="bg-white p-4 h-64 relative" ref={chartRef} style={{ marginBottom: `${10}px` }}>
-            {selectedFoods.length > 0 && (
+            {selectedItems.length > 0 && (
               <button 
                 onClick={resetSelection}
                 className="absolute top-4 right-4 z-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors"
@@ -453,7 +453,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
             </ResponsiveContainer>
 
             {/* Vertical lines */}
-            {selectedFoods.map((food) => {
+            {selectedItems.map((food) => {
               const xPosition = getSliderPosition(food);
               const glucoseValue = getGlucoseAtPosition(food);
               const yPosition = glucoseToPixel(glucoseValue);
@@ -476,9 +476,9 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
           </div>
 
           {/* Draggable Food Sliders */}
-          {selectedFoods.length > 0 && chartBounds.width > 0 && (
+          {selectedItems.length > 0 && chartBounds.width > 0 && (
             <div className="absolute bottom-[-20px] left-0 right-0 pointer-events-none">
-              {selectedFoods.map((food) => (
+              {selectedItems.map((food) => (
                 <div
                   key={`slider-${food.item}`}
                   className="absolute pointer-events-auto"
@@ -495,8 +495,8 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
                   <div 
                     className={`
                       bg-teal-600 rounded-xl p-2 border-3 border-white cursor-grab touch-none
-                      ${draggedFood?.item === food.item ? 'cursor-grabbing scale-110' : ''}
-                      ${clickedFood?.item === food.item ? 'bg-gray-500' : ''}
+                      ${draggedItem?.item === food.item ? 'cursor-grabbing scale-110' : ''}
+                      ${clickedItem?.item === food.item ? 'bg-gray-500' : ''}
                       transition-all duration-150 hover:scale-105
                       drop-shadow-2xl shadow-2xl
                     `}
@@ -577,21 +577,21 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
           
           <div className="text-center mb-4">
             <div className="text-teal-600 text-lg font-medium">
-              {selectedFoods.length} selected
+              {selectedItems.length} selected
             </div>
           </div>
 
           <div className="flex-1 overflow-y-auto food-grid">
             <div className={`grid gap-4 pb-6 grid-cols-3 justify-items-center pt-4`}>
-              {filteredFoods.slice(0, isFullScreen ? 50 : 30).map((food, index) => (
+              {filteredItems.slice(0, isFullScreen ? 50 : 30).map((food, index) => (
                 <button
                   key={index}
                   onClick={() => handleFoodSelect(food)}
-                  disabled={selectedFoods.length >= 3 && !selectedFoods.find(f => f.item === food.item)}
+                  disabled={selectedItems.length >= 3 && !selectedItems.find(f => f.item === food.item)}
                   className={`
                     bg-[#F1F1F1] rounded-2xl p-4 shadow-sm text-center hover:shadow-md transition-all w-24 h-24 flex flex-col justify-center items-center
-                    ${selectedFoods.find(f => f.item === food.item) ? 'ring-2 ring-teal-500 bg-teal-50' : ''}
-                    ${selectedFoods.length >= 3 && !selectedFoods.find(f => f.item === food.item) ? 'opacity-50 cursor-not-allowed' : ''}
+                    ${selectedItems.find(f => f.item === food.item) ? 'ring-2 ring-teal-500 bg-teal-50' : ''}
+                    ${selectedItems.length >= 3 && !selectedItems.find(f => f.item === food.item) ? 'opacity-50 cursor-not-allowed' : ''}
                   `}
                 >
                   <FoodImage 

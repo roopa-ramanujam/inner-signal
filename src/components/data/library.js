@@ -1,5 +1,5 @@
 // Sample food data
-export const foodLibrary = [
+export const itemLibrary = [
   {
     item: "Artichoke",
     category: "vegetable",
@@ -149,7 +149,7 @@ export const foodLibrary = [
     category: "meat",
     serving_size: "4 oz grilled",
     glucose_change: 12,
-    educational_text: "Very lean buffalo meat may cause a moderate glucose rise in diabetes as protein converts to glucose over several hours.",
+    educational_text: "Very lean buffalo meat may cause a moderate glucose rise as protein converts to glucose over several hours.",
     image: "/images/foods/buffalo.jpg",
     fallbackIcon: "🦬"
   },
@@ -1058,7 +1058,7 @@ export const foodLibrary = [
     category: "meat",
     serving_size: "4 oz roasted",
     glucose_change: 10,
-    educational_text: "Turkey protein can cause a delayed, mild glucose rise in diabetes as the body converts some protein to glucose over 3-5 hours.",
+    educational_text: "Turkey protein can cause a delayed, mild glucose rise as the body converts some protein to glucose over 3-5 hours.",
     image: "/images/foods/turkey.jpg",
     fallbackIcon: "🦃"
   },

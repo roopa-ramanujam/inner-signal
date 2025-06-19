@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { ChevronDown, Settings } from 'lucide-react';
-import { grainData } from './data/foodData';
+import { grainData } from './data/library';
 
 const GlycemicIndexLearning = ({ onNavigate }) => {
   const [selectedGrain, setSelectedGrain] = useState(0);
