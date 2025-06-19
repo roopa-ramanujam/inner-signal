@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine } from 'recharts';
-import { Search, Settings, RotateCcw, ChevronDown } from 'lucide-react';
+import { Search, Settings, RotateCcw, ChevronDown, X} from 'lucide-react';
 import { itemLibrary } from './data/library';
 import FoodImage from './FoodImage';
+import ChartCard from './ChartCard';
 
 const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const [selectedItems, setSelectedItems] = useState([]);
@@ -259,6 +260,11 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     setClickedItem(null); // Clear clicked food on reset
   };
 
+  // Clear search function
+  const clearSearch = () => {
+    setSearchTerm('');
+  };
+
   // Slider handlers
   const handleSliderStart = (e, food) => {
     e.preventDefault();
@@ -379,10 +385,10 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   };
 
   return (
-    <>
+    <div className="bg-[#E7EEEB] min-h-screen">
       {/* Header */}
       {!isFullScreen && (
-        <div className="bg-gray-50 p-4 flex items-center justify-between border-b">
+        <div className="bg-[#E7EEEB] p-4 flex items-center justify-between border-b">
           <div className="flex items-center space-x-2">
             <button 
               onClick={() => onNavigate('blood-sugar')}
@@ -398,7 +404,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
 
       {/* Educational Text */}
       {!isFullScreen && (
-        <div className="bg-gray-50 p-4 text-center">
+        <div className="bg-[#E7EEEB] p-4 text-center">
           <p className="text-gray-700 text-md font-semibold leading-relaxed">
             {getEducationalText()}
           </p>
@@ -407,7 +413,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
 
       {/* Chart */}
       {!isFullScreen && (
-        <div className="bg-gray-50 relative" style={{ marginBottom: `${bottomSheetHeight}px` }}>
+        <div className="bg-[#E7EEEB] relative" style={{ marginBottom: `${bottomSheetHeight}px` }}>
           <div className="bg-white p-4 h-64 relative" ref={chartRef} style={{ marginBottom: `${10}px` }}>
             {selectedItems.length > 0 && (
               <button 
@@ -573,6 +579,14 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-12 pr-4 py-3 border-0 bg-gray-100 rounded-3xl text-lg"
             />
+            {searchTerm && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
           </div>
           
           <div className="text-center mb-4">
@@ -606,7 +620,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
