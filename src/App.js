@@ -34,7 +34,7 @@ const App = () => {
               className={`
                 w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors
                 ${currentPage === item.id ? 'bg-teal-50 text-teal-600 font-medium' : 'text-gray-700'}
-                ${item.id !== 'blood-sugar' && item.id !== 'glycemic-index' ? 'opacity-50 cursor-not-allowed' : ''}
+                ${item.id !== 'blood-sugar' && item.id !== 'glycemic-index' && item.id !== 'insulin-index' ? 'opacity-50 cursor-not-allowed' : ''}
                 first:rounded-t-lg last:rounded-b-lg
               `}
             >
@@ -50,6 +50,7 @@ const App = () => {
       {/* Render Current Page */}
       {currentPage === 'blood-sugar' && <GlucoseTracker onNavigate={handleNavigate}/>}
       {currentPage === 'glycemic-index' && <GlycemicIndexLearning onNavigate={handleNavigate} />}
+      {currentPage === 'insulin-dosing' && <InsulinDosing onNavigate={handleNavigate} />}
     </div>
   );
 };
