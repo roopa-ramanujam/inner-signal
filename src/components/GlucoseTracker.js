@@ -16,14 +16,14 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const chartRef = useRef(null);
   
   // Bottom sheet states
-  const [bottomSheetHeight, setBottomSheetHeight] = useState(350);
+  const [bottomSheetHeight, setBottomSheetHeight] = useState(250);
   const [isDraggingSheet, setIsDraggingSheet] = useState(false);
   const [startY, setStartY] = useState(0);
   const [startHeight, setStartHeight] = useState(0);
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const bottomSheetRef = useRef(null);
   
-  const COLLAPSED_HEIGHT = 300;
+  const COLLAPSED_HEIGHT = 200;
   const EXPANDED_HEIGHT = 500;
   const FULL_SCREEN_HEIGHT = windowHeight;
 
@@ -590,7 +590,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
               placeholder="Search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border-0 bg-gray-100 rounded-3xl text-lg"
+              className="w-full pl-12 pr-4 py-3 border-0 bg-gray-100 rounded-3xl text-lg focus:outline-none"
             />
             {searchTerm && (
               <button
