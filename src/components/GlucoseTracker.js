@@ -610,7 +610,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
 
           <div className="flex-1 overflow-y-auto food-grid">
             <div className={`grid gap-4 pb-6 grid-cols-3 justify-items-center pt-4`}>
-              {filteredItems.slice(0, isFullScreen ? 50 : 30).map((food, index) => (
+              {filteredItems.slice(0, itemLibrary.length).map((food, index) => (
                 <button
                   key={index}
                   onClick={() => handleFoodSelect(food)}
