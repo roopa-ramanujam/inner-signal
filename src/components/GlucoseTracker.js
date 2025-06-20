@@ -1,31 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Search, Settings, RotateCcw, ChevronDown, X} from 'lucide-react';
-
-// Mock data since we don't have the actual imports
-const itemLibrary = [
-  { item: 'Apple', category: 'fruit', glucose_change: 30, educational_text: 'Apples contain natural sugars that cause a moderate glucose rise.' },
-  { item: 'Bread', category: 'grain', glucose_change: 50, educational_text: 'Bread is high in carbohydrates and causes a significant glucose spike.' },
-  { item: 'Chicken', category: 'protein', glucose_change: 5, educational_text: 'Chicken is pure protein and has minimal impact on blood glucose.' },
-  { item: 'Rice', category: 'grain', glucose_change: 45, educational_text: 'Rice is a high-glycemic carbohydrate that rapidly raises blood sugar.' },
-  { item: 'Broccoli', category: 'vegetable', glucose_change: 10, educational_text: 'Vegetables like broccoli have minimal impact on glucose levels.' },
-  { item: 'Pasta', category: 'grain', glucose_change: 40, educational_text: 'Pasta is a moderate-glycemic carbohydrate.' }
-];
-
-const FoodImage = ({ food, size, className }) => {
-  const emoji = {
-    'Apple': '🍎', 'Bread': '🍞', 'Chicken': '🍗', 
-    'Rice': '🍚', 'Broccoli': '🥦', 'Pasta': '🍝'
-  };
-  
-  return (
-    <div className={className}>
-      <span style={{ fontSize: size === 'slider' ? '20px' : '24px' }}>
-        {emoji[food.item] || '🍽️'}
-      </span>
-    </div>
-  );
-};
+import { itemLibrary } from './data/library';
+import FoodImage from './FoodImage';
 
 const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const [selectedItems, setSelectedItems] = useState([]);
