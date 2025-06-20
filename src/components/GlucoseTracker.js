@@ -3,6 +3,29 @@ import { Search, Settings, RotateCcw, ChevronDown, X} from 'lucide-react';
 import { itemLibrary } from './data/library';
 import ItemImage from './ItemImage';
 
+// Calculate heights based on screen size
+const getBottomSheetHeights = (screenHeight) => {
+  if (screenHeight <= 600) {
+    // Small screens (older phones)
+    return {
+      COLLAPSED_HEIGHT: Math.max(180, screenHeight * 0.25), // 30% of screen or minimum 180px
+      EXPANDED_HEIGHT: Math.max(400, screenHeight * 0.55),  // 60% of screen or minimum 400px
+    };
+  } else if (screenHeight <= 800) {
+    // Medium screens (most phones)
+    return {
+      COLLAPSED_HEIGHT: Math.max(225, screenHeight * 0.28), // 28% of screen or minimum 225px
+      EXPANDED_HEIGHT: Math.max(500, screenHeight * 0.6),   // 60% of screen or minimum 500px
+    };
+  } else {
+    // Large screens (tablets, large phones)
+    return {
+      COLLAPSED_HEIGHT: Math.max(280, screenHeight * 0.25), // 25% of screen or minimum 280px
+      EXPANDED_HEIGHT: Math.max(600, screenHeight * 0.55),  // 55% of screen or minimum 600px
+    };
+  }
+};
+
 const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -15,16 +38,18 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const chartRef = useRef(null);
   
   // Bottom sheet states
-  const [bottomSheetHeight, setBottomSheetHeight] = useState(225);
   const [isDraggingSheet, setIsDraggingSheet] = useState(false);
   const [startY, setStartY] = useState(0);
   const [startHeight, setStartHeight] = useState(0);
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const bottomSheetRef = useRef(null);
-  
-  const COLLAPSED_HEIGHT = 225;
-  const EXPANDED_HEIGHT = 500;
+
+  // Calculate heights based on current window height
+  const { COLLAPSED_HEIGHT, EXPANDED_HEIGHT } = getBottomSheetHeights(windowHeight);
   const FULL_SCREEN_HEIGHT = windowHeight;
+
+  // Initialize bottomSheetHeight with the calculated COLLAPSED_HEIGHT
+  const [bottomSheetHeight, setBottomSheetHeight] = useState(COLLAPSED_HEIGHT);
 
   document.body.style.overflow='hidden';
 
