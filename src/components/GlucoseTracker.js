@@ -498,7 +498,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
                     fill="none"
                     stroke={segment.color}
                     strokeWidth="3"
-                    strokeDasharray="8 4"
+                    strokeDasharray="4 4"
                   />
                 ))}
                 
@@ -538,7 +538,6 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
                       y2={chartHeight + 40}
                       stroke="#0891b2"
                       strokeWidth="2"
-                      strokeDasharray="5 5"
                     />
                   );
                 })}
