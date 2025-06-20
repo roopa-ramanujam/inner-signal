@@ -6,22 +6,19 @@ import ItemImage from './ItemImage';
 // Calculate heights based on screen size
 const getBottomSheetHeights = (screenHeight) => {
   if (screenHeight <= 600) {
-    // Small screens (older phones)
     return {
-      COLLAPSED_HEIGHT: Math.max(180, screenHeight * 0.25), // 30% of screen or minimum 180px
-      EXPANDED_HEIGHT: Math.max(400, screenHeight * 0.55),  // 60% of screen or minimum 400px
+      COLLAPSED_HEIGHT: Math.max(180, screenHeight * 0.25),
+      EXPANDED_HEIGHT: Math.max(400, screenHeight * 0.55),
     };
   } else if (screenHeight <= 800) {
-    // Medium screens (most phones)
     return {
-      COLLAPSED_HEIGHT: Math.max(225, screenHeight * 0.28), // 28% of screen or minimum 225px
-      EXPANDED_HEIGHT: Math.max(500, screenHeight * 0.6),   // 60% of screen or minimum 500px
+      COLLAPSED_HEIGHT: Math.max(225, screenHeight * 0.28),
+      EXPANDED_HEIGHT: Math.max(500, screenHeight * 0.6),
     };
   } else {
-    // Large screens (tablets, large phones)
     return {
-      COLLAPSED_HEIGHT: Math.max(280, screenHeight * 0.25), // 25% of screen or minimum 280px
-      EXPANDED_HEIGHT: Math.max(600, screenHeight * 0.55),  // 55% of screen or minimum 600px
+      COLLAPSED_HEIGHT: Math.max(280, screenHeight * 0.25),
+      EXPANDED_HEIGHT: Math.max(600, screenHeight * 0.55),
     };
   }
 };
@@ -36,12 +33,57 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const [clickedItem, setClickedItem] = useState(null);
   const [lastSelectedFood, setLastSelectedFood] = useState(null);
   const chartRef = useRef(null);
+
+  const [windowHeight, setWindowHeight] = useState(() => {
+    // Get the actual viewport height accounting for mobile URL bars
+    return window.visualViewport?.height || window.innerHeight;
+  });
+
+  // Function to get real viewport height
+  const getRealViewportHeight = () => {
+    // Use visualViewport if available (better for mobile)
+    if (window.visualViewport) {
+      return window.visualViewport.height;
+    }
+    
+    // Fallback for older browsers
+    return window.innerHeight;
+  };
+
+  // Set CSS custom property for viewport height
+  useEffect(() => {
+    const setViewportHeight = () => {
+      const vh = getRealViewportHeight();
+      setWindowHeight(vh);
+      // Set CSS custom property that you can use in your styles
+      document.documentElement.style.setProperty('--vh', `${vh * 0.01}px`);
+    };
+
+    // Set initial value
+    setViewportHeight();
+
+    // Listen for viewport changes (better than just resize)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', setViewportHeight);
+    } else {
+      window.addEventListener('resize', setViewportHeight);
+      window.addEventListener('orientationchange', setViewportHeight);
+    }
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', setViewportHeight);
+      } else {
+        window.removeEventListener('resize', setViewportHeight);
+        window.removeEventListener('orientationchange', setViewportHeight);
+      }
+    };
+  }, []);
   
   // Bottom sheet states
   const [isDraggingSheet, setIsDraggingSheet] = useState(false);
   const [startY, setStartY] = useState(0);
   const [startHeight, setStartHeight] = useState(0);
-  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const bottomSheetRef = useRef(null);
 
   // Calculate heights based on current window height

@@ -4,6 +4,7 @@ import { learningModules } from './data/learningModules';
 import ItemImage from './ItemImage';
 
 const GlycemicIndexLearning = ({ onNavigate }) => {
+  document.body.style.overflow='auto';
   const [selectedCategory, setSelectedCategory] = useState(0);
   const [selectedItem, setSelectedItem] = useState(0);
   const [glucoseData, setGlucoseData] = useState([]);
@@ -187,7 +188,7 @@ const GlycemicIndexLearning = ({ onNavigate }) => {
 
       {/* Category Navigation */}
       <div className="bg-[#E7EEEB] p-4">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-2">
           <button
             onClick={() => handleCategoryChange('prev')}
             disabled={selectedCategory === 0}
@@ -228,7 +229,7 @@ const GlycemicIndexLearning = ({ onNavigate }) => {
 
         <div className="text-center mt-4">
           <p className="text-gray-700 text-sm leading-relaxed">
-            Tap through each {currentModule.name.toLowerCase()} option to learn about its glucose impact.
+            Tap through each option to learn about its glucose impact.
           </p>
         </div>
       </div>
