@@ -15,7 +15,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const chartRef = useRef(null);
   
   // Bottom sheet states
-  const [bottomSheetHeight, setBottomSheetHeight] = useState(275);
+  const [bottomSheetHeight, setBottomSheetHeight] = useState(225);
   const [isDraggingSheet, setIsDraggingSheet] = useState(false);
   const [startY, setStartY] = useState(0);
   const [startHeight, setStartHeight] = useState(0);
@@ -26,8 +26,10 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const EXPANDED_HEIGHT = 500;
   const FULL_SCREEN_HEIGHT = windowHeight;
 
+  document.body.style.overflow='hidden';
+
   // Chart dimensions
-  const chartHeight = 275; // 30% less than 300
+  const chartHeight = 225; // 30% less than 300
   const chartWidth = 400;
   const yMin = 20;
   const yMax = 220;
