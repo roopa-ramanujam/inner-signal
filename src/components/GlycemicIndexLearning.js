@@ -211,8 +211,8 @@ const GlycemicIndexLearning = ({ onNavigate }) => {
             {/* Custom SVG for everything - full control */}
             <svg className="w-full h-full">
               {/* Full-width reference lines */}
-              <line x1="0" x2="100%" y1={mapYValueToPixel(70)} y2={mapYValueToPixel(70)} stroke="#ef4444" strokeWidth="2" />
-              <line x1="0" x2="100%" y1={mapYValueToPixel(180)} y2={mapYValueToPixel(180)} stroke="#3b82f6" strokeWidth="2" />
+              <line x1="0" x2="100%" y1={mapYValueToPixel(70)} y2={mapYValueToPixel(70)} stroke="#FF7B7B" strokeWidth="2" />
+              <line x1="0" x2="100%" y1={mapYValueToPixel(180)} y2={mapYValueToPixel(180)} stroke="#B9BCF9" strokeWidth="2" />
               
               {/* Comparison lines for other grains (background) */}
               {grainData.map((grain, index) => {
@@ -261,6 +261,7 @@ const GlycemicIndexLearning = ({ onNavigate }) => {
           <span>2 PM</span>
           <span>3 PM</span>
           <span>4 PM</span>
+          <span>5 PM</span>
         </div>
       </div>
 
@@ -292,7 +293,7 @@ const GlycemicIndexLearning = ({ onNavigate }) => {
 
         {/* Description */}
         <div className="bg-[#D6E3E2] rounded-lg p-4 mb-6 text-center">
-          <p className="text-teal-600 text-sm font-medium">
+          <p className="text-teal-600 text-md font-medium">
             {currentGrain.description}
           </p>
         </div>
