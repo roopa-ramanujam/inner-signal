@@ -179,7 +179,7 @@ const GlycemicIndexLearning = ({ onNavigate }) => {
             onClick={() => onNavigate('glycemic-index')}
             className="border border-teal-500 text-teal-600 px-3 py-1 rounded text-sm flex items-center space-x-1"
           >
-            <span>Food Learning</span>
+            <span>Glycemic Index</span>
             <ChevronDown className="w-4 h-4" />
           </button>
         </div>
