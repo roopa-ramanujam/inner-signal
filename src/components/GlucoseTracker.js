@@ -16,7 +16,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const chartRef = useRef(null);
   
   // Bottom sheet states
-  const [bottomSheetHeight, setBottomSheetHeight] = useState(300);
+  const [bottomSheetHeight, setBottomSheetHeight] = useState(275);
   const [isDraggingSheet, setIsDraggingSheet] = useState(false);
   const [startY, setStartY] = useState(0);
   const [startHeight, setStartHeight] = useState(0);
@@ -28,7 +28,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const FULL_SCREEN_HEIGHT = windowHeight;
 
   // Chart dimensions
-  const chartHeight = 300; // 30% less than 300
+  const chartHeight = 275; // 30% less than 300
   const chartWidth = 400;
   const yMin = 20;
   const yMax = 220;
@@ -621,7 +621,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
             )}
           </div>
           
-          <div className="text-center mb-4">
+          <div className="text-center mb-2">
             <div className="text-teal-600 text-lg font-medium">
               {selectedItems.length} selected
             </div>
