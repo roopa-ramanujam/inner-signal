@@ -35,7 +35,7 @@ export const learningModules = [
           name: 'White Rice',
           fallbackIcon: '🍚',
           peakTime: 0.75,
-          peakValue: 180,
+          peakValue: 190,
           description: 'White rice has a high glycemic index, causing rapid blood sugar spikes.'
         },
         {
@@ -43,7 +43,7 @@ export const learningModules = [
           name: 'Brown Rice',
           fallbackIcon: '🍙',
           peakTime: 1.0,
-          peakValue: 150,
+          peakValue: 160,
           description: 'Brown rice has more fiber, leading to a slower, more moderate glucose response.'
         },
         {
