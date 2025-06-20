@@ -60,6 +60,15 @@ Remember: Use quotes around text, numbers without quotes, and don't forget the c
 
 export const itemLibrary = [
   {
+    item: "Apple",
+    category: "fruit", 
+    serving_size: "1 medium",
+    glucose_change: 25,
+    educational_text: "Apples have fructose and fiber which helps offset the blood sugar increase.",
+    image: "/images/foods/filename.jpg",
+    fallbackIcon: "🍎"
+  },
+  {
     item: "Walking",
     category: "exercise",
     serving_size: "30 minutes",
