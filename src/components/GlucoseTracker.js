@@ -434,7 +434,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
             {selectedItems.length > 0 && (
               <button 
                 onClick={resetSelection}
-                className="absolute top-4 right-4 z-20 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors"
+                className="absolute top-4 right-4 z-20 bg-[#E7EEEB] hover:bg-gray-200 rounded-full p-2 transition-colors"
               >
                 <RotateCcw className="w-4 h-4 text-gray-600" />
               </button>
