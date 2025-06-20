@@ -8,7 +8,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [glucoseData, setGlucoseData] = useState([]);
-  const [baselineGlucose] = useState(100);
+  const [baselineGlucose] = useState(120);
   const [itemTimings, setItemTimings] = useState({});
   const [draggedItem, setDraggedItem] = useState(null);
   const [clickedItem, setClickedItem] = useState(null);
@@ -152,6 +152,53 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     const upperGlucose = glucoseData[upperIndex]?.glucose || baselineGlucose;
     
     return lowerGlucose + (upperGlucose - lowerGlucose) * fraction;
+  };
+
+  // Function to generate line segments with appropriate colors
+  const generateLineSegments = () => {
+    if (glucoseData.length < 2) return [];
+    
+    const segments = [];
+    let currentSegment = [];
+    let currentColor = null;
+    
+    for (let i = 0; i < glucoseData.length; i++) {
+      const point = glucoseData[i];
+      const x = (i / (glucoseData.length - 1)) * chartWidth;
+      const y = mapYValueToPixel(point.glucose);
+      
+      // Determine color based on glucose value
+      const isOutOfRange = point.glucose > 180 || point.glucose < 70;
+      const segmentColor = isOutOfRange ? '#FF7B7B' : '#629C47'; // red for out of range, green for normal
+      
+      // If color changes or this is the first point, handle segment transition
+      if (currentColor !== segmentColor) {
+        // If we have a current segment, close it
+        if (currentSegment.length > 0) {
+          segments.push({
+            points: [...currentSegment, `${x},${y}`], // Add current point to close the segment
+            color: currentColor
+          });
+        }
+        
+        // Start new segment
+        currentSegment = [`${x},${y}`];
+        currentColor = segmentColor;
+      } else {
+        // Continue current segment
+        currentSegment.push(`${x},${y}`);
+      }
+      
+      // If this is the last point, close the segment
+      if (i === glucoseData.length - 1 && currentSegment.length > 0) {
+        segments.push({
+          points: currentSegment,
+          color: currentColor
+        });
+      }
+    }
+    
+    return segments;
   };
 
   // Bottom sheet handlers
@@ -413,12 +460,6 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
               </div>
               <div 
                 className="absolute transform -translate-y-1/2" 
-                style={{ top: `${mapYValueToPixel(120)}px` }}
-              >
-                120
-              </div>
-              <div 
-                className="absolute transform -translate-y-1/2" 
                 style={{ top: `${mapYValueToPixel(70)}px` }}
               >
                 70
@@ -446,40 +487,40 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
               {/* Custom SVG for everything - full control */}
               <svg className="w-full h-full">
                 {/* Full-width reference lines */}
-                <line x1="0" x2="100%" y1={mapYValueToPixel(70)} y2={mapYValueToPixel(70)} stroke="#ef4444" strokeWidth="2" />
-                <line x1="0" x2="100%" y1={mapYValueToPixel(180)} y2={mapYValueToPixel(180)} stroke="#3b82f6" strokeWidth="2" />
-                <line x1="0" x2="100%" y1={mapYValueToPixel(120)} y2={mapYValueToPixel(120)} stroke="#22c55e" strokeWidth="2" strokeDasharray="4 4" />
+                <line x1="0" x2="100%" y1={mapYValueToPixel(70)} y2={mapYValueToPixel(70)} stroke="#FF7B7B" strokeWidth="2" />
+                <line x1="0" x2="100%" y1={mapYValueToPixel(180)} y2={mapYValueToPixel(180)} stroke="#B9BCF9" strokeWidth="2" />
                 
-                {/* Full-width glucose line */}
-                {glucoseData.length > 1 && (
+                {/* Glucose line segments with appropriate colors */}
+                {generateLineSegments().map((segment, index) => (
                   <polyline
-                    points={glucoseData.map((point, index) => {
-                      const x = (index / (glucoseData.length - 1)) * chartWidth;
-                      const y = mapYValueToPixel(point.glucose);
-                      return `${x},${y}`;
-                    }).join(' ')}
+                    key={`segment-${index}`}
+                    points={segment.points.join(' ')}
                     fill="none"
-                    stroke="#0891b2"
+                    stroke={segment.color}
                     strokeWidth="3"
+                    strokeDasharray="8 4"
                   />
-                )}
+                ))}
                 
-                {/* Glucose data points */}
-                {glucoseData.map((point, index) => {
+                {/* Glucose data points with color based on range - commented out to remove dots */}
+                {/* {glucoseData.map((point, index) => {
                   const x = (index / (glucoseData.length - 1)) * chartWidth;
                   const y = mapYValueToPixel(point.glucose);
+                  const isOutOfRange = point.glucose > 180 || point.glucose < 70;
+                  const pointColor = isOutOfRange ? '#ef4444' : '#22c55e';
+                  
                   return (
                     <circle
                       key={index}
                       cx={x}
                       cy={y}
                       r="2"
-                      fill="#0891b2"
-                      stroke="#0891b2"
+                      fill={pointColor}
+                      stroke={pointColor}
                       strokeWidth="2"
                     />
                   );
-                })}
+                })} */}
 
                 {/* Connection lines from food icons to glucose curve */}
                 {selectedItems.map((food) => {
