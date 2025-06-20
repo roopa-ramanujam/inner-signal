@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Settings } from 'lucide-react';
-import { grainData } from './data/library';
+import { ChevronDown, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import { learningModules } from './data/learningModules';
+import ItemImage from './ItemImage';
 
 const GlycemicIndexLearning = ({ onNavigate }) => {
-  const [selectedGrain, setSelectedGrain] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState(0);
+  const [selectedItem, setSelectedItem] = useState(0);
   const [glucoseData, setGlucoseData] = useState([]);
   const baselineGlucose = 120;
 
@@ -12,6 +14,9 @@ const GlycemicIndexLearning = ({ onNavigate }) => {
   const chartWidth = 400;
   const yMin = 20;
   const yMax = 220;
+
+  const currentModule = learningModules[selectedCategory];
+  const currentCategoryData = currentModule.data;
 
   // Utility function
   const mapYValueToPixel = (yValue) => {
@@ -33,27 +38,21 @@ const GlycemicIndexLearning = ({ onNavigate }) => {
       
       // Determine color based on glucose value
       const isOutOfRange = point.glucose > 180 || point.glucose < 70;
-      const segmentColor = isOutOfRange ? '#ef4444' : '#22c55e'; // red for out of range, green for normal
+      const segmentColor = isOutOfRange ? '#ef4444' : '#22c55e';
       
-      // If color changes or this is the first point, handle segment transition
       if (currentColor !== segmentColor) {
-        // If we have a current segment, close it
         if (currentSegment.length > 0) {
           segments.push({
-            points: [...currentSegment, `${x},${y}`], // Add current point to close the segment
+            points: [...currentSegment, `${x},${y}`],
             color: currentColor
           });
         }
-        
-        // Start new segment
         currentSegment = [`${x},${y}`];
         currentColor = segmentColor;
       } else {
-        // Continue current segment
         currentSegment.push(`${x},${y}`);
       }
       
-      // If this is the last point, close the segment
       if (i === data.length - 1 && currentSegment.length > 0) {
         segments.push({
           points: currentSegment,
@@ -65,8 +64,13 @@ const GlycemicIndexLearning = ({ onNavigate }) => {
     return segments;
   };
 
+  // Reset selectedItem when category changes
   useEffect(() => {
-    const grain = grainData[selectedGrain];
+    setSelectedItem(0);
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    const item = currentCategoryData[selectedItem];
     const times = [];
     const startHour = 12;
     const endHour = 16;
@@ -89,17 +93,17 @@ const GlycemicIndexLearning = ({ onNavigate }) => {
           const timeSinceEating = timeIndex - 0.5;
           let multiplier = 0;
           
-          if (timeSinceEating <= grain.peakTime) {
-            const progress = timeSinceEating / grain.peakTime;
+          if (timeSinceEating <= item.peakTime) {
+            const progress = timeSinceEating / item.peakTime;
             multiplier = Math.sin(progress * Math.PI / 2);
           } else {
-            const declineTime = timeSinceEating - grain.peakTime;
+            const declineTime = timeSinceEating - item.peakTime;
             const maxDeclineTime = 2.5;
             const declineProgress = Math.min(declineTime / maxDeclineTime, 1);
             multiplier = Math.cos(declineProgress * Math.PI / 2);
           }
           
-          const maxIncrease = grain.peakValue - baselineGlucose;
+          const maxIncrease = item.peakValue - baselineGlucose;
           glucoseValue = baselineGlucose + (maxIncrease * multiplier);
         }
         
@@ -112,22 +116,30 @@ const GlycemicIndexLearning = ({ onNavigate }) => {
     }
     
     setGlucoseData(times);
-  }, [selectedGrain]);
+  }, [selectedItem, selectedCategory, currentCategoryData]);
 
-  const handleGrainSelect = (index) => {
-    setSelectedGrain(index);
+  const handleItemSelect = (index) => {
+    setSelectedItem(index);
   };
 
   const handleNext = () => {
-    if (selectedGrain < grainData.length - 1) {
-      setSelectedGrain(selectedGrain + 1);
+    if (selectedItem < currentCategoryData.length - 1) {
+      setSelectedItem(selectedItem + 1);
     }
   };
 
-  const currentGrain = grainData[selectedGrain];
+  const currentItem = currentCategoryData[selectedItem];
 
-  // Generate comparison data for other grains
-  const getComparisonData = (grain) => {
+  const handleCategoryChange = (direction) => {
+    if (direction === 'prev' && selectedCategory > 0) {
+      setSelectedCategory(selectedCategory - 1);
+    } else if (direction === 'next' && selectedCategory < learningModules.length - 1) {
+      setSelectedCategory(selectedCategory + 1);
+    }
+  };
+
+  // Generate comparison data for other items
+  const getComparisonData = (item) => {
     return glucoseData.map((point) => {
       const timeIndex = point.timeIndex;
       let glucoseValue = baselineGlucose;
@@ -136,17 +148,17 @@ const GlycemicIndexLearning = ({ onNavigate }) => {
         const timeSinceEating = timeIndex - 0.5;
         let multiplier = 0;
         
-        if (timeSinceEating <= grain.peakTime) {
-          const progress = timeSinceEating / grain.peakTime;
+        if (timeSinceEating <= item.peakTime) {
+          const progress = timeSinceEating / item.peakTime;
           multiplier = Math.sin(progress * Math.PI / 2);
         } else {
-          const declineTime = timeSinceEating - grain.peakTime;
+          const declineTime = timeSinceEating - item.peakTime;
           const maxDeclineTime = 2.5;
           const declineProgress = Math.min(declineTime / maxDeclineTime, 1);
           multiplier = Math.cos(declineProgress * Math.PI / 2);
         }
         
-        const maxIncrease = grain.peakValue - baselineGlucose;
+        const maxIncrease = item.peakValue - baselineGlucose;
         glucoseValue = baselineGlucose + (maxIncrease * multiplier);
       }
       
@@ -160,29 +172,70 @@ const GlycemicIndexLearning = ({ onNavigate }) => {
   return (
     <div className="bg-[#E7EEEB] min-h-screen">
       {/* Header */}
-      <div className="bg-[#E7EEEB] p-4 flex items-center justify-between">
+      <div className="bg-[#E7EEEB] p-4 flex items-center justify-between border-b">
         <div className="flex items-center space-x-2">
           <button 
             onClick={() => onNavigate('glycemic-index')}
             className="border border-teal-500 text-teal-600 px-3 py-1 rounded text-sm flex items-center space-x-1"
           >
-            <span>Glycemic Index</span>
+            <span>Food Learning</span>
             <ChevronDown className="w-4 h-4" />
           </button>
         </div>
         <Settings className="w-5 h-5 text-gray-600" />
       </div>
 
-      {/* Educational Text */}
-      <div className="bg-[#E7EEEB] p-4 text-center">
-        <p className="text-gray-700 text-md font-semibold leading-relaxed">
-          Tap through each grain option to learn about its glycemic index.
-        </p>
+      {/* Category Navigation */}
+      <div className="bg-[#E7EEEB] p-4">
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={() => handleCategoryChange('prev')}
+            disabled={selectedCategory === 0}
+            className={`p-2 rounded-lg ${selectedCategory === 0 ? 'text-gray-300' : 'text-teal-600 hover:bg-gray-200'}`}
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          
+          <div className="text-center">
+            <div className="text-3xl mb-1">{currentModule.icon}</div>
+            <h2 className="text-lg font-semibold text-gray-800">{currentModule.name}</h2>
+            <p className="text-sm text-gray-600">
+              {selectedCategory + 1} of {learningModules.length}
+            </p>
+          </div>
+          
+          <button
+            onClick={() => handleCategoryChange('next')}
+            disabled={selectedCategory === learningModules.length - 1}
+            className={`p-2 rounded-lg ${selectedCategory === learningModules.length - 1 ? 'text-gray-300' : 'text-teal-600 hover:bg-gray-200'}`}
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Category Indicator Dots */}
+        <div className="flex justify-center space-x-2">
+          {learningModules.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setSelectedCategory(index)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                index === selectedCategory ? 'bg-teal-600' : 'bg-gray-300'
+              }`}
+            />
+          ))}
+        </div>
+
+        <div className="text-center mt-4">
+          <p className="text-gray-700 text-sm leading-relaxed">
+            Tap through each {currentModule.name.toLowerCase()} option to learn about its glucose impact.
+          </p>
+        </div>
       </div>
 
       {/* Chart */}
       <div className="bg-[#E7EEEB] relative" style={{ marginBottom: '20px' }}>
-        {/* Y-axis Labels - positioned at exact reference line positions */}
+        {/* Y-axis Labels */}
         <div className="absolute top-5 text-xs text-gray-400" style={{ height: chartHeight }}>
           <div 
             className="absolute transform -translate-y-1/2" 
@@ -205,25 +258,22 @@ const GlycemicIndexLearning = ({ onNavigate }) => {
         </div>
         
         <div className="bg-white mx-6 rounded-xl relative overflow-hidden" style={{ height: `${chartHeight}px` }}>
-          {/* Chart area - full width clean chart */}
           <div className="chart-area relative" style={{ height: chartHeight, width: chartWidth, margin: '20px auto' }}>
-            
-            {/* Custom SVG for everything - full control */}
             <svg className="w-full h-full">
-              {/* Full-width reference lines */}
+              {/* Reference lines */}
               <line x1="0" x2="100%" y1={mapYValueToPixel(70)} y2={mapYValueToPixel(70)} stroke="#FF7B7B" strokeWidth="2" />
               <line x1="0" x2="100%" y1={mapYValueToPixel(180)} y2={mapYValueToPixel(180)} stroke="#B9BCF9" strokeWidth="2" />
               
-              {/* Comparison lines for other grains (background) */}
-              {grainData.map((grain, index) => {
-                if (index === selectedGrain) return null;
+              {/* Comparison lines for other items in current category */}
+              {currentCategoryData.map((item, index) => {
+                if (index === selectedItem) return null;
                 
-                const comparisonData = getComparisonData(grain);
+                const comparisonData = getComparisonData(item);
                 
                 if (comparisonData.length > 1) {
                   return (
                     <polyline
-                      key={`comparison-${grain.id}`}
+                      key={`comparison-${item.id}`}
                       points={comparisonData.map((point, i) => {
                         const x = (i / (comparisonData.length - 1)) * chartWidth;
                         const y = mapYValueToPixel(point.glucose);
@@ -239,7 +289,7 @@ const GlycemicIndexLearning = ({ onNavigate }) => {
                 return null;
               })}
               
-              {/* Main glucose line segments with appropriate colors */}
+              {/* Main glucose line segments */}
               {generateLineSegments(glucoseData).map((segment, index) => (
                 <polyline
                   key={`segment-${index}`}
@@ -254,7 +304,7 @@ const GlycemicIndexLearning = ({ onNavigate }) => {
           </div>
         </div>
         
-        {/* X-axis Labels - outside the chart */}
+        {/* X-axis Labels */}
         <div className="absolute left-1/2 transform -translate-x-1/2 flex justify-between text-xs text-gray-400" style={{ width: chartWidth }}>
           <span>12 PM</span>
           <span>1 PM</span>
@@ -265,26 +315,31 @@ const GlycemicIndexLearning = ({ onNavigate }) => {
         </div>
       </div>
 
-      {/* Grain Selection Buttons */}
+      {/* Item Selection Buttons */}
       <div className="px-4 py-6">
         <div className="flex justify-center space-x-4 mb-6">
-          {grainData.map((grain, index) => (
+          {currentCategoryData.map((item, index) => (
             <button
-              key={grain.id}
-              onClick={() => handleGrainSelect(index)}
+              key={item.id}
+              onClick={() => handleItemSelect(index)}
               className={`
                 rounded-lg p-4 text-center transition-all relative
-                ${index === selectedGrain 
+                ${index === selectedItem 
                   ? 'bg-teal-600 text-white shadow-lg' 
                   : 'bg-white text-gray-700 shadow-sm hover:shadow-md'
                 }
               `}
               style={{ minWidth: '80px' }}
             >
-              <div className="text-2xl mb-2">{grain.icon}</div>
-              <div className="text-xs font-medium">{grain.name}</div>
+              <div className="mb-2 flex justify-center">
+                <ItemImage 
+                  item={item} 
+                  size="medium"
+                />
+              </div>
+              <div className="text-xs font-medium">{item.name}</div>
               
-              {index === selectedGrain && (
+              {index === selectedItem && (
                 <div className="absolute inset-0 border-2 border-teal-600 rounded-lg pointer-events-none" />
               )}
             </button>
@@ -293,8 +348,8 @@ const GlycemicIndexLearning = ({ onNavigate }) => {
 
         {/* Description */}
         <div className="bg-[#D6E3E2] rounded-lg p-4 mb-6 text-center">
-          <p className="text-teal-600 text-md font-medium">
-            {currentGrain.description}
+          <p className="text-teal-600 text-sm font-medium">
+            {currentItem.description}
           </p>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const FoodImage = ({ food, className = "", size = "medium" }) => {
+const ItemImage = ({ item, className = "", size = "medium" }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
 
@@ -24,10 +24,10 @@ const FoodImage = ({ food, className = "", size = "medium" }) => {
   const currentSizeClass = sizeClasses[size] || sizeClasses.medium;
 
   // If no image is provided or image failed to load, show fallback icon
-  if (!food.image || imageError) {
+  if (!item.image || imageError) {
     return (
       <div className={`${currentSizeClass} flex items-center justify-center ${className}`}>
-        <span>{food.fallbackIcon}</span>
+        <span>{item.fallbackIcon}</span>
       </div>
     );
   }
@@ -41,8 +41,8 @@ const FoodImage = ({ food, className = "", size = "medium" }) => {
       )}
       
       <img
-        src={food.image}
-        alt={food.item}
+        src={item.image}
+        alt={item.item}
         className={`w-full h-full object-cover transition-opacity duration-200 ${
           imageLoading ? 'opacity-0' : 'opacity-100'
         }`}
@@ -54,11 +54,11 @@ const FoodImage = ({ food, className = "", size = "medium" }) => {
       {/* Fallback overlay in case image doesn't load properly */}
       {imageError && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-          <span className="text-gray-600">{food.fallbackIcon}</span>
+          <span className="text-gray-600">{item.fallbackIcon}</span>
         </div>
       )}
     </div>
   );
 };
 
-export default FoodImage;
+export default ItemImage;

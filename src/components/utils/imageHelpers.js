@@ -15,12 +15,12 @@
   };
   
   /**
-   * Preloads food images to improve performance
-   * @param {Array} foodLibrary - Array of food items with image URLs
+   * Preloads item images to improve performance
+   * @param {Array} itemLibrary - Array of items with image URLs
    * @returns {Promise<Array>} - Promise that resolves when all images are checked
    */
-  export const preloadFoodImages = async (foodLibrary) => {
-    const imageChecks = foodLibrary.map(async (food) => {
+  export const preloadItemImages = async (foodLibrary) => {
+    const imageChecks = itemLibrary.map(async (food) => {
       if (food.image) {
         const exists = await checkImageExists(food.image);
         return { ...food, imageExists: exists };

@@ -1,4 +1,27 @@
-// Sample food data
+/*
+Add additional items for the itemLibrary in this format:
+e.g.
+{
+  // Category level
+  key: 'vegetables',                          // Lowercase, no spaces, if two words can use a dash like 'sweet-potatoes'
+  name: 'Vegetables',                         // Name of category
+  image: '/images/categories/vegetables.jpg', // Optional, image file must live in public/images/foods directory
+  fallbackIcon: '🥬',                         // Used in case of no image
+  data: [
+    {
+      // Item level  
+      id: 'artichoke',                        // Lowercase, no spaces, if two words can use a dash like 'sweet-potatoes'
+      item: 'Artichoke',                      // Used for alt text
+      name: 'Artichoke',                      // Display name
+      image: '/images/foods/artichoke.jpg',   // Optional, image file must live in public/images/foods directory
+      fallbackIcon: '🥬',                     // Used in case of no image
+      peakTime: 1.0,                          // How long (in hours) it takes for a food to reach its maximum blood glucose impact (ask AI)
+      peakValue: 135,                         // Peak glucose level of item (ask AI)
+      description: '...'                      // Educational text about the item
+    }
+  ]
+}
+*/
 export const itemLibrary = [
   {
     item: "Artichoke",
@@ -1181,39 +1204,6 @@ export const itemLibrary = [
   }
 ];
 
-// Grain data with glycemic index information
-export const grainData = [
-  {
-    id: 'white-rice',
-    name: 'White rice',
-    icon: '🍚',
-    glycemicIndex: 73,
-    peakTime: 2.5,
-    peakValue: 195,
-    description: 'White rice quickly spikes your blood sugar to over 200 mg/dL.',
-    curve: 'high'
-  },
-  {
-    id: 'brown-rice',
-    name: 'Brown rice',
-    icon: '🟤',
-    glycemicIndex: 68,
-    peakTime: 3,
-    peakValue: 175,
-    description: 'Brown rice causes a moderate spike, peaking around 175 mg/dL.',
-    curve: 'medium'
-  },
-  {
-    id: 'quinoa',
-    name: 'Quinoa',
-    icon: '🌾',
-    glycemicIndex: 53,
-    peakTime: 3.5,
-    peakValue: 155,
-    description: 'Quinoa has a lower glycemic impact with a gentler rise to 155 mg/dL.',
-    curve: 'low'
-  }
-];
 
 // Navigation menu items
 export const menuItems = [

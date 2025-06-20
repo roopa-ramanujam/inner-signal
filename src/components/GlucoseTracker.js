@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Search, Settings, RotateCcw, ChevronDown, X} from 'lucide-react';
 import { itemLibrary } from './data/library';
-import FoodImage from './FoodImage';
+import ItemImage from './ItemImage';
 
 const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const [selectedItems, setSelectedItems] = useState([]);
@@ -556,13 +555,13 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
             {/* Draggable Food Icons */}
             {selectedItems.length > 0 && (
               <div className="absolute left-1/2 transform -translate-x-1/2 pointer-events-none" style={{ width: chartWidth }}>
-                {selectedItems.map((food) => {
-                  const timePosition = itemTimings[food.item] || 0;
+                {selectedItems.map((menuItem) => {
+                  const timePosition = itemTimings[menuItem.item] || 0;
                   const x = timePosition * chartWidth;
                   
                   return (
                     <div
-                      key={`slider-${food.item}`}
+                      key={`slider-${menuItem.item}`}
                       className="absolute pointer-events-auto"
                       style={{
                         left: `${x - 24}px`,
@@ -572,25 +571,25 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
                       <div 
                         className={`
                           bg-teal-600 rounded-xl p-2 border-3 border-white cursor-grab touch-none
-                          ${draggedItem?.item === food.item ? 'cursor-grabbing scale-110' : ''}
-                          ${clickedItem?.item === food.item ? 'bg-gray-500' : ''}
+                          ${draggedItem?.item === menuItem.item ? 'cursor-grabbing scale-110' : ''}
+                          ${clickedItem?.item === menuItem.item ? 'bg-gray-500' : ''}
                           transition-all duration-150 hover:scale-105
                           drop-shadow-2xl shadow-2xl
                         `}
                         style={{ width: '48px', height: '48px' }}
-                        onMouseDown={(e) => handleSliderStart(e, food)}
-                        onTouchStart={(e) => handleSliderStart(e, food)}
-                        onClick={(e) => handleSliderClick(e, food)}
+                        onMouseDown={(e) => handleSliderStart(e, menuItem)}
+                        onTouchStart={(e) => handleSliderStart(e, menuItem)}
+                        onClick={(e) => handleSliderClick(e, menuItem)}
                       >
-                        <FoodImage 
-                          food={food} 
+                        <ItemImage 
+                          item={menuItem} 
                           size="slider" 
                           className="w-full h-full flex items-center justify-center text-white"
                         />
                       </div>
                       
                       <button 
-                        onClick={() => removeFood(food)}
+                        onClick={() => removeFood(menuItem)}
                         className="absolute -top-1 -right-1 bg-gray-300 text-gray-600 rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-gray-400 z-10 font-light"
                       >
                         ×
@@ -669,23 +668,23 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
 
           <div className="flex-1 overflow-y-auto food-grid">
             <div className={`grid gap-4 pb-6 grid-cols-3 justify-items-center pt-4`}>
-              {filteredItems.slice(0, itemLibrary.length).map((food, index) => (
+              {filteredItems.slice(0, itemLibrary.length).map((menuItem, index) => (
                 <button
                   key={index}
-                  onClick={() => handleFoodSelect(food)}
-                  disabled={selectedItems.length >= 3 && !selectedItems.find(f => f.item === food.item)}
+                  onClick={() => handleFoodSelect(menuItem)}
+                  disabled={selectedItems.length >= 3 && !selectedItems.find(f => f.item === menuItem.item)}
                   className={`
                     bg-gray-200 rounded-2xl p-4 shadow-sm text-center hover:shadow-md transition-all w-24 h-24 flex flex-col justify-center items-center
-                    ${selectedItems.find(f => f.item === food.item) ? 'ring-2 ring-teal-500 bg-teal-50' : ''}
-                    ${selectedItems.length >= 3 && !selectedItems.find(f => f.item === food.item) ? 'opacity-50 cursor-not-allowed' : ''}
+                    ${selectedItems.find(f => f.item === menuItem.item) ? 'ring-2 ring-teal-500 bg-teal-50' : ''}
+                    ${selectedItems.length >= 3 && !selectedItems.find(f => f.item === menuItem.item) ? 'opacity-50 cursor-not-allowed' : ''}
                   `}
                 >
-                  <FoodImage 
-                    food={food} 
+                  <ItemImage 
+                    item={menuItem} 
                     size="medium"
                     className="mx-auto mb-2"
                   />
-                  <p className="text-sm font-semibold text-gray-900">{food.item}</p>
+                  <p className="text-sm font-semibold text-gray-900">{menuItem.item}</p>
                 </button>
               ))}
             </div>

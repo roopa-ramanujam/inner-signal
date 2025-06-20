@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import GlucoseTracker from './components/GlucoseTracker';
 import GlycemicIndexLearning from './components/GlycemicIndexLearning';
 import { menuItems } from './components/data/library';
-import ChartCard from './components/ChartCard';
 
 const App = () => {
   const [currentPage, setCurrentPage] = useState('blood-sugar');
