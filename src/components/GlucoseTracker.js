@@ -39,6 +39,19 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     return window.visualViewport?.height || window.innerHeight;
   });
 
+  // 1. Add a function to control body scroll
+const setBodyScrolling = (enabled) => {
+  if (enabled) {
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.width = '';
+  } else {
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+  }
+};
+
   // Function to get real viewport height
   const getRealViewportHeight = () => {
     // Use visualViewport if available (better for mobile)
@@ -93,7 +106,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   // Initialize bottomSheetHeight with the calculated COLLAPSED_HEIGHT
   const [bottomSheetHeight, setBottomSheetHeight] = useState(COLLAPSED_HEIGHT);
 
-  document.body.style.overflow='hidden';
+  // document.body.style.overflow='hidden';
 
   // Chart dimensions
   const chartHeight = 225; // 30% less than 300
@@ -272,14 +285,21 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   // Bottom sheet handlers
   const handleSheetTouchStart = (e) => {
     if (e.target.closest('.food-grid')) return;
+    
     setIsDraggingSheet(true);
     setStartY(e.touches[0].clientY);
     setStartHeight(bottomSheetHeight);
+    
+    // Prevent body scrolling when starting to drag
+    setBodyScrolling(false);
   };
 
   const handleSheetTouchMove = (e) => {
     if (!isDraggingSheet) return;
+    
+    // Always prevent default when dragging
     e.preventDefault();
+    e.stopPropagation();
     
     const currentY = e.touches[0].clientY;
     const deltaY = startY - currentY;
@@ -290,7 +310,11 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
 
   const handleSheetTouchEnd = () => {
     if (!isDraggingSheet) return;
+    
     setIsDraggingSheet(false);
+    
+    // Re-enable body scrolling
+    setBodyScrolling(true);
     
     const collapsedToExpanded = (COLLAPSED_HEIGHT + EXPANDED_HEIGHT) / 2;
     const expandedToFullScreen = (EXPANDED_HEIGHT + FULL_SCREEN_HEIGHT) / 2;
@@ -309,9 +333,13 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
 
   const handleSheetMouseDown = (e) => {
     if (e.target.closest('.food-grid')) return;
+    
     setIsDraggingSheet(true);
     setStartY(e.clientY);
     setStartHeight(bottomSheetHeight);
+    
+    // Prevent body scrolling when starting to drag
+    setBodyScrolling(false);
   };
 
   const handleSheetMouseMove = (e) => {
@@ -326,7 +354,11 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
 
   const handleSheetMouseUp = () => {
     if (!isDraggingSheet) return;
+    
     setIsDraggingSheet(false);
+    
+    // Re-enable body scrolling
+    setBodyScrolling(true);
     
     const collapsedToExpanded = (COLLAPSED_HEIGHT + EXPANDED_HEIGHT) / 2;
     const expandedToFullScreen = (EXPANDED_HEIGHT + FULL_SCREEN_HEIGHT) / 2;
@@ -342,6 +374,13 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     
     setBottomSheetHeight(targetHeight);
   };
+
+  useEffect(() => {
+    // Cleanup function to restore scrolling if component unmounts during drag
+    return () => {
+      setBodyScrolling(true);
+    };
+  }, []);
 
   useEffect(() => {
     if (isDraggingSheet) {
@@ -682,7 +721,8 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
         `}
         style={{ 
           height: `${bottomSheetHeight}px`,
-          transform: isDraggingSheet ? 'none' : undefined
+          transform: isDraggingSheet ? 'none' : undefined,
+          touchAction: 'none' // Add this to prevent default touch behaviors
         }}
         onTouchStart={handleSheetTouchStart}
         onTouchMove={handleSheetTouchMove}  
@@ -704,11 +744,13 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
         )}
 
         {!isFullScreen && (
-          <div className="flex justify-center pt-3 pb-2">
+          <div 
+            className="flex justify-center pt-3 pb-2"
+            style={{ touchAction: 'none' }}
+          >
             <div className="w-10 h-1 bg-gray-300 rounded-full cursor-grab active:cursor-grabbing"></div>
           </div>
         )}
-
         <div className={`px-4 h-full overflow-hidden flex flex-col ${isFullScreen ? 'pt-0' : ''}`}>
           <div className="relative mb-4">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-teal-500 w-5 h-5" />
