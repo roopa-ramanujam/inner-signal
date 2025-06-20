@@ -16,14 +16,14 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const chartRef = useRef(null);
   
   // Bottom sheet states
-  const [bottomSheetHeight, setBottomSheetHeight] = useState(250);
+  const [bottomSheetHeight, setBottomSheetHeight] = useState(300);
   const [isDraggingSheet, setIsDraggingSheet] = useState(false);
   const [startY, setStartY] = useState(0);
   const [startHeight, setStartHeight] = useState(0);
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const bottomSheetRef = useRef(null);
   
-  const COLLAPSED_HEIGHT = 200;
+  const COLLAPSED_HEIGHT = 300;
   const EXPANDED_HEIGHT = 500;
   const FULL_SCREEN_HEIGHT = windowHeight;
 
@@ -42,6 +42,25 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Handle clicks outside bottom sheet
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (bottomSheetRef.current && !bottomSheetRef.current.contains(e.target)) {
+        if (bottomSheetHeight > COLLAPSED_HEIGHT) {
+          setBottomSheetHeight(COLLAPSED_HEIGHT);
+        }
+      }
+    };
+  
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+  
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [bottomSheetHeight, COLLAPSED_HEIGHT]);
 
   // Generate initial flat line data
   useEffect(() => {
