@@ -1,6 +1,8 @@
 # Inner Signal
 
-An interactive app for learning about what affects blood sugar and glucose, designed to help people with diabetes make informed dietary, lifestyle, and medication choices.
+An interactive web app for learning about what affects blood sugar and glucose, designed to help people with diabetes make informed dietary, lifestyle, and medication choices.
+
+Visit the app at https://inner-signal.vercel.app/ (works best on mobile, and if you add this page to your home screen.)
 
 ## Adding New Foods To The Menu for Interactive Graph
 
