@@ -1,28 +1,110 @@
 /*
-Add additional items for the itemLibrary in this format:
-e.g.
+Quick Template
+Copy this template and fill in your values:
 {
-  // Category level
-  key: 'vegetables',                          // Lowercase, no spaces, if two words can use a dash like 'sweet-potatoes'
-  name: 'Vegetables',                         // Name of category
-  image: '/images/categories/vegetables.jpg', // Optional, image file must live in public/images/foods directory
-  fallbackIcon: '🥬',                         // Used in case of no image
-  data: [
-    {
-      // Item level  
-      id: 'artichoke',                        // Lowercase, no spaces, if two words can use a dash like 'sweet-potatoes'
-      item: 'Artichoke',                      // Used for alt text
-      name: 'Artichoke',                      // Display name
-      image: '/images/foods/artichoke.jpg',   // Optional, image file must live in public/images/foods directory
-      fallbackIcon: '🥬',                     // Used in case of no image
-      peakTime: 1.0,                          // How long (in hours) it takes for a food to reach its maximum blood glucose impact (ask AI)
-      peakValue: 135,                         // Peak glucose level of item (ask AI)
-      description: '...'                      // Educational text about the item
-    }
-  ]
-}
+  item: "Item Name",
+  category: "item_type", 
+  serving_size: "1 medium",
+  glucose_change: 25,
+  educational_text: "Brief explanation of blood sugar impact.",
+  image: "/images/foods/filename.jpg", - REMEMBER TO UPLOAD THE IMAGE IN public/images/foods
+  fallbackIcon: "🍎"
+},
+
+Glucose Change Guidelines
+
+Vegetables/Proteins: 5-15 mg/dL
+Fruits/Nuts: 15-35 mg/dL
+Whole Grains/Dairy: 20-45 mg/dL
+Refined Carbs: 40-70 mg/dL
+Sweets: 50-80+ mg/dL
+Exercise: -20-50 mg/dL
+Insulin: 
+
+Example Entries
+
+// Low impact
+{
+  item: "Spinach",
+  category: "vegetable",
+  serving_size: "1 cup",
+  glucose_change: 6,
+  educational_text: "Leafy greens are very low in carbs and cause minimal blood sugar rise.",
+  image: "/images/foods/spinach.jpg",
+  fallbackIcon: "🥬"
+},
+
+// Medium impact  
+{
+  item: "Apple",
+  category: "fruit",
+  serving_size: "1 medium",
+  glucose_change: 25,
+  educational_text: "Apples contain natural sugars balanced with fiber for moderate glucose response.",
+  image: "/images/foods/apple.jpg",
+  fallbackIcon: "🍎"
+},
+
+// High impact
+{
+  item: "White Bread",
+  category: "grain", 
+  serving_size: "1 slice",
+  glucose_change: 55,
+  educational_text: "Refined bread digests quickly, causing rapid blood sugar spikes.",
+  image: "/images/foods/white_bread.jpg",
+  fallbackIcon: "🍞"
+},
+Remember: Use quotes around text, numbers without quotes, and don't forget the comma at the end!
 */
+
 export const itemLibrary = [
+  {
+    item: "Walking",
+    category: "exercise",
+    serving_size: "30 minutes",
+    glucose_change: -15,
+    educational_text: "Moderate exercise helps muscles use glucose, lowering blood sugar levels.",
+    image: "/images/exercise/walking.jpg",
+    fallbackIcon: "🚶‍♂️"
+  },
+  
+  {
+    item: "Running",
+    category: "exercise", 
+    serving_size: "20 minutes",
+    glucose_change: -25,
+    educational_text: "Vigorous cardio rapidly burns glucose, causing significant blood sugar reduction.",
+    image: "/images/exercise/running.jpg",
+    fallbackIcon: "🏃‍♂️"
+  },
+  {
+    item: "Weight Training",
+    category: "exercise",
+    serving_size: "45 minutes", 
+    glucose_change: -20,
+    educational_text: "Resistance exercise increases glucose uptake by muscles during and after workout.",
+    image: "/images/exercise/weights.jpg",
+    fallbackIcon: "🏋️‍♂️"
+  },
+  {
+    item: "Rapid-Acting Insulin",
+    category: "medication",
+    serving_size: "2 units",
+    glucose_change: -35,
+    educational_text: "Fast-acting insulin quickly lowers blood glucose within 15-30 minutes.",
+    image: "/images/medication/insulin_pen.jpg", 
+    fallbackIcon: "💉"
+  },
+  {
+    item: "Long-Acting Insulin",
+    category: "medication",
+    serving_size: "10 units",
+    glucose_change: -45,
+    educational_text: "Basal insulin provides steady glucose control over 12-24 hours.",
+    image: "/images/medication/insulin_vial.jpg",
+    fallbackIcon: "🩹"
+  },
   {
     item: "Artichoke",
     category: "vegetable",

@@ -554,51 +554,51 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
             </div>
             {/* Draggable Food Icons */}
             {selectedItems.length > 0 && (
-              <div className="absolute left-1/2 transform -translate-x-1/2 pointer-events-none" style={{ width: chartWidth }}>
-                {selectedItems.map((menuItem) => {
-                  const timePosition = itemTimings[menuItem.item] || 0;
-                  const x = timePosition * chartWidth;
-                  
-                  return (
-                    <div
-                      key={`slider-${menuItem.item}`}
-                      className="absolute pointer-events-auto"
-                      style={{
-                        left: `${x - 24}px`,
-                        bottom: '-60px'
-                      }}
+            <div className="absolute inset-0 pointer-events-none"> {/* Changed this line */}
+              {selectedItems.map((menuItem) => {
+                const timePosition = itemTimings[menuItem.item] || 0;
+                const x = timePosition * chartWidth;
+                
+                return (
+                  <div
+                    key={`slider-${menuItem.item}`}
+                    className="absolute pointer-events-auto"
+                    style={{
+                      left: `${x}px`,
+                      bottom: '-60px'
+                    }}
+                  >
+                    <div 
+                      className={`
+                        bg-teal-600 rounded-xl p-2 border-3 border-white cursor-grab touch-none
+                        ${draggedItem?.item === menuItem.item ? 'cursor-grabbing scale-110' : ''}
+                        ${clickedItem?.item === menuItem.item ? 'bg-gray-500' : ''}
+                        transition-all duration-150 hover:scale-105
+                        drop-shadow-2xl shadow-2xl
+                      `}
+                      style={{ width: '48px', height: '48px' }}
+                      onMouseDown={(e) => handleSliderStart(e, menuItem)}
+                      onTouchStart={(e) => handleSliderStart(e, menuItem)}
+                      onClick={(e) => handleSliderClick(e, menuItem)}
                     >
-                      <div 
-                        className={`
-                          bg-teal-600 rounded-xl p-2 border-3 border-white cursor-grab touch-none
-                          ${draggedItem?.item === menuItem.item ? 'cursor-grabbing scale-110' : ''}
-                          ${clickedItem?.item === menuItem.item ? 'bg-gray-500' : ''}
-                          transition-all duration-150 hover:scale-105
-                          drop-shadow-2xl shadow-2xl
-                        `}
-                        style={{ width: '48px', height: '48px' }}
-                        onMouseDown={(e) => handleSliderStart(e, menuItem)}
-                        onTouchStart={(e) => handleSliderStart(e, menuItem)}
-                        onClick={(e) => handleSliderClick(e, menuItem)}
-                      >
-                        <ItemImage 
-                          item={menuItem} 
-                          size="slider" 
-                          className="w-full h-full flex items-center justify-center text-white"
-                        />
-                      </div>
-                      
-                      <button 
-                        onClick={() => removeFood(menuItem)}
-                        className="absolute -top-1 -right-1 bg-gray-300 text-gray-600 rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-gray-400 z-10 font-light"
-                      >
-                        ×
-                      </button>
+                      <ItemImage 
+                        item={menuItem} 
+                        size="slider" 
+                        className="w-full h-full flex items-center justify-center text-white"
+                      />
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                    
+                    <button 
+                      onClick={() => removeFood(menuItem)}
+                      className="absolute -top-1 -right-1 bg-gray-300 text-gray-600 rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-gray-400 z-10 font-light"
+                    >
+                      ×
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
