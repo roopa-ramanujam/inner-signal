@@ -42,7 +42,6 @@ const ChartCard = ({ data }) => {
 
   return (
     <div className="bg-[#E7EEEB] pr-7 pl-7 relative" style={{ width: chartWidth }}>
-      
       {/* Y-axis Labels */}
       {yValues.map((val) => (
         <div
