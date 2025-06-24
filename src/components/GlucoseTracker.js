@@ -5,22 +5,19 @@ import ItemImage from './ItemImage';
 
 // Calculate heights based on screen size
 const getBottomSheetHeights = (screenHeight) => {
-  if (screenHeight <= 600) {
-    return {
-      COLLAPSED_HEIGHT: Math.max(180, screenHeight * 0.25),
-      EXPANDED_HEIGHT: Math.max(400, screenHeight * 0.55),
-    };
-  } else if (screenHeight <= 800) {
-    return {
-      COLLAPSED_HEIGHT: Math.max(225, screenHeight * 0.28),
-      EXPANDED_HEIGHT: Math.max(500, screenHeight * 0.6),
-    };
-  } else {
-    return {
-      COLLAPSED_HEIGHT: Math.max(280, screenHeight * 0.25),
-      EXPANDED_HEIGHT: Math.max(600, screenHeight * 0.55),
-    };
-  }
+  // Calculate content above as percentages of screen height
+  const headerHeightPercent = 0.08;        // ~8% for header
+  const educationalTextPercent = 0.10;     // ~10% for educational text  
+  const chartHeightPercent = 0.30;         // ~30% for chart area
+  const spacingPercent = 0.05;             // ~5% for spacing/margins
+  
+  const contentAbovePercent = headerHeightPercent + educationalTextPercent + chartHeightPercent + spacingPercent;
+  const remainingPercent = 1 - contentAbovePercent; // Whatever's left
+  const remainingHeight = screenHeight * remainingPercent;
+  
+  return {
+    COLLAPSED_HEIGHT: Math.max(180, remainingHeight), // Minimum 180px, or percentage-based remaining space
+  };
 };
 
 const GlucoseTracker = ({ onNavigate = () => {} }) => {
@@ -100,7 +97,7 @@ const setBodyScrolling = (enabled) => {
   const bottomSheetRef = useRef(null);
 
   // Calculate heights based on current window height
-  const { COLLAPSED_HEIGHT, EXPANDED_HEIGHT } = getBottomSheetHeights(windowHeight);
+  const { COLLAPSED_HEIGHT } = getBottomSheetHeights(windowHeight);
   const FULL_SCREEN_HEIGHT = windowHeight;
 
   // Initialize bottomSheetHeight with the calculated COLLAPSED_HEIGHT
@@ -316,14 +313,12 @@ const setBodyScrolling = (enabled) => {
     // Re-enable body scrolling
     setBodyScrolling(true);
     
-    const collapsedToExpanded = (COLLAPSED_HEIGHT + EXPANDED_HEIGHT) / 2;
-    const expandedToFullScreen = (EXPANDED_HEIGHT + FULL_SCREEN_HEIGHT) / 2;
+    // Only two states: collapsed or full screen
+    const midPoint = (COLLAPSED_HEIGHT + FULL_SCREEN_HEIGHT) / 2;
     
     let targetHeight;
-    if (bottomSheetHeight < collapsedToExpanded) {
+    if (bottomSheetHeight < midPoint) {
       targetHeight = COLLAPSED_HEIGHT;
-    } else if (bottomSheetHeight < expandedToFullScreen) {
-      targetHeight = EXPANDED_HEIGHT;
     } else {
       targetHeight = FULL_SCREEN_HEIGHT;
     }
@@ -360,14 +355,12 @@ const setBodyScrolling = (enabled) => {
     // Re-enable body scrolling
     setBodyScrolling(true);
     
-    const collapsedToExpanded = (COLLAPSED_HEIGHT + EXPANDED_HEIGHT) / 2;
-    const expandedToFullScreen = (EXPANDED_HEIGHT + FULL_SCREEN_HEIGHT) / 2;
+    // Only two states: collapsed or full screen
+    const midPoint = (COLLAPSED_HEIGHT + FULL_SCREEN_HEIGHT) / 2;
     
     let targetHeight;
-    if (bottomSheetHeight < collapsedToExpanded) {
+    if (bottomSheetHeight < midPoint) {
       targetHeight = COLLAPSED_HEIGHT;
-    } else if (bottomSheetHeight < expandedToFullScreen) {
-      targetHeight = EXPANDED_HEIGHT;
     } else {
       targetHeight = FULL_SCREEN_HEIGHT;
     }
@@ -555,7 +548,7 @@ const setBodyScrolling = (enabled) => {
 
       {/* Chart */}
       {!isFullScreen && (
-        <div className="bg-[#E7EEEB] relative" style={{ marginBottom: `${bottomSheetHeight + 80}px` }}>
+        <div className="bg-[#E7EEEB] relative mb-20">
             {/* Y-axis Labels - positioned at exact reference line positions */}
             <div className="absolute top-5 text-xs text-gray-400" style={{ height: chartHeight }}>
               <div 
@@ -731,7 +724,7 @@ const setBodyScrolling = (enabled) => {
               <h1 className="text-lg font-semibold text-gray-800">Food Library</h1>
             </div>
             <button 
-              onClick={() => setBottomSheetHeight(EXPANDED_HEIGHT)}
+              onClick={() => setBottomSheetHeight(COLLAPSED_HEIGHT)}
               className="text-gray-600 hover:text-gray-800 p-2"
             >
               ✕
@@ -788,7 +781,7 @@ const setBodyScrolling = (enabled) => {
                   className={`
                     bg-gray-200 rounded-2xl p-4 shadow-sm text-center hover:shadow-md transition-all w-24 h-24 flex flex-col justify-center items-center
                     ${selectedItems.find(f => f.item === menuItem.item) ? 'ring-2 ring-teal-500 bg-teal-50' : ''}
-                    ${selectedItems.length >= 3 && !selectedItems.find(f => f.item === menuItem.item) ? 'opacity-20 cursor-not-allowed' : ''}
+                    ${selectedItems.length >= 3 && !selectedItems.find(f => f.item === menuItem.item) ? 'opacity-50 cursor-not-allowed' : ''}
                   `}
                 >
                   <ItemImage 
