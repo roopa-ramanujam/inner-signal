@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Settings, RotateCcw, ChevronDown, X} from 'lucide-react';
+import { Search, RotateCcw, ChevronDown, X} from 'lucide-react';
 import { itemLibrary } from './data/library';
 import ItemImage from './ItemImage';
 
@@ -541,7 +541,6 @@ const setBodyScrolling = (enabled) => {
               <ChevronDown className="w-4 h-4" />
             </button>
           </div>
-          <Settings className="w-5 h-5 text-gray-600" />
         </div>
       )}
 
@@ -567,6 +566,12 @@ const setBodyScrolling = (enabled) => {
               </div>
               <div 
                 className="absolute transform -translate-y-1/2" 
+                style={{ top: `${mapYValueToPixel(120)}px` }}
+              >
+                120
+              </div>
+              <div 
+                className="absolute transform -translate-y-1/2" 
                 style={{ top: `${mapYValueToPixel(70)}px` }}
               >
                 70
@@ -579,15 +584,6 @@ const setBodyScrolling = (enabled) => {
               </div>
             </div>
           <div className="bg-white mx-6 rounded-xl relative overflow-hidden" ref={chartRef} style={{ height: `${chartHeight}px` }}>
-            {selectedItems.length > 0 && (
-              <button 
-                onClick={resetSelection}
-                className="absolute top-4 right-4 z-20 bg-[#E7EEEB] hover:bg-gray-200 rounded-full p-2 transition-colors"
-              >
-                <RotateCcw className="w-4 h-4 text-gray-600" />
-              </button>
-            )}
-
             {/* Chart area - full width clean chart */}
             <div className="chart-area relative" style={{ height: chartHeight, width: chartWidth, margin: '20px auto' }}>
               
@@ -752,29 +748,34 @@ const setBodyScrolling = (enabled) => {
           </div>
         )}
         <div className={`px-4 h-full overflow-hidden flex flex-col ${isFullScreen ? 'pt-0' : ''}`}>
-          <div className="relative mb-4">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-teal-500 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border-0 bg-gray-100 rounded-3xl text-lg focus:outline-none"
-            />
-            {searchTerm && (
-              <button
-                onClick={clearSearch}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+          {/* Search bar and refresh button row */}
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-3 py-2 border-0 bg-gray-100 rounded-2xl text-sm focus:outline-none"
+              />
+              {searchTerm && (
+                <button
+                  onClick={clearSearch}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+            {selectedItems.length > 0 && (
+              <button 
+                onClick={resetSelection}
+                className="bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors flex-shrink-0"
               >
-                <X className="w-5 h-5" />
+                <RotateCcw className="w-4 h-4 text-gray-600" />
               </button>
             )}
-          </div>
-          
-          <div className="text-center mb-2">
-            <div className="text-teal-600 text-lg font-medium">
-              {selectedItems.length} selected
-            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto food-grid">
@@ -787,7 +788,7 @@ const setBodyScrolling = (enabled) => {
                   className={`
                     bg-gray-200 rounded-2xl p-4 shadow-sm text-center hover:shadow-md transition-all w-24 h-24 flex flex-col justify-center items-center
                     ${selectedItems.find(f => f.item === menuItem.item) ? 'ring-2 ring-teal-500 bg-teal-50' : ''}
-                    ${selectedItems.length >= 3 && !selectedItems.find(f => f.item === menuItem.item) ? 'opacity-50 cursor-not-allowed' : ''}
+                    ${selectedItems.length >= 3 && !selectedItems.find(f => f.item === menuItem.item) ? 'opacity-20 cursor-not-allowed' : ''}
                   `}
                 >
                   <ItemImage 
