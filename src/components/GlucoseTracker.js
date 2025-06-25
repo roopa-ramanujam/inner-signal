@@ -31,35 +31,88 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const [clickedItem, setClickedItem] = useState(null);
   const [lastSelectedFood, setLastSelectedFood] = useState(null);
   const chartRef = useRef(null);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const [windowHeight, setWindowHeight] = useState(() => {
     // Get the actual viewport height accounting for mobile URL bars
-    return window.visualViewport?.height || window.innerHeight;
+    return window.innerHeight;
   });
 
   // 1. Add a function to control body scroll
-const setBodyScrolling = (enabled) => {
-  if (enabled) {
-    document.body.style.overflow = '';
-    document.body.style.position = '';
-    document.body.style.width = '';
-  } else {
-    document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
-  }
-};
+  const setBodyScrolling = (enabled) => {
+    if (enabled) {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    } else {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+    }
+  };
 
   // Function to get real viewport height
   const getRealViewportHeight = () => {
-    // Use visualViewport if available (better for mobile)
-    if (window.visualViewport) {
-      return window.visualViewport.height;
-    }
-    
-    // Fallback for older browsers
     return window.innerHeight;
   };
+
+  // Enhanced keyboard detection
+  useEffect(() => {
+    let lastHeight = window.innerHeight;
+    
+    const handleViewportChange = () => {
+      const currentHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      const windowHeight = window.innerHeight;
+      
+      // If viewport height is significantly less than window height, keyboard is likely visible
+      if (windowHeight - currentHeight > 100) {
+        setIsKeyboardVisible(true);
+        setKeyboardHeight(windowHeight - currentHeight);
+      } else {
+        setIsKeyboardVisible(false);
+        setKeyboardHeight(0);
+      }
+      
+      lastHeight = currentHeight;
+    };
+
+    // Set initial value
+    handleViewportChange();
+
+    // Listen for viewport changes
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleViewportChange);
+      window.visualViewport.addEventListener('scroll', handleViewportChange);
+    }
+
+    // Also listen for focus/blur on inputs
+    const handleFocus = (e) => {
+      if (e.target.tagName === 'INPUT') {
+        // Small delay to let keyboard animation complete
+        setTimeout(handleViewportChange, 300);
+      }
+    };
+
+    const handleBlur = () => {
+      setTimeout(() => {
+        setIsKeyboardVisible(false);
+        setKeyboardHeight(0);
+      }, 100);
+    };
+
+    document.addEventListener('focusin', handleFocus);
+    document.addEventListener('focusout', handleBlur);
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleViewportChange);
+        window.visualViewport.removeEventListener('scroll', handleViewportChange);
+      }
+      document.removeEventListener('focusin', handleFocus);
+      document.removeEventListener('focusout', handleBlur);
+    };
+  }, []);
 
   // Set CSS custom property for viewport height
   useEffect(() => {
@@ -74,20 +127,12 @@ const setBodyScrolling = (enabled) => {
     setViewportHeight();
 
     // Listen for viewport changes (better than just resize)
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', setViewportHeight);
-    } else {
-      window.addEventListener('resize', setViewportHeight);
-      window.addEventListener('orientationchange', setViewportHeight);
-    }
+    window.addEventListener('resize', setViewportHeight);
+    window.addEventListener('orientationchange', setViewportHeight);
 
     return () => {
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', setViewportHeight);
-      } else {
-        window.removeEventListener('resize', setViewportHeight);
-        window.removeEventListener('orientationchange', setViewportHeight);
-      }
+      window.removeEventListener('resize', setViewportHeight);
+      window.removeEventListener('orientationchange', setViewportHeight);
     };
   }, []);
   
@@ -120,9 +165,11 @@ const setBodyScrolling = (enabled) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Handle clicks outside bottom sheet
+  // Handle clicks outside bottom sheet - modified to not trigger when keyboard is visible
   useEffect(() => {
     const handleClickOutside = (e) => {
+      if (isKeyboardVisible) return; // Don't handle clicks when keyboard is visible
+      
       if (bottomSheetRef.current && !bottomSheetRef.current.contains(e.target)) {
         const currentCollapsedHeight = getCurrentCollapsedHeight();
         if (bottomSheetHeight > currentCollapsedHeight) {
@@ -138,7 +185,7 @@ const setBodyScrolling = (enabled) => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
     };
-  }, [bottomSheetHeight, windowHeight]);
+  }, [bottomSheetHeight, windowHeight, isKeyboardVisible]);
 
   // Generate initial flat line data
   useEffect(() => {
@@ -299,9 +346,9 @@ const setBodyScrolling = (enabled) => {
     return segments;
   };
 
-  // Bottom sheet handlers
+  // Bottom sheet handlers - modified to prevent dragging when keyboard is visible
   const handleSheetTouchStart = (e) => {
-    if (e.target.closest('.food-grid')) return;
+    if (e.target.closest('.food-grid') || isKeyboardVisible) return;
     
     setIsDraggingSheet(true);
     setStartY(e.touches[0].clientY);
@@ -312,7 +359,7 @@ const setBodyScrolling = (enabled) => {
   };
 
   const handleSheetTouchMove = (e) => {
-    if (!isDraggingSheet) return;
+    if (!isDraggingSheet || isKeyboardVisible) return;
     
     // Always prevent default when dragging
     e.preventDefault();
@@ -327,7 +374,7 @@ const setBodyScrolling = (enabled) => {
   };
 
   const handleSheetTouchEnd = () => {
-    if (!isDraggingSheet) return;
+    if (!isDraggingSheet || isKeyboardVisible) return;
     
     setIsDraggingSheet(false);
     
@@ -349,7 +396,7 @@ const setBodyScrolling = (enabled) => {
   };
 
   const handleSheetMouseDown = (e) => {
-    if (e.target.closest('.food-grid')) return;
+    if (e.target.closest('.food-grid') || isKeyboardVisible) return;
     
     setIsDraggingSheet(true);
     setStartY(e.clientY);
@@ -360,7 +407,7 @@ const setBodyScrolling = (enabled) => {
   };
 
   const handleSheetMouseMove = (e) => {
-    if (!isDraggingSheet) return;
+    if (!isDraggingSheet || isKeyboardVisible) return;
     
     const currentY = e.clientY;
     const deltaY = startY - currentY;
@@ -371,7 +418,7 @@ const setBodyScrolling = (enabled) => {
   };
 
   const handleSheetMouseUp = () => {
-    if (!isDraggingSheet) return;
+    if (!isDraggingSheet || isKeyboardVisible) return;
     
     setIsDraggingSheet(false);
     
@@ -409,7 +456,7 @@ const setBodyScrolling = (enabled) => {
       document.removeEventListener('mousemove', handleSheetMouseMove);
       document.removeEventListener('mouseup', handleSheetMouseUp);
     };
-  }, [isDraggingSheet, startY, startHeight, bottomSheetHeight]);
+  }, [isDraggingSheet, startY, startHeight, bottomSheetHeight, isKeyboardVisible]);
 
   const handleFoodSelect = (food) => {
     if (selectedItems.find(f => f.item === food.item)) {
@@ -719,8 +766,10 @@ const setBodyScrolling = (enabled) => {
         `}
         style={{ 
           height: `${bottomSheetHeight}px`,
+          bottom: isKeyboardVisible ? `-${keyboardHeight}px` : '0',
           transform: isDraggingSheet ? 'none' : undefined,
-          touchAction: 'none' // Add this to prevent default touch behaviors
+          touchAction: 'none', // Add this to prevent default touch behaviors
+          position: 'fixed'
         }}
         onTouchStart={handleSheetTouchStart}
         onTouchMove={handleSheetTouchMove}  
@@ -741,7 +790,7 @@ const setBodyScrolling = (enabled) => {
           </div>
         )}
 
-        {!isFullScreen && (
+        {!isFullScreen && !isKeyboardVisible && (
           <div 
             className="flex justify-center pt-3 pb-2"
             style={{ touchAction: 'none' }}
@@ -749,7 +798,7 @@ const setBodyScrolling = (enabled) => {
             <div className="w-10 h-1 bg-gray-300 rounded-full cursor-grab active:cursor-grabbing"></div>
           </div>
         )}
-        <div className={`px-4 h-full overflow-hidden flex flex-col ${isFullScreen ? 'pt-0' : ''}`}>
+        <div className={`px-4 h-full overflow-hidden flex flex-col ${isFullScreen ? 'pt-0' : ''} ${!isFullScreen && isKeyboardVisible ? 'pt-4' : ''}`}>
           {/* Search bar and refresh button row */}
           <div className="flex items-center space-x-3 mb-4">
             <div className="relative flex-1">
@@ -760,6 +809,10 @@ const setBodyScrolling = (enabled) => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-3 py-2 border-0 bg-gray-100 rounded-2xl text-sm focus:outline-none"
+                style={{
+                  WebkitAppearance: 'none',
+                  fontSize: '16px' // Prevents zoom on iOS
+                }}
               />
               {searchTerm && (
                 <button
