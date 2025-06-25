@@ -417,6 +417,9 @@ const setBodyScrolling = (enabled) => {
     setSelectedItems([...selectedItems, food]);
     setLastSelectedFood(food);
     
+    // Clear clicked item when selecting a new food to ensure educational text updates
+    setClickedItem(null);
+    
     const spacing = 0.25;
     const startPosition = 0.1;
     const newPosition = startPosition + (selectedItems.length * spacing);
@@ -460,6 +463,8 @@ const setBodyScrolling = (enabled) => {
   const handleSliderStart = (e, food) => {
     e.preventDefault();
     setDraggedItem(food);
+    // Clear clicked item when starting to drag to prevent conflicts
+    setClickedItem(null);
   };
 
   const handleSliderClick = (e, food) => {
