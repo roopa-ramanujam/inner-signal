@@ -318,27 +318,35 @@ const GlycemicIndexLearning = ({ onNavigate }) => {
 
       {/* Item Selection Buttons */}
       <div className="px-4 py-6">
-        <div className="flex justify-center space-x-4 mb-6">
+        <div className="flex justify-center space-x-3 mb-6">
           {currentCategoryData.map((item, index) => (
             <button
               key={item.id}
               onClick={() => handleItemSelect(index)}
               className={`
-                rounded-lg p-4 text-center transition-all relative
+                rounded-lg p-3 text-center transition-all relative flex flex-col items-center justify-center
                 ${index === selectedItem 
                   ? 'bg-teal-600 text-white shadow-lg' 
                   : 'bg-white text-gray-700 shadow-sm hover:shadow-md'
                 }
               `}
-              style={{ minWidth: '80px' }}
+              style={{ width: '85px', height: '85px' }}
             >
-              <div className="mb-2 flex justify-center">
-                <ItemImage 
-                  item={item} 
-                  size="medium"
-                />
+              {/* Standardized Icon Container */}
+              <div className="flex justify-center items-center mb-1" style={{ height: '40px' }}>
+                <div className="w-10 h-10 flex items-center justify-center">
+                  <ItemImage 
+                    item={item} 
+                    size="medium"
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </div>
               </div>
-              <div className="text-xs font-medium">{item.name}</div>
+              
+              {/* Text with wrapping */}
+              <div className="text-xs font-medium leading-tight text-center" style={{ wordWrap: 'break-word', hyphens: 'auto', lineHeight: '1.1' }}>
+                {item.name}
+              </div>
               
               {index === selectedItem && (
                 <div className="absolute inset-0 border-2 border-teal-600 rounded-lg pointer-events-none" />
