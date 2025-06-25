@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, RotateCcw, ChevronDown, X} from 'lucide-react';
 import { itemLibrary } from './data/library';
+import { settings } from './data/settings';
 import ItemImage from './ItemImage';
 
 // Calculate heights based on screen size
@@ -24,7 +25,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [glucoseData, setGlucoseData] = useState([]);
-  const [baselineGlucose] = useState(120);
+  const [baselineGlucose] = useState(settings.baselineGlucose);
   const [itemTimings, setItemTimings] = useState({});
   const [draggedItem, setDraggedItem] = useState(null);
   const [clickedItem, setClickedItem] = useState(null);
@@ -103,11 +104,11 @@ const setBodyScrolling = (enabled) => {
   // Initialize bottomSheetHeight with the calculated COLLAPSED_HEIGHT
   const [bottomSheetHeight, setBottomSheetHeight] = useState(COLLAPSED_HEIGHT);
 
-  // Chart dimensions
-  const chartHeight = 225; // 30% less than 300
-  const chartWidth = 400;
-  const yMin = 20;
-  const yMax = 220;
+  // Chart dimensions from settings
+  const chartHeight = settings.chartHeight;
+  const chartWidth = settings.chartWidth;
+  const yMin = settings.yMin;
+  const yMax = settings.yMax;
 
   // Track window height changes
   useEffect(() => {
@@ -141,9 +142,9 @@ const setBodyScrolling = (enabled) => {
   // Generate initial flat line data
   useEffect(() => {
     const times = [];
-    const startHour = 12;
-    const endHour = 17;
-    const pointsPerHour = 4;
+    const startHour = settings.startHour;
+    const endHour = settings.endHour;
+    const pointsPerHour = settings.pointsPerHour;
     
     for (let hour = startHour; hour <= endHour; hour++) {
       for (let quarter = 0; quarter < pointsPerHour; quarter++) {
@@ -264,8 +265,8 @@ const setBodyScrolling = (enabled) => {
       const y = mapYValueToPixel(point.glucose);
       
       // Determine color based on glucose value
-      const isOutOfRange = point.glucose > 180 || point.glucose < 70;
-      const segmentColor = isOutOfRange ? '#FF7B7B' : '#629C47'; // red for out of range, green for normal
+      const isOutOfRange = point.glucose > settings.highGlucoseThreshold || point.glucose < settings.lowGlucoseThreshold;
+      const segmentColor = isOutOfRange ? settings.highGlucoseColor : settings.normalGlucoseColor;
       
       // If color changes or this is the first point, handle segment transition
       if (currentColor !== segmentColor) {
@@ -411,7 +412,7 @@ const setBodyScrolling = (enabled) => {
       return;
     }
     
-    if (selectedItems.length >= 3) return;
+    if (selectedItems.length >= settings.maxSelectedItems) return;
     
     setSelectedItems([...selectedItems, food]);
     setLastSelectedFood(food);
@@ -571,21 +572,21 @@ const setBodyScrolling = (enabled) => {
             <div className="absolute top-5 text-xs text-gray-400" style={{ height: chartHeight }}>
               <div 
                 className="absolute transform -translate-y-1/2" 
-                style={{ top: `${mapYValueToPixel(180)}px` }}
+                style={{ top: `${mapYValueToPixel(settings.highGlucoseThreshold)}px` }}
               >
-                180
+                {settings.highGlucoseThreshold}
               </div>
               <div 
                 className="absolute transform -translate-y-1/2" 
-                style={{ top: `${mapYValueToPixel(120)}px` }}
+                style={{ top: `${mapYValueToPixel(settings.baselineGlucose)}px` }}
               >
-                120
+                {settings.baselineGlucose}
               </div>
               <div 
                 className="absolute transform -translate-y-1/2" 
-                style={{ top: `${mapYValueToPixel(70)}px` }}
+                style={{ top: `${mapYValueToPixel(settings.lowGlucoseThreshold)}px` }}
               >
-                70
+                {settings.lowGlucoseThreshold}
               </div>
               <div 
                 className="absolute transform -translate-y-1/2" 
@@ -601,8 +602,8 @@ const setBodyScrolling = (enabled) => {
               {/* Custom SVG for everything - full control */}
               <svg className="w-full h-full">
                 {/* Full-width reference lines */}
-                <line x1="0" x2="100%" y1={mapYValueToPixel(70)} y2={mapYValueToPixel(70)} stroke="#FF7B7B" strokeWidth="2" />
-                <line x1="0" x2="100%" y1={mapYValueToPixel(180)} y2={mapYValueToPixel(180)} stroke="#B9BCF9" strokeWidth="2" />
+                <line x1="0" x2="100%" y1={mapYValueToPixel(settings.lowGlucoseThreshold)} y2={mapYValueToPixel(settings.lowGlucoseThreshold)} stroke="#FF7B7B" strokeWidth="2" />
+                <line x1="0" x2="100%" y1={mapYValueToPixel(settings.highGlucoseThreshold)} y2={mapYValueToPixel(settings.highGlucoseThreshold)} stroke="#B9BCF9" strokeWidth="2" />
                 
                 {/* Glucose line segments with appropriate colors */}
                 {generateLineSegments().map((segment, index) => (
@@ -630,7 +631,7 @@ const setBodyScrolling = (enabled) => {
                       y1={y}
                       x2={x}
                       y2={chartHeight + 40}
-                      stroke="#0891b2"
+                      stroke={settings.connectionLineColor}
                       strokeWidth="2"
                     />
                   );
@@ -640,12 +641,12 @@ const setBodyScrolling = (enabled) => {
           </div>
           {/* X-axis Labels - outside the chart */}
             <div className="absolute left-1/2 transform -translate-x-1/2 flex justify-between text-xs text-gray-400" style={{ width: chartWidth }}>
-              <span>12 PM</span>
-              <span>1 PM</span>
-              <span>2 PM</span>
-              <span>3 PM</span>
-              <span>4 PM</span>
-              <span>5 PM</span>
+              <span>{settings.startHour === 12 ? '12' : settings.startHour > 12 ? settings.startHour - 12 : settings.startHour} PM</span>
+              <span>{settings.startHour + 1 === 12 ? '12' : settings.startHour + 1 > 12 ? settings.startHour + 1 - 12 : settings.startHour + 1} PM</span>
+              <span>{settings.startHour + 2 === 12 ? '12' : settings.startHour + 2 > 12 ? settings.startHour + 2 - 12 : settings.startHour + 2} PM</span>
+              <span>{settings.startHour + 3 === 12 ? '12' : settings.startHour + 3 > 12 ? settings.startHour + 3 - 12 : settings.startHour + 3} PM</span>
+              <span>{settings.startHour + 4 === 12 ? '12' : settings.startHour + 4 > 12 ? settings.startHour + 4 - 12 : settings.startHour + 4} PM</span>
+              <span>{settings.endHour === 12 ? '12' : settings.endHour > 12 ? settings.endHour - 12 : settings.endHour} PM</span>
             </div>
             {/* Draggable Food Icons */}
             {selectedItems.length > 0 && (
@@ -770,24 +771,41 @@ const setBodyScrolling = (enabled) => {
           </div>
 
           <div className="flex-1 overflow-y-auto food-grid">
-            <div className={`grid gap-4 pb-6 grid-cols-3 justify-items-center pt-4`}>
+            <div className={`grid gap-3 pb-6 grid-cols-3 justify-items-center pt-4`}>
               {filteredItems.slice(0, itemLibrary.length).map((menuItem, index) => (
                 <button
                   key={index}
                   onClick={() => handleFoodSelect(menuItem)}
-                  disabled={selectedItems.length >= 3 && !selectedItems.find(f => f.item === menuItem.item)}
+                  disabled={selectedItems.length >= settings.maxSelectedItems && !selectedItems.find(f => f.item === menuItem.item)}
                   className={`
-                    bg-gray-200 rounded-2xl p-4 shadow-sm text-center hover:shadow-md transition-all w-24 h-24 flex flex-col justify-center items-center
+                    bg-gray-200 rounded-2xl p-3 shadow-sm text-center hover:shadow-md transition-all flex flex-col justify-center items-center
                     ${selectedItems.find(f => f.item === menuItem.item) ? 'ring-2 ring-teal-500 bg-teal-50' : ''}
-                    ${selectedItems.length >= 3 && !selectedItems.find(f => f.item === menuItem.item) ? 'opacity-50 cursor-not-allowed' : ''}
+                    ${selectedItems.length >= settings.maxSelectedItems && !selectedItems.find(f => f.item === menuItem.item) ? 'opacity-50 cursor-not-allowed' : ''}
                   `}
+                  style={{ width: '90px', height: '90px' }}
                 >
-                  <ItemImage 
-                    item={menuItem} 
-                    size="medium"
-                    className="mx-auto mb-2"
-                  />
-                  <p className="text-sm font-semibold text-gray-900">{menuItem.item}</p>
+                  {/* Standardized Icon Container */}
+                  <div className="flex justify-center items-center mb-1" style={{ height: '36px' }}>
+                    <div className="w-8 h-8 flex items-center justify-center">
+                      <ItemImage 
+                        item={menuItem} 
+                        size="medium"
+                        className="max-w-full max-h-full object-contain"
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Text with wrapping */}
+                  <div className="text-center flex-1 flex flex-col justify-center">
+                    <p className="text-xs font-semibold text-gray-900 leading-tight mb-1" style={{ lineHeight: '1.1' }}>
+                      {menuItem.item}
+                    </p>
+                    {settings.showServingSize && (
+                      <p className="text-xs text-gray-500 leading-tight" style={{ fontSize: '10px', lineHeight: '1.0' }}>
+                        {menuItem.serving_size}
+                      </p>
+                    )}
+                  </div>
                 </button>
               ))}
             </div>
