@@ -103,8 +103,6 @@ const setBodyScrolling = (enabled) => {
   // Initialize bottomSheetHeight with the calculated COLLAPSED_HEIGHT
   const [bottomSheetHeight, setBottomSheetHeight] = useState(COLLAPSED_HEIGHT);
 
-  // document.body.style.overflow='hidden';
-
   // Chart dimensions
   const chartHeight = 225; // 30% less than 300
   const chartWidth = 400;
@@ -169,7 +167,35 @@ const setBodyScrolling = (enabled) => {
     setGlucoseData(times);
   }, [baselineGlucose]);
 
-  // Update glucose curve
+  // Calculate glucose effect for a specific food at a specific time
+  const calculateFoodEffect = (food, timeSinceConsumption) => {
+    // Use food-specific timing or fallback to defaults
+    const peakTime = food.peakTime || 1.5; // Default peak at 1.5 hours
+    const duration = food.duration || 4.0; // Default duration of 4 hours
+    
+    // If before consumption or after duration, no effect
+    if (timeSinceConsumption < 0 || timeSinceConsumption > duration) {
+      return 0;
+    }
+    
+    let multiplier = 0;
+    
+    if (timeSinceConsumption <= peakTime) {
+      // Ramp up to peak - using a smooth curve
+      const progress = timeSinceConsumption / peakTime;
+      multiplier = Math.sin(progress * Math.PI / 2); // Smooth ramp up
+    } else {
+      // Ramp down from peak - using exponential decay
+      const declineTime = timeSinceConsumption - peakTime;
+      const maxDeclineTime = duration - peakTime;
+      const declineProgress = declineTime / maxDeclineTime;
+      multiplier = Math.cos(declineProgress * Math.PI / 2); // Smooth ramp down
+    }
+    
+    return food.glucose_change * multiplier;
+  };
+
+  // Update glucose curve with realistic timing
   useEffect(() => {
     if (selectedItems.length === 0) {
       setGlucoseData(prev => prev.map(point => ({ ...point, glucose: baselineGlucose })));
@@ -184,21 +210,13 @@ const setBodyScrolling = (enabled) => {
           itemTimings[food.item] : 0;
         const foodTimeIndex = foodTimePosition * (prev.length - 1);
         
-        if (timeIndex >= foodTimeIndex) {
-          const timeSinceFood = timeIndex - foodTimeIndex;
-          let multiplier;
-          
-          if (timeSinceFood <= 1) {
-            multiplier = timeSinceFood * 0.8;
-          } else if (timeSinceFood <= 3) {
-            const peakProgress = (timeSinceFood - 1) / 2;
-            multiplier = 0.8 + (0.2 * (1 - Math.abs(peakProgress - 0.5) * 2));
-          } else {
-            multiplier = Math.max(0.2, 1 - (timeSinceFood - 3) * 0.15);
-          }
-          
-          glucoseValue += food.glucose_change * multiplier;
-        }
+        // Convert time indices to hours for realistic calculation
+        const currentTimeHours = (timeIndex / (prev.length - 1)) * 5; // 5-hour span
+        const foodTimeHours = (foodTimeIndex / (prev.length - 1)) * 5;
+        const timeSinceFood = currentTimeHours - foodTimeHours;
+        
+        const foodEffect = calculateFoodEffect(food, timeSinceFood);
+        glucoseValue += foodEffect;
       });
       
       return {
@@ -597,26 +615,6 @@ const setBodyScrolling = (enabled) => {
                     strokeDasharray="4 4"
                   />
                 ))}
-                
-                {/* Glucose data points with color based on range - commented out to remove dots */}
-                {/* {glucoseData.map((point, index) => {
-                  const x = (index / (glucoseData.length - 1)) * chartWidth;
-                  const y = mapYValueToPixel(point.glucose);
-                  const isOutOfRange = point.glucose > 180 || point.glucose < 70;
-                  const pointColor = isOutOfRange ? '#ef4444' : '#22c55e';
-                  
-                  return (
-                    <circle
-                      key={index}
-                      cx={x}
-                      cy={y}
-                      r="2"
-                      fill={pointColor}
-                      stroke={pointColor}
-                      strokeWidth="2"
-                    />
-                  );
-                })} */}
 
                 {/* Connection lines from food icons to glucose curve */}
                 {selectedItems.map((food) => {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import GlucoseTracker from './components/GlucoseTracker';
 import GlycemicIndexLearning from './components/GlycemicIndexLearning';
-import { menuItems } from './components/data/library';
+import { appSections } from './components/data/appSections';
 
 const App = () => {
   const [currentPage, setCurrentPage] = useState('blood-sugar');
@@ -21,7 +21,7 @@ const App = () => {
       {/* Dropdown Menu */}
       {showDropdown && (
         <div className="absolute top-16 left-4 right-4 bg-white rounded-lg shadow-lg border z-50 max-w-xs">
-          {menuItems.map((item) => (
+          {appSections.map((item) => (
             <button
               key={item.id}
               onClick={() => {
