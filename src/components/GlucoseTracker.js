@@ -98,11 +98,11 @@ const setBodyScrolling = (enabled) => {
   const bottomSheetRef = useRef(null);
 
   // Calculate heights based on current window height
-  const { COLLAPSED_HEIGHT } = getBottomSheetHeights(windowHeight);
+  const getCurrentCollapsedHeight = () => getBottomSheetHeights(windowHeight).COLLAPSED_HEIGHT;
   const FULL_SCREEN_HEIGHT = windowHeight;
 
   // Initialize bottomSheetHeight with the calculated COLLAPSED_HEIGHT
-  const [bottomSheetHeight, setBottomSheetHeight] = useState(COLLAPSED_HEIGHT);
+  const [bottomSheetHeight, setBottomSheetHeight] = useState(() => getCurrentCollapsedHeight());
 
   // Chart dimensions from settings
   const chartHeight = settings.chartHeight;
@@ -124,8 +124,9 @@ const setBodyScrolling = (enabled) => {
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (bottomSheetRef.current && !bottomSheetRef.current.contains(e.target)) {
-        if (bottomSheetHeight > COLLAPSED_HEIGHT) {
-          setBottomSheetHeight(COLLAPSED_HEIGHT);
+        const currentCollapsedHeight = getCurrentCollapsedHeight();
+        if (bottomSheetHeight > currentCollapsedHeight) {
+          setBottomSheetHeight(currentCollapsedHeight);
         }
       }
     };
@@ -137,7 +138,7 @@ const setBodyScrolling = (enabled) => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
     };
-  }, [bottomSheetHeight, COLLAPSED_HEIGHT]);
+  }, [bottomSheetHeight, windowHeight]);
 
   // Generate initial flat line data
   useEffect(() => {
@@ -319,7 +320,8 @@ const setBodyScrolling = (enabled) => {
     
     const currentY = e.touches[0].clientY;
     const deltaY = startY - currentY;
-    const newHeight = Math.max(COLLAPSED_HEIGHT, Math.min(FULL_SCREEN_HEIGHT, startHeight + deltaY));
+    const currentCollapsedHeight = getCurrentCollapsedHeight();
+    const newHeight = Math.max(currentCollapsedHeight, Math.min(FULL_SCREEN_HEIGHT, startHeight + deltaY));
     
     setBottomSheetHeight(newHeight);
   };
@@ -333,11 +335,12 @@ const setBodyScrolling = (enabled) => {
     setBodyScrolling(true);
     
     // Only two states: collapsed or full screen
-    const midPoint = (COLLAPSED_HEIGHT + FULL_SCREEN_HEIGHT) / 2;
+    const currentCollapsedHeight = getCurrentCollapsedHeight();
+    const midPoint = (currentCollapsedHeight + FULL_SCREEN_HEIGHT) / 2;
     
     let targetHeight;
     if (bottomSheetHeight < midPoint) {
-      targetHeight = COLLAPSED_HEIGHT;
+      targetHeight = currentCollapsedHeight;
     } else {
       targetHeight = FULL_SCREEN_HEIGHT;
     }
@@ -361,7 +364,8 @@ const setBodyScrolling = (enabled) => {
     
     const currentY = e.clientY;
     const deltaY = startY - currentY;
-    const newHeight = Math.max(COLLAPSED_HEIGHT, Math.min(FULL_SCREEN_HEIGHT, startHeight + deltaY));
+    const currentCollapsedHeight = getCurrentCollapsedHeight();
+    const newHeight = Math.max(currentCollapsedHeight, Math.min(FULL_SCREEN_HEIGHT, startHeight + deltaY));
     
     setBottomSheetHeight(newHeight);
   };
@@ -375,11 +379,12 @@ const setBodyScrolling = (enabled) => {
     setBodyScrolling(true);
     
     // Only two states: collapsed or full screen
-    const midPoint = (COLLAPSED_HEIGHT + FULL_SCREEN_HEIGHT) / 2;
+    const currentCollapsedHeight = getCurrentCollapsedHeight();
+    const midPoint = (currentCollapsedHeight + FULL_SCREEN_HEIGHT) / 2;
     
     let targetHeight;
     if (bottomSheetHeight < midPoint) {
-      targetHeight = COLLAPSED_HEIGHT;
+      targetHeight = currentCollapsedHeight;
     } else {
       targetHeight = FULL_SCREEN_HEIGHT;
     }
@@ -728,7 +733,7 @@ const setBodyScrolling = (enabled) => {
               <h1 className="text-lg font-semibold text-gray-800">Food Library</h1>
             </div>
             <button 
-              onClick={() => setBottomSheetHeight(COLLAPSED_HEIGHT)}
+              onClick={() => setBottomSheetHeight(getCurrentCollapsedHeight())}
               className="text-gray-600 hover:text-gray-800 p-2"
             >
               ✕
