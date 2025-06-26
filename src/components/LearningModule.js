@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
 import ItemImage from './ItemImage';
-import { settings } from './data/settings';
 
 const LearningModule = ({ 
   onNavigate, 
@@ -17,7 +16,6 @@ const LearningModule = ({
   const [chartData, setChartData] = useState([]);
 
   const {
-    type = 'glucose',
     baselineValue = 120,
     chartHeight = 275,
     chartWidth = 400,
@@ -30,7 +28,13 @@ const LearningModule = ({
   const {
     showComparison = true,
     backgroundColor = '#E7EEEB',
-    buttonStyle = 'teal'
+    buttonStyle = 'teal',
+    unitLabel = '',
+    defaultLineColor = '#22c55e',
+    showLegend = false,
+    legendTitle = '',
+    legendItems = [],
+    disclaimerText = ''
   } = displayConfig;
 
   const currentModule = modules[selectedCategory];
@@ -41,7 +45,7 @@ const LearningModule = ({
     return chartHeight - ((yValue - yMin) / (yMax - yMin)) * chartHeight;
   };
 
-  // Function to generate line segments with appropriate colors using settings
+  // Function to generate line segments with colors based on dangerZones
   const generateLineSegments = (data) => {
     if (data.length < 2) return [];
     
@@ -54,11 +58,16 @@ const LearningModule = ({
       const x = (i / (data.length - 1)) * chartWidth;
       const y = mapYValueToPixel(point.value);
       
-      // Determine color based on glucose thresholds from settings
-      let segmentColor = settings.normalGlucoseColor; // Default to green
+      // Determine color based on dangerZones (generic approach)
+      let segmentColor = defaultLineColor; // Default color
       
-      if (point.value < settings.lowGlucoseThreshold || point.value > settings.highGlucoseThreshold) {
-        segmentColor = settings.highGlucoseColor; // Red for out of range
+      // Check dangerZones in reverse order (highest to lowest) to get the appropriate color
+      for (let j = dangerZones.length - 1; j >= 0; j--) {
+        const zone = dangerZones[j];
+        if (point.value >= zone.value) {
+          segmentColor = zone.color;
+          break;
+        }
       }
       
       if (currentColor !== segmentColor) {
@@ -195,6 +204,20 @@ const LearningModule = ({
     });
   };
 
+  // Medical disclaimer component
+  const MedicalDisclaimer = ({ text }) => (
+    <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6 mx-4">
+      <div className="flex">
+        <div className="flex-shrink-0">
+          <span className="text-2xl">⚠️</span>
+        </div>
+        <div className="ml-3">
+          <p className="text-sm font-medium text-red-800">{text}</p>
+        </div>
+      </div>
+    </div>
+  );
+
   if (!currentModule) {
     return <div>No modules available</div>;
   }
@@ -214,6 +237,9 @@ const LearningModule = ({
         </div>
         <Settings className="w-5 h-5 text-gray-600" />
       </div>
+
+      {/* Medical Disclaimer */}
+      {disclaimerText && <MedicalDisclaimer text={disclaimerText} />}
 
       {/* Category Navigation */}
       <div className="p-4" style={{ backgroundColor }}>
@@ -265,42 +291,43 @@ const LearningModule = ({
 
       {/* Chart */}
       <div className="relative" style={{ backgroundColor, marginBottom: '20px' }}>
-        {/* Y-axis Labels */}
+        {/* Y-axis Labels - Generic based on dangerZones */}
         <div className="absolute top-5 text-xs text-gray-400" style={{ height: chartHeight }}>
-          <div 
-            className="absolute transform -translate-y-1/2" 
-            style={{ top: `${mapYValueToPixel(settings.highGlucoseThreshold)}px` }}
-          >
-            {settings.highGlucoseThreshold}
-          </div>
-          <div 
-            className="absolute transform -translate-y-1/2" 
-            style={{ top: `${mapYValueToPixel(settings.lowGlucoseThreshold)}px` }}
-          >
-            {settings.lowGlucoseThreshold}
-          </div>
+          {dangerZones.map((zone, index) => (
+            <div 
+              key={index}
+              className="absolute transform -translate-y-1/2" 
+              style={{ top: `${mapYValueToPixel(zone.value)}px` }}
+            >
+              {zone.value}
+            </div>
+          ))}
         </div>
         
         <div className="bg-white mx-6 rounded-xl relative overflow-hidden" style={{ height: `${chartHeight}px` }}>
+          {/* Unit label - configurable */}
+          {unitLabel && (
+            <div className="absolute right-2 top-2 text-xs text-gray-500 bg-white px-2 py-1 rounded shadow-sm z-10">
+              {unitLabel}
+            </div>
+          )}
+
           <div className="chart-area relative" style={{ height: chartHeight, width: chartWidth, margin: '20px auto' }}>
             <svg className="w-full h-full">
-              {/* Reference lines using settings thresholds */}
-              <line 
-                x1="0" 
-                x2="100%" 
-                y1={mapYValueToPixel(settings.lowGlucoseThreshold)} 
-                y2={mapYValueToPixel(settings.lowGlucoseThreshold)} 
-                stroke={settings.highGlucoseColor} 
-                strokeWidth="2" 
-              />
-              <line 
-                x1="0" 
-                x2="100%" 
-                y1={mapYValueToPixel(settings.highGlucoseThreshold)} 
-                y2={mapYValueToPixel(settings.highGlucoseThreshold)} 
-                stroke={settings.highGlucoseReferenceLine} 
-                strokeWidth="2" 
-              />
+              {/* Reference lines */}
+              {dangerZones.map((zone, index) => (
+                <line 
+                  key={index}
+                  x1="0" 
+                  x2="100%" 
+                  y1={mapYValueToPixel(zone.value)} 
+                  y2={mapYValueToPixel(zone.value)} 
+                  stroke={zone.color} 
+                  strokeWidth="1"
+                  strokeDasharray="3 3"
+                  opacity="0.7"
+                />
+              ))}
               
               {/* Comparison lines for other items */}
               {showComparison && currentCategoryData.map((item, index) => {
@@ -321,6 +348,7 @@ const LearningModule = ({
                       stroke="#cbd5e1"
                       strokeWidth="2"
                       strokeDasharray="4 4"
+                      opacity="0.6"
                     />
                   );
                 }
@@ -399,6 +427,29 @@ const LearningModule = ({
             <p className={`text-${buttonStyle}-600 text-sm font-medium`}>
               {currentItem.description}
             </p>
+          </div>
+        )}
+
+        {/* Generic Legend - configurable */}
+        {showLegend && legendItems.length > 0 && (
+          <div className="bg-white rounded-lg p-4 mb-6 mx-4 shadow-sm">
+            <h4 className="text-sm font-semibold text-gray-700 mb-3 text-center">
+              {legendTitle}
+            </h4>
+            <div className="grid grid-cols-1 gap-2 text-xs">
+              {legendItems.map((item, index) => (
+                <div key={index} className="flex items-center">
+                  <div 
+                    className="w-3 h-3 rounded mr-2 flex-shrink-0" 
+                    style={{ backgroundColor: item.color }}
+                  ></div>
+                  <span className={item.isWarning ? 'text-red-600 font-medium' : 'text-gray-700'}>
+                    {item.label}
+                    {item.isWarning && ' ⚠️'}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

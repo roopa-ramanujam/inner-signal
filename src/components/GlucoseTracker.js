@@ -20,7 +20,7 @@ const getBottomSheetHeights = (screenHeight, isStandaloneMode = false) => {
   const remainingHeight = screenHeight * remainingPercent;
   
   return {
-    COLLAPSED_HEIGHT: Math.max(160, Math.min(250, remainingHeight)), // Between 160-250px based on available space
+    COLLAPSED_HEIGHT: isStandaloneMode ? Math.max(160, Math.min(250, remainingHeight)) : Math.max(180, remainingHeight), // Between 160-250px based on available space
   };
 };
 
