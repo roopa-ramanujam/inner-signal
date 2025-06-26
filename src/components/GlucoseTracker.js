@@ -146,6 +146,46 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const getCurrentCollapsedHeight = () => getBottomSheetHeights(windowHeight).COLLAPSED_HEIGHT;
   const FULL_SCREEN_HEIGHT = windowHeight;
 
+  // Calculate the effective height when keyboard is visible
+  const getEffectiveHeight = (targetHeight) => {
+    if (!isKeyboardVisible) return targetHeight;
+    
+    // When keyboard is visible, ensure we have enough space for search bar and first row
+    const minVisibleHeight = 200; // Space for search bar (~60px) + one row (~90px) + padding (~50px)
+    const availableHeight = windowHeight - keyboardHeight;
+    const effectiveHeight = Math.min(targetHeight, Math.max(minVisibleHeight, availableHeight));
+    
+    return effectiveHeight;
+  };
+
+  // Update bottom sheet height when keyboard visibility changes
+  useEffect(() => {
+    if (isKeyboardVisible) {
+      const currentCollapsedHeight = getCurrentCollapsedHeight();
+      const isCurrentlyFullScreen = bottomSheetHeight >= FULL_SCREEN_HEIGHT - 50;
+      
+      if (isCurrentlyFullScreen) {
+        // If full screen, maintain full screen but adjust for keyboard
+        const newHeight = getEffectiveHeight(FULL_SCREEN_HEIGHT);
+        setBottomSheetHeight(newHeight);
+      } else {
+        // If collapsed, adjust collapsed height for keyboard
+        const newHeight = getEffectiveHeight(currentCollapsedHeight);
+        setBottomSheetHeight(newHeight);
+      }
+    } else {
+      // Keyboard hidden - restore to previous state
+      const currentCollapsedHeight = getCurrentCollapsedHeight();
+      const wasFullScreen = bottomSheetHeight >= (windowHeight - keyboardHeight) * 0.8; // Roughly detect if it was full screen
+      
+      if (wasFullScreen) {
+        setBottomSheetHeight(FULL_SCREEN_HEIGHT);
+      } else {
+        setBottomSheetHeight(currentCollapsedHeight);
+      }
+    }
+  }, [isKeyboardVisible, keyboardHeight, windowHeight]);
+
   // Initialize bottomSheetHeight with the calculated COLLAPSED_HEIGHT
   const [bottomSheetHeight, setBottomSheetHeight] = useState(() => getCurrentCollapsedHeight());
 
@@ -766,7 +806,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
         `}
         style={{ 
           height: `${bottomSheetHeight}px`,
-          bottom: isKeyboardVisible ? `-${keyboardHeight}px` : '0',
+          bottom: '0', // Always keep at bottom
           transform: isDraggingSheet ? 'none' : undefined,
           touchAction: 'none', // Add this to prevent default touch behaviors
           position: 'fixed'
