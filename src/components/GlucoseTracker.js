@@ -11,13 +11,14 @@ const getBottomSheetHeights = (screenHeight) => {
   const educationalTextPercent = 0.10;     // ~10% for educational text  
   const chartHeightPercent = 0.30;         // ~30% for chart area
   const spacingPercent = 0.05;             // ~5% for spacing/margins
+  const browserUIBuffer = 0.05;            // ~5% buffer for mobile browser UI
   
-  const contentAbovePercent = headerHeightPercent + educationalTextPercent + chartHeightPercent + spacingPercent;
-  const remainingPercent = 1 - contentAbovePercent; // Whatever's left
+  const contentAbovePercent = headerHeightPercent + educationalTextPercent + chartHeightPercent + spacingPercent + browserUIBuffer;
+  const remainingPercent = Math.max(0.15, 1 - contentAbovePercent); // At least 15% for bottom sheet, or whatever's left
   const remainingHeight = screenHeight * remainingPercent;
   
   return {
-    COLLAPSED_HEIGHT: Math.max(180, remainingHeight), // Minimum 180px, or percentage-based remaining space
+    COLLAPSED_HEIGHT: Math.max(160, Math.min(250, remainingHeight)), // Between 160-250px based on available space
   };
 };
 
@@ -36,7 +37,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
 
   const [windowHeight, setWindowHeight] = useState(() => {
     // Get the actual viewport height accounting for mobile URL bars
-    return window.innerHeight;
+    return window.visualViewport ? window.visualViewport.height : window.innerHeight;
   });
 
   // 1. Add a function to control body scroll
@@ -54,27 +55,26 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
 
   // Function to get real viewport height
   const getRealViewportHeight = () => {
-    return window.innerHeight;
+    return window.visualViewport ? window.visualViewport.height : window.innerHeight;
   };
 
   // Enhanced keyboard detection
   useEffect(() => {
-    let lastHeight = window.innerHeight;
-    
     const handleViewportChange = () => {
       const currentHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
       const windowHeight = window.innerHeight;
       
+      // Update window height to current visual viewport
+      setWindowHeight(currentHeight);
+      
       // If viewport height is significantly less than window height, keyboard is likely visible
-      if (windowHeight - currentHeight > 100) {
+      if (windowHeight - currentHeight > 150) { // Increased threshold for better detection
         setIsKeyboardVisible(true);
         setKeyboardHeight(windowHeight - currentHeight);
       } else {
         setIsKeyboardVisible(false);
         setKeyboardHeight(0);
       }
-      
-      lastHeight = currentHeight;
     };
 
     // Set initial value
@@ -98,6 +98,8 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       setTimeout(() => {
         setIsKeyboardVisible(false);
         setKeyboardHeight(0);
+        // Update height after keyboard closes
+        setWindowHeight(getRealViewportHeight());
       }, 100);
     };
 
@@ -127,10 +129,19 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     setViewportHeight();
 
     // Listen for viewport changes (better than just resize)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', setViewportHeight);
+      window.visualViewport.addEventListener('scroll', setViewportHeight);
+    }
+    
     window.addEventListener('resize', setViewportHeight);
     window.addEventListener('orientationchange', setViewportHeight);
 
     return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', setViewportHeight);
+        window.visualViewport.removeEventListener('scroll', setViewportHeight);
+      }
       window.removeEventListener('resize', setViewportHeight);
       window.removeEventListener('orientationchange', setViewportHeight);
     };
@@ -198,11 +209,20 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   // Track window height changes
   useEffect(() => {
     const handleResize = () => {
-      setWindowHeight(window.innerHeight);
+      setWindowHeight(getRealViewportHeight());
     };
     
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleResize);
+    }
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleResize);
+      }
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   // Handle clicks outside bottom sheet - modified to not trigger when keyboard is visible
@@ -664,7 +684,12 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
 
       {/* Chart */}
       {!isFullScreen && (
-        <div className="bg-[#E7EEEB] relative mb-20">
+        <div 
+          className="bg-[#E7EEEB] relative"
+          style={{ 
+            marginBottom: `${getCurrentCollapsedHeight() + 20}px` // Ensure chart is always above bottom sheet
+          }}
+        >
             {/* Y-axis Labels - positioned at exact reference line positions */}
             <div className="absolute top-5 text-xs text-gray-400" style={{ height: chartHeight }}>
               <div 
@@ -807,6 +832,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
         style={{ 
           height: `${bottomSheetHeight}px`,
           bottom: '0', // Always keep at bottom
+          paddingBottom: 'env(safe-area-inset-bottom)', // Account for home indicator on newer iPhones
           transform: isDraggingSheet ? 'none' : undefined,
           touchAction: 'none', // Add this to prevent default touch behaviors
           position: 'fixed'
