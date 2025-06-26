@@ -5,6 +5,7 @@
 import { glycemicIndexModules } from './modules/glycemicIndexModules';
 import { insulinDosing } from './modules/insulinDosing';
 import { ketones } from './modules/ketones';
+import { settings } from './settings'; // Import settings for consistency
 
 export const pageConfigs = {
   // Blood Sugar Tracker (existing)
@@ -25,42 +26,15 @@ export const pageConfigs = {
       modules: glycemicIndexModules,
       chartConfig: {
         type: 'glucose',
-        baselineValue: 120,
-        chartHeight: 275,
-        chartWidth: 400,
-        yMin: 20,
-        yMax: 220,
-        timeRange: { start: 12, end: 16 }, // 12 PM to 4 PM
+        baselineValue: settings.baselineGlucose,
+        chartHeight: settings.chartHeight,
+        chartWidth: settings.chartWidth,
+        yMin: settings.yMin,
+        yMax: settings.yMax,
+        timeRange: { start: settings.startHour, end: settings.endHour }, // 12 PM to 5 PM
         dangerZones: [
-          { value: 70, color: '#FF7B7B', label: 'Low' },
-          { value: 180, color: '#B9BCF9', label: 'High' }
-        ]
-      },
-      displayConfig: {
-        showComparison: true,
-        backgroundColor: '#E7EEEB',
-        buttonStyle: 'teal'
-      }
-    }
-  },
-
-  'insulin-dosing': {
-    component: 'LearningModule',
-    enabled: false,
-    props: {
-      title: 'Insulin Dosing',
-      modules: insulinDosing,
-      chartConfig: {
-        type: 'glucose',
-        baselineValue: 120,
-        chartHeight: 275,
-        chartWidth: 400,
-        yMin: 20,
-        yMax: 220,
-        timeRange: { start: 12, end: 16 }, // 12 PM to 4 PM
-        dangerZones: [
-          { value: 70, color: '#FF7B7B', label: 'Low' },
-          { value: 180, color: '#B9BCF9', label: 'High' }
+          { value: settings.lowGlucoseThreshold, color: settings.highGlucoseColor, label: 'Low' },
+          { value: settings.highGlucoseThreshold, color: settings.highGlucoseColor, label: 'High' }
         ]
       },
       displayConfig: {

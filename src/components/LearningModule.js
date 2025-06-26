@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
 import ItemImage from './ItemImage';
+import { settings } from './data/settings';
 
 const LearningModule = ({ 
   onNavigate, 
@@ -40,7 +41,7 @@ const LearningModule = ({
     return chartHeight - ((yValue - yMin) / (yMax - yMin)) * chartHeight;
   };
 
-  // Function to generate line segments with appropriate colors
+  // Function to generate line segments with appropriate colors using settings
   const generateLineSegments = (data) => {
     if (data.length < 2) return [];
     
@@ -53,13 +54,11 @@ const LearningModule = ({
       const x = (i / (data.length - 1)) * chartWidth;
       const y = mapYValueToPixel(point.value);
       
-      // Determine color based on danger zones
-      let segmentColor = '#22c55e'; // Default green
-      for (const zone of dangerZones) {
-        if (point.value > zone.value) {
-          segmentColor = zone.color;
-          break;
-        }
+      // Determine color based on glucose thresholds from settings
+      let segmentColor = settings.normalGlucoseColor; // Default to green
+      
+      if (point.value < settings.lowGlucoseThreshold || point.value > settings.highGlucoseThreshold) {
+        segmentColor = settings.highGlucoseColor; // Red for out of range
       }
       
       if (currentColor !== segmentColor) {
@@ -268,32 +267,40 @@ const LearningModule = ({
       <div className="relative" style={{ backgroundColor, marginBottom: '20px' }}>
         {/* Y-axis Labels */}
         <div className="absolute top-5 text-xs text-gray-400" style={{ height: chartHeight }}>
-          {dangerZones.map((zone, index) => (
-            <div 
-              key={index}
-              className="absolute transform -translate-y-1/2" 
-              style={{ top: `${mapYValueToPixel(zone.value)}px` }}
-            >
-              {zone.value}
-            </div>
-          ))}
+          <div 
+            className="absolute transform -translate-y-1/2" 
+            style={{ top: `${mapYValueToPixel(settings.highGlucoseThreshold)}px` }}
+          >
+            {settings.highGlucoseThreshold}
+          </div>
+          <div 
+            className="absolute transform -translate-y-1/2" 
+            style={{ top: `${mapYValueToPixel(settings.lowGlucoseThreshold)}px` }}
+          >
+            {settings.lowGlucoseThreshold}
+          </div>
         </div>
         
         <div className="bg-white mx-6 rounded-xl relative overflow-hidden" style={{ height: `${chartHeight}px` }}>
           <div className="chart-area relative" style={{ height: chartHeight, width: chartWidth, margin: '20px auto' }}>
             <svg className="w-full h-full">
-              {/* Reference lines */}
-              {dangerZones.map((zone, index) => (
-                <line 
-                  key={index}
-                  x1="0" 
-                  x2="100%" 
-                  y1={mapYValueToPixel(zone.value)} 
-                  y2={mapYValueToPixel(zone.value)} 
-                  stroke={zone.color} 
-                  strokeWidth="2" 
-                />
-              ))}
+              {/* Reference lines using settings thresholds */}
+              <line 
+                x1="0" 
+                x2="100%" 
+                y1={mapYValueToPixel(settings.lowGlucoseThreshold)} 
+                y2={mapYValueToPixel(settings.lowGlucoseThreshold)} 
+                stroke={settings.highGlucoseColor} 
+                strokeWidth="2" 
+              />
+              <line 
+                x1="0" 
+                x2="100%" 
+                y1={mapYValueToPixel(settings.highGlucoseThreshold)} 
+                y2={mapYValueToPixel(settings.highGlucoseThreshold)} 
+                stroke={settings.highGlucoseReferenceLine} 
+                strokeWidth="2" 
+              />
               
               {/* Comparison lines for other items */}
               {showComparison && currentCategoryData.map((item, index) => {
