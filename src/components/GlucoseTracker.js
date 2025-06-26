@@ -5,20 +5,22 @@ import { settings } from './data/settings';
 import ItemImage from './ItemImage';
 
 // Calculate heights based on screen size
-const getBottomSheetHeights = (screenHeight) => {
+const getBottomSheetHeights = (screenHeight, isStandaloneMode = false) => {
   // Calculate content above as percentages of screen height
   const headerHeightPercent = 0.08;        // ~8% for header
   const educationalTextPercent = 0.10;     // ~10% for educational text  
   const chartHeightPercent = 0.30;         // ~30% for chart area
   const spacingPercent = 0.05;             // ~5% for spacing/margins
-  const browserUIBuffer = 0.05;            // ~5% buffer for mobile browser UI
+  
+  // Only add browser UI buffer if we're actually in a browser (not standalone/PWA mode)
+  const browserUIBuffer = isStandaloneMode ? 0 : 0.05; // ~5% buffer for mobile browser UI only when needed
   
   const contentAbovePercent = headerHeightPercent + educationalTextPercent + chartHeightPercent + spacingPercent + browserUIBuffer;
   const remainingPercent = Math.max(0.15, 1 - contentAbovePercent); // At least 15% for bottom sheet, or whatever's left
   const remainingHeight = screenHeight * remainingPercent;
   
   return {
-    COLLAPSED_HEIGHT: Math.max(160, Math.min(250, remainingHeight)), // Between 160-250px based on available space
+    COLLAPSED_HEIGHT: isStandaloneMode ? Math.max(180, remainingHeight) : Math.max(160, Math.min(250, remainingHeight)), // Between 160-250px based on available space
   };
 };
 
@@ -34,11 +36,31 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const chartRef = useRef(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [isStandaloneMode, setIsStandaloneMode] = useState(false);
 
   const [windowHeight, setWindowHeight] = useState(() => {
     // Get the actual viewport height accounting for mobile URL bars
     return window.visualViewport ? window.visualViewport.height : window.innerHeight;
   });
+
+  // Detect if we're in standalone/PWA mode
+  useEffect(() => {
+    const checkStandaloneMode = () => {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                          window.navigator.standalone ||
+                          document.referrer.includes('android-app://');
+      setIsStandaloneMode(isStandalone);
+    };
+    
+    checkStandaloneMode();
+    
+    // Listen for display mode changes
+    if (window.matchMedia) {
+      const mediaQuery = window.matchMedia('(display-mode: standalone)');
+      mediaQuery.addEventListener('change', checkStandaloneMode);
+      return () => mediaQuery.removeEventListener('change', checkStandaloneMode);
+    }
+  }, []);
 
   // 1. Add a function to control body scroll
   const setBodyScrolling = (enabled) => {
@@ -67,8 +89,11 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       // Update window height to current visual viewport
       setWindowHeight(currentHeight);
       
+      // Adjust keyboard detection threshold based on mode
+      const keyboardThreshold = isStandaloneMode ? 100 : 150; // Lower threshold for standalone mode
+      
       // If viewport height is significantly less than window height, keyboard is likely visible
-      if (windowHeight - currentHeight > 150) { // Increased threshold for better detection
+      if (windowHeight - currentHeight > keyboardThreshold) {
         setIsKeyboardVisible(true);
         setKeyboardHeight(windowHeight - currentHeight);
       } else {
@@ -114,7 +139,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       document.removeEventListener('focusin', handleFocus);
       document.removeEventListener('focusout', handleBlur);
     };
-  }, []);
+  }, [isStandaloneMode]); // Add dependency on standalone mode
 
   // Set CSS custom property for viewport height
   useEffect(() => {
@@ -154,7 +179,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const bottomSheetRef = useRef(null);
 
   // Calculate heights based on current window height
-  const getCurrentCollapsedHeight = () => getBottomSheetHeights(windowHeight).COLLAPSED_HEIGHT;
+  const getCurrentCollapsedHeight = () => getBottomSheetHeights(windowHeight, isStandaloneMode).COLLAPSED_HEIGHT;
   const FULL_SCREEN_HEIGHT = windowHeight;
 
   // Calculate the effective height when keyboard is visible
@@ -195,7 +220,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
         setBottomSheetHeight(currentCollapsedHeight);
       }
     }
-  }, [isKeyboardVisible, keyboardHeight, windowHeight]);
+  }, [isKeyboardVisible, keyboardHeight, windowHeight, isStandaloneMode]); // Add isStandaloneMode dependency
 
   // Initialize bottomSheetHeight with the calculated COLLAPSED_HEIGHT
   const [bottomSheetHeight, setBottomSheetHeight] = useState(() => getCurrentCollapsedHeight());
@@ -245,7 +270,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
     };
-  }, [bottomSheetHeight, windowHeight, isKeyboardVisible]);
+  }, [bottomSheetHeight, windowHeight, isKeyboardVisible, isStandaloneMode]); // Add isStandaloneMode dependency
 
   // Generate initial flat line data
   useEffect(() => {
