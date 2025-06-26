@@ -7,7 +7,7 @@ export const itemLibrary = [
     peakTime: 1.5,
     duration: 3.0,
     educational_text: "Apples have fructose and fiber which helps offset the blood sugar increase.",
-    image: "/images/foods/filename.jpg",
+    image: "/images/foods/apple.jpg",
     fallbackIcon: "🍎"
   },
   {
@@ -106,7 +106,7 @@ export const itemLibrary = [
     peakTime: 2.0,
     duration: 2.0,
     educational_text: "Avocados are mostly healthy fats with very few carbs, barely affecting glucose.",
-    image: "/images/foods/avocado.jpg",
+    image: "/images/foods/avocado.png",
     fallbackIcon: "🥑"
   },
   {
@@ -216,7 +216,7 @@ export const itemLibrary = [
     peakTime: 1.0,
     duration: 4.0,
     educational_text: "Brown rice has fiber but still contains significant carbs, raising glucose 35-45 mg/dL in diabetes.",
-    image: "/images/foods/brown-rice.jpg",
+    image: "/images/foods/brown_rice.png",
     fallbackIcon: "🟤"
   },
   {
@@ -260,7 +260,7 @@ export const itemLibrary = [
     peakTime: 3.0,
     duration: 1.0,
     educational_text: "Butter is nearly pure fat with trace lactose, minimal glucose impact.",
-    image: "/images/foods/butter.jpg",
+    image: "/images/foods/butter.png",
     fallbackIcon: "🧈"
   },
   {
@@ -282,7 +282,18 @@ export const itemLibrary = [
     peakTime: 0.5,
     duration: 2.5,
     educational_text: "Cake's high sugar and refined flour content spikes glucose 60-80 mg/dL.",
-    image: "/images/foods/cake.jpg",
+    image: "/images/foods/cake.png",
+    fallbackIcon: "🍰"
+  },
+  {
+    item: "Candy",
+    category: "sweets",
+    serving_size: "1 slice",
+    glucose_change: 100,
+    peakTime: 0.5,
+    duration: 2.5,
+    educational_text: "Candy's high sugar spikes glucose 80-100 mg/dL.",
+    image: "/images/foods/candy.png",
     fallbackIcon: "🍰"
   },
   {
@@ -616,14 +627,14 @@ export const itemLibrary = [
     fallbackIcon: "🍎"
   },
   {
-    item: "Fruit juice (100% natural)",
+    item: "Orange juice",
     category: "drink",
     serving_size: "4 oz",
     glucose_change: 45,
     peakTime: 0.5,
     duration: 2.0,
     educational_text: "Even 100% juice lacks fiber and spikes glucose 45-60 mg/dL rapidly.",
-    image: "/images/foods/fruit-juice.jpg",
+    image: "/images/foods/orange_juice.png",
     fallbackIcon: "🧃"
   },
   {
@@ -931,7 +942,7 @@ export const itemLibrary = [
     peakTime: 0.0,
     duration: 0.0,
     educational_text: "Pure olive oil contains no carbs and doesn't raise glucose levels.",
-    image: "/images/foods/olive-oil.jpg",
+    image: "/images/foods/olive_oil.png",
     fallbackIcon: "🫒"
   },
   {
@@ -1404,7 +1415,7 @@ export const itemLibrary = [
     peakTime: 0.5,
     duration: 2.0,
     educational_text: "White bread quickly converts to glucose, spiking levels 35-45 mg/dL in diabetes.",
-    image: "/images/foods/white-bread.jpg",
+    image: "/images/foods/white_bread.png",
     fallbackIcon: "🍞"
   },
   {
@@ -1415,7 +1426,7 @@ export const itemLibrary = [
     peakTime: 0.5,
     duration: 2.5,
     educational_text: "White rice rapidly spikes glucose 50-70 mg/dL due to quick starch breakdown.",
-    image: "/images/foods/white-rice.jpg",
+    image: "/images/foods/white_rice.png",
     fallbackIcon: "🍚"
   },
   {
@@ -1437,7 +1448,7 @@ export const itemLibrary = [
     peakTime: 1.0,
     duration: 3.0,
     educational_text: "Whole wheat bread still raises glucose significantly, though less rapidly than white bread.",
-    image: "/images/foods/whole-wheat-bread.jpg",
+    image: "/images/foods/brown_bread.png",
     fallbackIcon: "🍞"
   },
   {
@@ -1514,7 +1525,7 @@ export const itemLibrary = [
     peakTime: 1.0,
     duration: 2.5,
     educational_text: "Bananas provide quick energy from natural sugars and some fiber, with ripeness affecting glucose impact.",
-    image: "/images/foods/banana.jpg",
+    image: "/images/foods/banana.png",
     fallbackIcon: "🍌"
   },
   {
