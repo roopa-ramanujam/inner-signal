@@ -7,7 +7,7 @@ export const itemLibrary = [
     peakTime: 1.5,
     duration: 3.0,
     educational_text: "Apples have fructose and fiber which helps offset the blood sugar increase.",
-    image: "/images/foods/apple.jpg",
+    image: "/images/foods/apple.png",
     fallbackIcon: "🍎"
   },
   {
@@ -73,7 +73,7 @@ export const itemLibrary = [
     peakTime: 1.5,
     duration: 3.5,
     educational_text: "Artichokes have moderate fiber and carbs, causing minimal glucose rise in diabetes.",
-    image: "/images/foods/artichoke.jpg",
+    image: "/images/foods/artichoke.png",
     fallbackIcon: "🥬"
   },
   {
@@ -117,7 +117,7 @@ export const itemLibrary = [
     peakTime: 2.5,
     duration: 4.0,
     educational_text: "Bacon's high fat content minimizes glucose impact, though cured meats may affect insulin sensitivity.",
-    image: "/images/foods/bacon.jpg",
+    image: "/images/foods/bacon.png",
     fallbackIcon: "🥓"
   },
   {
@@ -150,7 +150,7 @@ export const itemLibrary = [
     peakTime: 1.5,
     duration: 3.0,
     educational_text: "Bean sprouts are very low carb, having negligible effect on blood glucose.",
-    image: "/images/foods/bean-sprouts.jpg",
+    image: "/images/foods/sprouts.png",
     fallbackIcon: "🌱"
   },
   {
@@ -161,7 +161,7 @@ export const itemLibrary = [
     peakTime: 1.5,
     duration: 4.0,
     educational_text: "Beans have protein and fiber but still contain significant carbs, raising glucose 20-30 mg/dL.",
-    image: "/images/foods/beans.jpg",
+    image: "/images/foods/beans.png",
     fallbackIcon: "🫘"
   },
   {
@@ -1714,16 +1714,5 @@ export const itemLibrary = [
     educational_text: "Papaya contains natural sugars and digestive enzymes, with moderate glucose impact.",
     image: "/images/foods/papaya.jpg",
     fallbackIcon: "🧡"
-  },
-  {
-    item: "Avocado fruit",
-    category: "fruit",
-    serving_size: "1 whole",
-    glucose_change: 6,
-    peakTime: 2.5,
-    duration: 4.0,
-    educational_text: "Avocados are unique fruits that are mostly healthy fats with minimal glucose impact.",
-    image: "/images/foods/avocado-fruit.jpg",
-    fallbackIcon: "🥑"
   }
 ];

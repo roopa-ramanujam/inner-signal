@@ -20,7 +20,7 @@ const getBottomSheetHeights = (screenHeight, isStandaloneMode = false) => {
   const remainingHeight = screenHeight * remainingPercent;
   
   return {
-    COLLAPSED_HEIGHT: isStandaloneMode ? Math.max(180, remainingHeight) : Math.max(160, Math.min(250, remainingHeight)), // Between 160-250px based on available space
+    COLLAPSED_HEIGHT: Math.max(160, Math.min(250, remainingHeight)), // Between 160-250px based on available space
   };
 };
 
@@ -939,14 +939,12 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
                   style={{ width: '90px', height: '90px' }}
                 >
                   {/* Standardized Icon Container */}
-                  <div className="flex justify-center items-center mb-1" style={{ height: '36px' }}>
-                    <div className="w-8 h-8 flex items-center justify-center">
-                      <ItemImage 
-                        item={menuItem} 
-                        size="medium"
-                        className="max-w-full max-h-full object-contain"
-                      />
-                    </div>
+                  <div className="flex justify-center items-center mb-1" style={{ height: '36px', width: '36px' }}>
+                    <ItemImage 
+                      item={menuItem} 
+                      size="menu"
+                      className="rounded-lg"
+                    />
                   </div>
                   
                   {/* Text with wrapping */}
