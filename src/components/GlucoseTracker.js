@@ -716,7 +716,14 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
           }}
         >
             {/* Y-axis Labels - positioned at exact reference line positions */}
-            <div className="absolute top-5 text-xs text-gray-400" style={{ height: chartHeight }}>
+            <div 
+              className={`absolute text-xs text-gray-400`} 
+              style={{ 
+                height: chartHeight, 
+                top: '20px',
+                left: '5px'
+              }}
+            >
               <div 
                 className="absolute transform -translate-y-1/2" 
                 style={{ top: `${mapYValueToPixel(settings.highGlucoseThreshold)}px` }}
@@ -787,13 +794,19 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
             </div>
           </div>
           {/* X-axis Labels - outside the chart */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 flex justify-between text-xs text-gray-400" style={{ width: chartWidth }}>
-              <span>{settings.startHour === 12 ? '12' : settings.startHour > 12 ? settings.startHour - 12 : settings.startHour} PM</span>
+          <div 
+  className={`absolute left-1/2 transform -translate-x-1/2 flex justify-between text-xs text-gray-400`} 
+  style={{ 
+    width: chartWidth,
+    bottom: '-25px'
+  }}
+>
+              <span className='ml-5'>{settings.startHour === 12 ? '12' : settings.startHour > 12 ? settings.startHour - 12 : settings.startHour} PM</span>
               <span>{settings.startHour + 1 === 12 ? '12' : settings.startHour + 1 > 12 ? settings.startHour + 1 - 12 : settings.startHour + 1} PM</span>
               <span>{settings.startHour + 2 === 12 ? '12' : settings.startHour + 2 > 12 ? settings.startHour + 2 - 12 : settings.startHour + 2} PM</span>
               <span>{settings.startHour + 3 === 12 ? '12' : settings.startHour + 3 > 12 ? settings.startHour + 3 - 12 : settings.startHour + 3} PM</span>
               <span>{settings.startHour + 4 === 12 ? '12' : settings.startHour + 4 > 12 ? settings.startHour + 4 - 12 : settings.startHour + 4} PM</span>
-              <span>{settings.endHour === 12 ? '12' : settings.endHour > 12 ? settings.endHour - 12 : settings.endHour} PM</span>
+              <span className='mr-5'>{settings.endHour === 12 ? '12' : settings.endHour > 12 ? settings.endHour - 12 : settings.endHour} PM</span>
             </div>
             {/* Draggable Food Icons */}
             {selectedItems.length > 0 && (
@@ -926,9 +939,9 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
 
           <div className="flex-1 overflow-y-auto food-grid">
             <div className={`grid gap-3 pb-6 grid-cols-3 justify-items-center pt-4`}>
-              {filteredItems.slice(0, itemLibrary.length).map((menuItem, index) => (
+              {filteredItems.slice(0, itemLibrary.length).map((menuItem) => (
                 <button
-                  key={menuItem.item}
+                  key={menuItem.item} // Use unique item name instead of index
                   onClick={() => handleFoodSelect(menuItem)}
                   disabled={selectedItems.length >= settings.maxSelectedItems && !selectedItems.find(f => f.item === menuItem.item)}
                   className={`
