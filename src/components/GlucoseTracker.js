@@ -928,7 +928,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
             <div className={`grid gap-3 pb-6 grid-cols-3 justify-items-center pt-4`}>
               {filteredItems.slice(0, itemLibrary.length).map((menuItem, index) => (
                 <button
-                  key={index}
+                  key={menuItem.item}
                   onClick={() => handleFoodSelect(menuItem)}
                   disabled={selectedItems.length >= settings.maxSelectedItems && !selectedItems.find(f => f.item === menuItem.item)}
                   className={`
