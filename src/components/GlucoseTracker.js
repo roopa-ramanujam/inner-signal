@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Search, RotateCcw, ChevronDown, X} from 'lucide-react';
 import { itemLibrary } from './data/library';
 import { settings } from './data/settings';
@@ -20,7 +20,7 @@ const getBottomSheetHeights = (screenHeight, isStandaloneMode = false) => {
   const remainingHeight = screenHeight * remainingPercent;
   
   return {
-    COLLAPSED_HEIGHT: isStandaloneMode ? Math.max(220, remainingHeight) : Math.max(180, Math.min(200, remainingHeight)), // INCREASED: 200-300px range (was 160-250px)
+    COLLAPSED_HEIGHT: isStandaloneMode ? Math.max(220, remainingHeight) : Math.max(200, Math.min(300, remainingHeight)), // INCREASED: 200-300px range (was 160-250px)
   };
 };
 
@@ -38,6 +38,9 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isStandaloneMode, setIsStandaloneMode] = useState(false);
   const searchInputRef = useRef(null); // NEW: Add ref for search input
+  
+  // Performance optimization ref for throttling drag updates
+  const dragAnimationRef = useRef(null);
 
   const [windowHeight, setWindowHeight] = useState(() => {
     // Get the actual viewport height accounting for mobile URL bars
@@ -89,7 +92,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     return window.visualViewport ? window.visualViewport.height : window.innerHeight;
   };
 
-  // Enhanced keyboard detection
+  // Enhanced keyboard detection - simplified
   useEffect(() => {
     const handleViewportChange = () => {
       const currentHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
@@ -99,17 +102,15 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       setWindowHeight(currentHeight);
       
       // Adjust keyboard detection threshold based on mode
-      const keyboardThreshold = isStandaloneMode ? 100 : 150; // Lower threshold for standalone mode
+      const keyboardThreshold = isStandaloneMode ? 100 : 150;
       
       // If viewport height is significantly less than window height, keyboard is likely visible
       if (windowHeight - currentHeight > keyboardThreshold) {
         setIsKeyboardVisible(true);
         setKeyboardHeight(windowHeight - currentHeight);
-        setBodyScrolling(false); // NEW: Prevent scrolling when keyboard appears
       } else {
         setIsKeyboardVisible(false);
         setKeyboardHeight(0);
-        setBodyScrolling(true); // NEW: Re-enable scrolling when keyboard disappears
       }
     };
 
@@ -122,43 +123,13 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       window.visualViewport.addEventListener('scroll', handleViewportChange);
     }
 
-    // Also listen for focus/blur on inputs
-    const handleFocus = (e) => {
-      if (e.target.tagName === 'INPUT') {
-        // NEW: Prevent default scroll behavior
-        e.preventDefault();
-        setBodyScrolling(false);
-        
-        // Small delay to let keyboard animation complete
-        setTimeout(handleViewportChange, 300);
-      }
-    };
-
-    const handleBlur = () => {
-      setTimeout(() => {
-        setIsKeyboardVisible(false);
-        setKeyboardHeight(0);
-        setBodyScrolling(true); // NEW: Re-enable scrolling when input loses focus
-        // Update height after keyboard closes
-        setWindowHeight(getRealViewportHeight());
-      }, 100);
-    };
-
-    document.addEventListener('focusin', handleFocus);
-    document.addEventListener('focusout', handleBlur);
-
     return () => {
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', handleViewportChange);
         window.visualViewport.removeEventListener('scroll', handleViewportChange);
       }
-      document.removeEventListener('focusin', handleFocus);
-      document.removeEventListener('focusout', handleBlur);
-      
-      // NEW: Cleanup - ensure scrolling is re-enabled when component unmounts
-      setBodyScrolling(true);
     };
-  }, [isStandaloneMode]); // Add dependency on standalone mode
+  }, [isStandaloneMode]);
 
   // Set CSS custom property for viewport height
   useEffect(() => {
@@ -403,8 +374,8 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     return lowerGlucose + (upperGlucose - lowerGlucose) * fraction;
   };
 
-  // Function to generate line segments with appropriate colors
-  const generateLineSegments = () => {
+  // Function to generate line segments with appropriate colors - memoized for performance
+  const generateLineSegments = useMemo(() => {
     if (glucoseData.length < 2) return [];
     
     const segments = [];
@@ -448,7 +419,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     }
     
     return segments;
-  };
+  }, [glucoseData, chartWidth, settings.highGlucoseThreshold, settings.lowGlucoseThreshold, settings.highGlucoseColor, settings.normalGlucoseColor]);
 
   // Bottom sheet handlers - modified to prevent dragging when keyboard is visible
   const handleSheetTouchStart = (e) => {
@@ -547,6 +518,10 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     // Cleanup function to restore scrolling if component unmounts during drag
     return () => {
       setBodyScrolling(true);
+      // Cancel any pending animation frames
+      if (dragAnimationRef.current) {
+        cancelAnimationFrame(dragAnimationRef.current);
+      }
     };
   }, []);
 
@@ -665,13 +640,26 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     const mouseX = clientX - chartRect.left;
     const percentage = Math.max(0, Math.min(1, mouseX / chartWidth));
     
-    setItemTimings(prev => ({
-      ...prev,
-      [draggedItem.item]: percentage
-    }));
+    // Throttle updates using requestAnimationFrame for smooth performance
+    if (dragAnimationRef.current) {
+      // Cancel the previous animation frame and schedule a new one
+      cancelAnimationFrame(dragAnimationRef.current);
+    }
+    
+    dragAnimationRef.current = requestAnimationFrame(() => {
+      setItemTimings(prev => ({
+        ...prev,
+        [draggedItem.item]: percentage
+      }));
+      dragAnimationRef.current = null;
+    });
   };
 
   const handleSliderEnd = () => {
+    if (dragAnimationRef.current) {
+      cancelAnimationFrame(dragAnimationRef.current);
+      dragAnimationRef.current = null;
+    }
     setDraggedItem(null);
   };
 
@@ -798,13 +786,13 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
             <div className="chart-area relative" style={{ height: chartHeight, width: chartWidth, margin: '20px auto' }}>
               
               {/* Custom SVG for everything - full control */}
-              <svg className="w-full h-full">
+              <svg className="w-full" style={{ height: chartHeight + 85 }}> {/* Extended SVG height to include connection line area */}
                 {/* Full-width reference lines */}
                 <line x1="0" x2="100%" y1={mapYValueToPixel(settings.lowGlucoseThreshold)} y2={mapYValueToPixel(settings.lowGlucoseThreshold)} stroke={settings.lowGlucoseReferenceLine} strokeWidth="2" />
                 <line x1="0" x2="100%" y1={mapYValueToPixel(settings.highGlucoseThreshold)} y2={mapYValueToPixel(settings.highGlucoseThreshold)} stroke={settings.highGlucoseReferenceLine} strokeWidth="2" />
                 
                 {/* Glucose line segments with appropriate colors */}
-                {generateLineSegments().map((segment, index) => (
+                {generateLineSegments.map((segment, index) => (
                   <polyline
                     key={`segment-${index}`}
                     points={segment.points.join(' ')}
@@ -828,7 +816,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
                       x1={x}
                       y1={y}
                       x2={x}
-                      y2={chartHeight + 40}
+                      y2={chartHeight + 85} // Extended to reach the icon at -85px
                       stroke={settings.connectionLineColor}
                       strokeWidth="2"
                     />
