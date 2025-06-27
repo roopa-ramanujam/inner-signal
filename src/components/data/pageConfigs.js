@@ -5,8 +5,6 @@ import glycemicIndexModulesData from './modules/glycemicIndexModules.json'; // D
 import ketoneModulesData from './modules/ketoneModules.json'; // Direct JSON import
 import insulinDosingModulesData from './modules/insulinDosing.json'
 
-
-
 import { settings } from './settings'; // Import settings for consistency
 
 export const pageConfigs = {
@@ -19,10 +17,10 @@ export const pageConfigs = {
     }
   },
 
-  // Glycemic Index Learning (refactored)
+  // Glycemic Index Learning
   'glycemic-index': {
     component: 'LearningModule',
-    enabled: true,
+    enabled: true, // true if you want it to be an option in the dropdown, false to say "Coming Soon"
     props: {
       title: 'Glycemic Index',
       modules: glycemicIndexModulesData?.glycemicIndexModules || [],
@@ -49,13 +47,13 @@ export const pageConfigs = {
     }
   },
 
-  // Ketones Learning (loaded from JSON)
+  // Ketones education
   'ketones': {
     component: 'LearningModule',
-    enabled: true, // Enable for testing
+    enabled: false, // true if you want it to be an option in the dropdown, false to say "Coming Soon"
     props: {
       title: 'Ketones',
-      modules: ketoneModulesData?.ketoneModules || [], // Now comes from JSON
+      modules: ketoneModulesData?.ketoneModules || [],
       chartConfig: {
         baselineValue: 0.1,                    // Proper ketone baseline (mmol/L)
         chartHeight: 300,
@@ -92,7 +90,7 @@ export const pageConfigs = {
   // Insulin Dosing Education
   'insulin-dosing': {
     component: 'LearningModule',
-    enabled: false,
+    enabled: true, // true if you want it to be an option in the dropdown, false to say "Coming Soon"
     props: {
       title: 'Insulin Dosing',
       modules: insulinDosingModulesData?.insulinDosingModules || [],
@@ -102,7 +100,7 @@ export const pageConfigs = {
         chartWidth: settings.chartWidth,
         yMin: 50,                              // Lower to show hypoglycemia
         yMax: 200,
-        timeRange: { start: 6, end: 18 },      // 6 AM to 6 PM (12 hours)
+        timeRange: { start: 9, end: 18 },      // 6 AM to 6 PM (12 hours)
         dangerZones: [
           { value: 70, color: '#ef4444', label: 'Hypo Risk' },
           { value: 120, color: '#22c55e', label: 'Target' },
@@ -112,7 +110,7 @@ export const pageConfigs = {
       displayConfig: {
         showComparison: true,
         backgroundColor: '#E7EEEB',          
-        buttonStyle: 'blue',
+        buttonStyle: 'teal', // default is teal
         unitLabel: 'mg/dL',
         defaultLineColor: '#22c55e',
         showLegend: true,
@@ -127,12 +125,3 @@ export const pageConfigs = {
     }
   },
 }; // CLOSING TAG
-
-// Debug: Log the final ketones config
-console.log('🔍 Debug ketones page config:', pageConfigs['ketones']);
-
-// TO ADD A NEW PAGE:
-// 1. Add a new entry to this object
-// 2. Create the content modules file (JSON or JS)
-// 3. Add the page to appSections.js
-// 4. That's it! No component changes needed.

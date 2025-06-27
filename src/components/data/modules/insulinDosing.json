@@ -1,1 +1,234 @@
-{}
+{
+    "insulinDosingModules": [
+      {
+        "id": "meal-insulin",
+        "name": "Meal Insulin",
+        "icon": "🍽️",
+        "instructions": "Learn how rapid-acting insulin affects glucose levels with different meals.",
+        "data": [
+          {
+            "id": "rapid-carb-meal",
+            "name": "Rapid Insulin + Carb Meal",
+            "peakTime": 2.0,
+            "peakValue": 85,
+            "duration": 4.0,
+            "description": "Proper rapid-acting insulin dose with carbohydrate meal maintains target glucose.",
+            "image": "/images/insulin/rapid-carb.png",
+            "fallbackIcon": "🍝",
+            "impactStart": 0.25
+          },
+          {
+            "id": "rapid-protein-meal",
+            "name": "Rapid Insulin + Protein Meal",
+            "peakTime": 1.5,
+            "peakValue": 75,
+            "duration": 3.5,
+            "description": "Insulin with protein-rich meals may cause more pronounced glucose lowering.",
+            "image": "/images/insulin/rapid-protein.png",
+            "fallbackIcon": "🥩",
+            "impactStart": 0.25
+          },
+          {
+            "id": "no-insulin-carb",
+            "name": "Carb Meal Without Insulin",
+            "peakTime": 1.5,
+            "peakValue": 220,
+            "duration": 4.0,
+            "description": "Missing mealtime insulin leads to significant glucose elevation.",
+            "image": "/images/insulin/no-insulin-carb.png",
+            "fallbackIcon": "⚠️",
+            "impactStart": 0.5
+          },
+          {
+            "id": "insufficient-insulin",
+            "name": "Under-dosed Meal Insulin",
+            "peakTime": 2.0,
+            "peakValue": 180,
+            "duration": 5.0,
+            "description": "Inadequate insulin dosing results in post-meal hyperglycemia.",
+            "image": "/images/insulin/under-dosed.png",
+            "fallbackIcon": "📈",
+            "impactStart": 0.5
+          }
+        ]
+      },
+      {
+        "id": "correction-dosing",
+        "name": "Correction Doses",
+        "icon": "🎯",
+        "instructions": "Understand how correction insulin doses affect elevated glucose levels.",
+        "data": [
+          {
+            "id": "mild-correction",
+            "name": "Mild High Correction",
+            "peakTime": 2.0,
+            "peakValue": 95,
+            "duration": 4.0,
+            "description": "Correcting glucose from 160 mg/dL back to target range.",
+            "image": "/images/insulin/mild-correction.png",
+            "fallbackIcon": "🎯",
+            "impactStart": 0.25
+          },
+          {
+            "id": "significant-correction",
+            "name": "High Glucose Correction",
+            "peakTime": 2.5,
+            "peakValue": 85,
+            "duration": 5.0,
+            "description": "Correcting severe hyperglycemia (250+ mg/dL) requires careful monitoring.",
+            "image": "/images/insulin/high-correction.png",
+            "fallbackIcon": "⬇️",
+            "impactStart": 0.25
+          },
+          {
+            "id": "insulin-stacking",
+            "name": "Insulin Stacking",
+            "peakTime": 1.5,
+            "peakValue": 55,
+            "duration": 4.0,
+            "description": "Additional insulin given too soon can cause dangerous hypoglycemia.",
+            "image": "/images/insulin/stacking.png",
+            "fallbackIcon": "⚠️",
+            "impactStart": 0.25
+          },
+          {
+            "id": "under-correction",
+            "name": "Under-correction",
+            "peakTime": 2.0,
+            "peakValue": 145,
+            "duration": 4.0,
+            "description": "Insufficient correction dose leaves glucose elevated above target.",
+            "image": "/images/insulin/under-correction.png",
+            "fallbackIcon": "📊",
+            "impactStart": 0.25
+          }
+        ]
+      },
+      {
+        "id": "insulin-types",
+        "name": "Insulin Profiles",
+        "icon": "💉",
+        "instructions": "Compare how different insulin types affect glucose over time.",
+        "data": [
+          {
+            "id": "rapid-acting-profile",
+            "name": "Rapid-Acting Insulin",
+            "peakTime": 1.5,
+            "peakValue": 80,
+            "duration": 4.0,
+            "description": "Rapid-acting insulin works quickly with peak effect in 1-2 hours.",
+            "image": "/images/insulin/rapid-acting.png",
+            "fallbackIcon": "⚡",
+            "impactStart": 0.25
+          },
+          {
+            "id": "long-acting-profile",
+            "name": "Long-Acting Insulin",
+            "peakTime": 6.0,
+            "peakValue": 110,
+            "duration": 12.0,
+            "description": "Long-acting insulin provides steady, prolonged glucose control.",
+            "image": "/images/insulin/long-acting.png",
+            "fallbackIcon": "⏰",
+            "impactStart": 1.0
+          },
+          {
+            "id": "insulin-pump-bolus",
+            "name": "Insulin Pump Bolus",
+            "peakTime": 1.25,
+            "peakValue": 85,
+            "duration": 3.5,
+            "description": "Pump boluses deliver precise rapid-acting insulin doses.",
+            "image": "/images/insulin/pump-bolus.png",
+            "fallbackIcon": "📱",
+            "impactStart": 0.15
+          },
+          {
+            "id": "split-dose",
+            "name": "Split Correction Dose",
+            "peakTime": 3.0,
+            "peakValue": 90,
+            "duration": 6.0,
+            "description": "Dividing large corrections can provide safer glucose lowering.",
+            "image": "/images/insulin/split-dose.png",
+            "fallbackIcon": "✂️",
+            "impactStart": 0.25
+          }
+        ]
+      },
+      {
+        "id": "special-situations",
+        "name": "Special Situations",
+        "icon": "⚠️",
+        "instructions": "Learn how various situations can affect insulin effectiveness and glucose control.",
+        "data": [
+          {
+            "id": "missed-meal",
+            "name": "Missed Meal After Insulin",
+            "peakTime": 2.0,
+            "peakValue": 45,
+            "duration": 4.0,
+            "description": "Taking meal insulin without eating can cause severe hypoglycemia.",
+            "image": "/images/insulin/missed-meal.png",
+            "fallbackIcon": "🚫",
+            "impactStart": 0.25
+          },
+          {
+            "id": "exercise-insulin-board",
+            "name": "Exercise with Insulin",
+            "peakTime": 1.0,
+            "peakValue": 65,
+            "duration": 3.0,
+            "description": "Exercise enhances insulin absorption and can cause rapid glucose drops.",
+            "image": "/images/insulin/exercise-insulin.png",
+            "fallbackIcon": "🏃‍♀️",
+            "impactStart": 0.25
+          },
+          {
+            "id": "dawn-phenomenon-management",
+            "name": "Dawn Phenomenon",
+            "peakTime": 3.0,
+            "peakValue": 155,
+            "duration": 4.0,
+            "description": "Morning hormone surges can cause glucose to rise despite insulin.",
+            "image": "/images/insulin/dawn-phenomenon.png",
+            "fallbackIcon": "🌅",
+            "impactStart": 1.0
+          },
+          {
+            "id": "illness-stress",
+            "name": "Illness/Stress Response",
+            "peakTime": 2.0,
+            "peakValue": 175,
+            "duration": 6.0,
+            "description": "Illness and stress can increase insulin resistance and glucose levels.",
+            "image": "/images/insulin/illness-stress.png",
+            "fallbackIcon": "🤒",
+            "impactStart": 0.5
+          }
+        ]
+      }
+    ],
+    "glucoseReference": {
+      "ranges": [
+        {"min": null, "max": 70, "level": "Hypoglycemia (Emergency)", "color": "#ef4444"},
+        {"min": 70, "max": 99, "level": "Normal/Target", "color": "#22c55e"},
+        {"min": 100, "max": 125, "level": "Slightly Elevated", "color": "#22c55e"},
+        {"min": 126, "max": 180, "level": "Elevated", "color": "#f59e0b"},
+        {"min": 181, "max": 250, "level": "High", "color": "#f59e0b"},
+        {"min": 251, "max": null, "level": "Very High (Seek Medical Care)", "color": "#ef4444"}
+      ],
+      "units": "mg/dL",
+      "targetRange": {
+        "min": 70,
+        "max": 180,
+        "optimal": 120
+      },
+      "criticalValues": {
+        "severeHypoglycemia": 54,
+        "hypoglycemia": 70,
+        "hyperglycemia": 180,
+        "severeHyperglycemia": 250
+      }
+    }
+  }
