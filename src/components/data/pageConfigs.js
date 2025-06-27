@@ -4,7 +4,6 @@
 import glycemicIndexModulesData from './modules/glycemicIndexModules.json'; // Direct JSON import
 import ketoneModulesData from './modules/ketoneModules.json'; // Direct JSON import
 import insulinDosingModulesData from './modules/insulinDosing.json'
-import testModulesData from './modules/testModules.json';
 
 
 
