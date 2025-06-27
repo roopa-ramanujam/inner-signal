@@ -23,8 +23,8 @@ This guide shows you how to add a new learning module page to the app using only
 ### 1.2 Create the new JSON file
 1. **In the filename box**, type: `yourModuleName.json`
    - Replace `yourModuleName` with your actual module name
-   - Examples: `exercises.json`, `medications.json`, `foods.json`
-   - ⚠️ **Important**: Use lowercase letters and no spaces
+   - Examples: `exercises.json`, `insulinDosing.json`, `foods.json`
+   - ⚠️ **Important**: Use lowercase letters and no spaces. For filenames with multiple words, use camelcase (firstSecondThird).
 
 2. **Copy the entire content** from the `exampleModules.json` template above
 3. **Paste it into the file content area**
