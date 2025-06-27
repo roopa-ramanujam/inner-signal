@@ -1,0 +1,52 @@
+{
+    "testModules": [
+      {
+        "id": "test-module",
+        "name": "Test module",
+        "icon": "🏃‍♀️",
+        "instructions": "Testing creating module.",
+        "data": [
+          {
+            "id": "walking",
+            "name": "Walking",
+            "peakTime": 1.0,
+            "peakValue": 110,
+            "duration": 3.0,
+            "description": "Light walking can help lower blood sugar levels gradually over time.",
+            "fallbackIcon": "🚶‍♀️",
+            "impactStart": 0.25
+          },
+          {
+            "id": "running",
+            "name": "Running",
+            "peakTime": 0.5,
+            "peakValue": 95,
+            "duration": 4.0,
+            "description": "Running provides more significant blood sugar reduction effects.",
+            "fallbackIcon": "🏃‍♂️",
+            "impactStart": 0.1
+          },
+          {
+            "id": "cycling",
+            "name": "Cycling",
+            "peakTime": 0.75,
+            "peakValue": 100,
+            "duration": 3.5,
+            "description": "Cycling offers steady cardiovascular benefits and glucose control.",
+            "fallbackIcon": "🚴‍♀️",
+            "impactStart": 0.2
+          }
+        ]
+      }
+    ],
+    "referenceInfo": {
+      "ranges": [
+        {"min": 70, "max": 100, "level": "Normal range"},
+        {"min": 100, "max": 140, "level": "Slightly elevated"},
+        {"min": 140, "max": 180, "level": "High"},
+        {"min": 180, "max": null, "level": "Very high"}
+      ],
+      "units": "mg/dL",
+      "notes": "This is example data for demonstration purposes only."
+    }
+  }
