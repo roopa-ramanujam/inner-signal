@@ -4,6 +4,7 @@
 import glycemicIndexModulesData from './modules/glycemicIndexModules.json'; // Direct JSON import
 import ketoneModulesData from './modules/ketoneModules.json'; // Direct JSON import
 import insulinDosingModulesData from './modules/insulinDosing.json'
+import testModulesData from './modules/testModules.json';
 
 
 
@@ -125,8 +126,45 @@ export const pageConfigs = {
         disclaimerText: 'IMPORTANT: Educational content only. Never adjust insulin without healthcare provider guidance.'
       }
     }
+  },
+
+  // Your New Page
+'test': {
+  component: 'LearningModule',
+  enabled: true,
+  props: {
+    title: 'Test Module',
+    modules: testModulesData?.testModules || [],
+    chartConfig: {
+      baselineValue: 120,              // Starting value for your data type
+      chartHeight: 300,
+      chartWidth: settings.chartWidth,
+      yMin: 70,                        // Minimum chart value
+      yMax: 200,                       // Maximum chart value  
+      timeRange: { start: settings.startHour, end: settings.endHour },
+      dangerZones: [
+        { value: 70, color: '#ef4444', label: 'Low' },
+        { value: 120, color: '#22c55e', label: 'Normal' },
+        { value: 180, color: '#f59e0b', label: 'High' }
+      ]
+    },
+    displayConfig: {
+      showComparison: true,
+      backgroundColor: '#E7EEEB',          
+      buttonStyle: 'blue',             // Color theme: 'blue', 'teal', 'green'
+      unitLabel: 'mg/dL',              // Unit shown on chart
+      defaultLineColor: '#22c55e',
+      showLegend: false,               // Set to true if you want a legend
+      legendTitle: 'Your Data Ranges',
+      legendItems: [
+        { color: '#ef4444', label: 'Low range description' },
+        { color: '#22c55e', label: 'Normal range description' },
+        { color: '#f59e0b', label: 'High range description' }
+      ]
+    }
   }
-};
+},
+}; // CLOSING TAG
 
 // Debug: Log the final ketones config
 console.log('🔍 Debug ketones page config:', pageConfigs['ketones']);
