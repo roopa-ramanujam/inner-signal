@@ -23,11 +23,6 @@ export const appSections = [
     name: 'Ketones',
     description: ''
   },
-  {
-  id: 'test',
-  name: 'Test Module',
-  description: 'Brief description of what this page does'
-  },
   // {
   //   id: 'example-page',
   //   name: 'Example Page',

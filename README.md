@@ -169,7 +169,7 @@ import exerciseModulesData from './modules/exercises.json';
     displayConfig: {
       showComparison: true,
       backgroundColor: '#E7EEEB',          
-      buttonStyle: 'blue',             // Color theme: 'blue', 'teal', 'green'
+      buttonStyle: 'teal',             // Color theme: 'blue', 'teal', 'green'
       unitLabel: 'mg/dL',              // Unit shown on chart
       defaultLineColor: '#22c55e',
       showLegend: false,               // Set to true if you want a legend
