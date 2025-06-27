@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, RotateCcw, ChevronDown, X} from 'lucide-react';
 import { itemLibrary } from './data/library';
 import { settings } from './data/settings';
@@ -20,7 +20,7 @@ const getBottomSheetHeights = (screenHeight, isStandaloneMode = false) => {
   const remainingHeight = screenHeight * remainingPercent;
   
   return {
-    COLLAPSED_HEIGHT: isStandaloneMode ? Math.max(180, remainingHeight) : Math.max(160, Math.min(250, remainingHeight)), // Between 160-250px based on available space
+    COLLAPSED_HEIGHT: isStandaloneMode ? Math.max(200, remainingHeight) : Math.max(160, Math.min(250, remainingHeight)), // Between 160-250px based on available space
   };
 };
 
@@ -43,6 +43,10 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     return window.visualViewport ? window.visualViewport.height : window.innerHeight;
   });
 
+  // Initialize bottomSheetHeight - moved before it's used
+  const getCurrentCollapsedHeight = useCallback(() => getBottomSheetHeights(windowHeight, isStandaloneMode).COLLAPSED_HEIGHT, [windowHeight, isStandaloneMode]);
+  const [bottomSheetHeight, setBottomSheetHeight] = useState(() => getCurrentCollapsedHeight());
+
   // Detect if we're in standalone/PWA mode
   useEffect(() => {
     const checkStandaloneMode = () => {
@@ -56,7 +60,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   }, []);
 
   // 1. Add a function to control body scroll
-  const setBodyScrolling = (enabled) => {
+  const setBodyScrolling = useCallback((enabled) => {
     if (enabled) {
       document.body.style.overflow = '';
       document.body.style.position = '';
@@ -66,17 +70,15 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       document.body.style.position = 'fixed';
       document.body.style.width = '100%';
     }
-  };
+  }, []);
 
   // Function to get real viewport height
-  const getRealViewportHeight = () => {
+  const getRealViewportHeight = useCallback(() => {
     return window.visualViewport ? window.visualViewport.height : window.innerHeight;
-  };
+  }, []);
 
   // Enhanced keyboard detection
   useEffect(() => {
-    let lastHeight = window.innerHeight;
-    
     const handleViewportChange = () => {
       const currentHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
       const windowHeight = window.innerHeight;
@@ -89,8 +91,6 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
         setIsKeyboardVisible(false);
         setKeyboardHeight(0);
       }
-      
-      lastHeight = currentHeight;
     };
 
     // Set initial value
@@ -150,7 +150,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       window.removeEventListener('resize', setViewportHeight);
       window.removeEventListener('orientationchange', setViewportHeight);
     };
-  }, []);
+  }, [getRealViewportHeight]);
   
   // Bottom sheet states
   const [isDraggingSheet, setIsDraggingSheet] = useState(false);
@@ -158,12 +158,10 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const [startHeight, setStartHeight] = useState(0);
   const bottomSheetRef = useRef(null);
 
-  // Calculate heights based on current window height
-  const getCurrentCollapsedHeight = () => getBottomSheetHeights(windowHeight, isStandaloneMode).COLLAPSED_HEIGHT;
   const FULL_SCREEN_HEIGHT = windowHeight;
 
   // Calculate the effective height when keyboard is visible
-  const getEffectiveHeight = (targetHeight) => {
+  const getEffectiveHeight = useCallback((targetHeight) => {
     if (!isKeyboardVisible) return targetHeight;
     
     // When keyboard is visible, ensure we have enough space for search bar and first row
@@ -172,7 +170,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     const effectiveHeight = Math.min(targetHeight, Math.max(minVisibleHeight, availableHeight));
     
     return effectiveHeight;
-  };
+  }, [isKeyboardVisible, windowHeight, keyboardHeight]);
 
   // Update bottom sheet height when keyboard visibility changes
   useEffect(() => {
@@ -200,10 +198,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
         setBottomSheetHeight(currentCollapsedHeight);
       }
     }
-  }, [isKeyboardVisible, keyboardHeight, windowHeight]);
-
-  // Initialize bottomSheetHeight with the calculated COLLAPSED_HEIGHT
-  const [bottomSheetHeight, setBottomSheetHeight] = useState(() => getCurrentCollapsedHeight());
+  }, [isKeyboardVisible, keyboardHeight, windowHeight, FULL_SCREEN_HEIGHT, bottomSheetHeight, getCurrentCollapsedHeight, getEffectiveHeight]);
 
   // Chart dimensions from settings
   const chartHeight = settings.chartHeight;
@@ -241,7 +236,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
     };
-  }, [bottomSheetHeight, windowHeight, isKeyboardVisible]);
+  }, [bottomSheetHeight, windowHeight, isKeyboardVisible, getCurrentCollapsedHeight]);
 
   // Generate initial flat line data
   useEffect(() => {
@@ -273,7 +268,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   }, [baselineGlucose]);
 
   // Calculate glucose effect for a specific food at a specific time
-  const calculateFoodEffect = (food, timeSinceConsumption) => {
+  const calculateFoodEffect = useCallback((food, timeSinceConsumption) => {
     // Use food-specific timing or fallback to defaults
     const peakTime = food.peakTime || 1.5; // Default peak at 1.5 hours
     const duration = food.duration || 4.0; // Default duration of 4 hours
@@ -298,7 +293,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     }
     
     return food.glucose_change * multiplier;
-  };
+  }, []);
 
   // Update glucose curve with realistic timing
   useEffect(() => {
@@ -329,14 +324,14 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
         glucose: Math.max(50, glucoseValue)
       };
     }));
-  }, [selectedItems, baselineGlucose, itemTimings]);
+  }, [selectedItems, baselineGlucose, itemTimings, calculateFoodEffect]);
 
   // Utility functions
-  const mapYValueToPixel = (yValue) => {
+  const mapYValueToPixel = useCallback((yValue) => {
     return chartHeight - ((yValue - yMin) / (yMax - yMin)) * chartHeight;
-  };
+  }, [chartHeight, yMin, yMax]);
 
-  const getGlucoseAtPosition = (food) => {
+  const getGlucoseAtPosition = useCallback((food) => {
     const timePosition = itemTimings[food.item] || 0;
     const continuousIndex = timePosition * (glucoseData.length - 1);
     
@@ -353,10 +348,10 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     const upperGlucose = glucoseData[upperIndex]?.glucose || baselineGlucose;
     
     return lowerGlucose + (upperGlucose - lowerGlucose) * fraction;
-  };
+  }, [itemTimings, glucoseData, baselineGlucose]);
 
   // Function to generate line segments with appropriate colors
-  const generateLineSegments = () => {
+  const generateLineSegments = useCallback(() => {
     if (glucoseData.length < 2) return [];
     
     const segments = [];
@@ -400,10 +395,10 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     }
     
     return segments;
-  };
+  }, [glucoseData, chartWidth, mapYValueToPixel]);
 
   // Bottom sheet handlers - modified to prevent dragging when keyboard is visible
-  const handleSheetTouchStart = (e) => {
+  const handleSheetTouchStart = useCallback((e) => {
     if (e.target.closest('.food-grid') || isKeyboardVisible) return;
     
     setIsDraggingSheet(true);
@@ -412,9 +407,9 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     
     // Prevent body scrolling when starting to drag
     setBodyScrolling(false);
-  };
+  }, [isKeyboardVisible, bottomSheetHeight, setBodyScrolling]);
 
-  const handleSheetTouchMove = (e) => {
+  const handleSheetTouchMove = useCallback((e) => {
     if (!isDraggingSheet || isKeyboardVisible) return;
     
     // Always prevent default when dragging
@@ -427,9 +422,9 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     const newHeight = Math.max(currentCollapsedHeight, Math.min(FULL_SCREEN_HEIGHT, startHeight + deltaY));
     
     setBottomSheetHeight(newHeight);
-  };
+  }, [isDraggingSheet, isKeyboardVisible, startY, startHeight, getCurrentCollapsedHeight, FULL_SCREEN_HEIGHT]);
 
-  const handleSheetTouchEnd = () => {
+  const handleSheetTouchEnd = useCallback(() => {
     if (!isDraggingSheet || isKeyboardVisible) return;
     
     setIsDraggingSheet(false);
@@ -449,9 +444,9 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     }
     
     setBottomSheetHeight(targetHeight);
-  };
+  }, [isDraggingSheet, isKeyboardVisible, setBodyScrolling, getCurrentCollapsedHeight, FULL_SCREEN_HEIGHT, bottomSheetHeight]);
 
-  const handleSheetMouseDown = (e) => {
+  const handleSheetMouseDown = useCallback((e) => {
     if (e.target.closest('.food-grid') || isKeyboardVisible) return;
     
     setIsDraggingSheet(true);
@@ -460,9 +455,9 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     
     // Prevent body scrolling when starting to drag
     setBodyScrolling(false);
-  };
+  }, [isKeyboardVisible, bottomSheetHeight, setBodyScrolling]);
 
-  const handleSheetMouseMove = (e) => {
+  const handleSheetMouseMove = useCallback((e) => {
     if (!isDraggingSheet || isKeyboardVisible) return;
     
     const currentY = e.clientY;
@@ -471,9 +466,9 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     const newHeight = Math.max(currentCollapsedHeight, Math.min(FULL_SCREEN_HEIGHT, startHeight + deltaY));
     
     setBottomSheetHeight(newHeight);
-  };
+  }, [isDraggingSheet, isKeyboardVisible, startY, startHeight, getCurrentCollapsedHeight, FULL_SCREEN_HEIGHT]);
 
-  const handleSheetMouseUp = () => {
+  const handleSheetMouseUp = useCallback(() => {
     if (!isDraggingSheet || isKeyboardVisible) return;
     
     setIsDraggingSheet(false);
@@ -493,14 +488,14 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     }
     
     setBottomSheetHeight(targetHeight);
-  };
+  }, [isDraggingSheet, isKeyboardVisible, setBodyScrolling, getCurrentCollapsedHeight, FULL_SCREEN_HEIGHT, bottomSheetHeight]);
 
   useEffect(() => {
     // Cleanup function to restore scrolling if component unmounts during drag
     return () => {
       setBodyScrolling(true);
     };
-  }, []);
+  }, [setBodyScrolling]);
 
   useEffect(() => {
     if (isDraggingSheet) {
@@ -512,9 +507,27 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       document.removeEventListener('mousemove', handleSheetMouseMove);
       document.removeEventListener('mouseup', handleSheetMouseUp);
     };
-  }, [isDraggingSheet, startY, startHeight, bottomSheetHeight, isKeyboardVisible]);
+  }, [isDraggingSheet, handleSheetMouseMove, handleSheetMouseUp]);
 
-  const handleFoodSelect = (food) => {
+  const removeFood = useCallback((foodToRemove) => {
+    setSelectedItems(selectedItems.filter(food => food.item !== foodToRemove.item));
+    setItemTimings(prev => {
+      const newTimings = { ...prev };
+      delete newTimings[foodToRemove.item];
+      return newTimings;
+    });
+    
+    if (lastSelectedFood?.item === foodToRemove.item) {
+      const remainingFoods = selectedItems.filter(food => food.item !== foodToRemove.item);
+      setLastSelectedFood(remainingFoods.length > 0 ? remainingFoods[remainingFoods.length - 1] : null);
+    }
+
+    if (clickedItem?.item === foodToRemove.item) {
+      setClickedItem(null);
+    }
+  }, [selectedItems, lastSelectedFood, clickedItem]);
+  
+  const handleFoodSelect = useCallback((food) => {
     if (selectedItems.find(f => f.item === food.item)) {
       removeFood(food);
       return;
@@ -536,53 +549,35 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       ...prev,
       [food.item]: Math.min(newPosition, 0.9)
     }));
-  };
+  }, [selectedItems, removeFood]);
 
-  const removeFood = (foodToRemove) => {
-    setSelectedItems(selectedItems.filter(food => food.item !== foodToRemove.item));
-    setItemTimings(prev => {
-      const newTimings = { ...prev };
-      delete newTimings[foodToRemove.item];
-      return newTimings;
-    });
-    
-    if (lastSelectedFood?.item === foodToRemove.item) {
-      const remainingFoods = selectedItems.filter(food => food.item !== foodToRemove.item);
-      setLastSelectedFood(remainingFoods.length > 0 ? remainingFoods[remainingFoods.length - 1] : null);
-    }
-
-    if (clickedItem?.item === foodToRemove.item) {
-      setClickedItem(null);
-    }
-  };
-
-  const resetSelection = () => {
+  const resetSelection = useCallback(() => {
     setSelectedItems([]);
     setItemTimings({});
     setLastSelectedFood(null);
     setClickedItem(null);
-  };
+  }, []);
 
-  const clearSearch = () => {
+  const clearSearch = useCallback(() => {
     setSearchTerm('');
-  };
+  }, []);
 
   // Slider handlers
-  const handleSliderStart = (e, food) => {
+  const handleSliderStart = useCallback((e, food) => {
     e.preventDefault();
     setDraggedItem(food);
     // Clear clicked item when starting to drag to prevent conflicts
     setClickedItem(null);
-  };
+  }, []);
 
-  const handleSliderClick = (e, food) => {
+  const handleSliderClick = useCallback((e, food) => {
     if (!draggedItem) {
       e.stopPropagation();
       setClickedItem(clickedItem?.item === food.item ? null : food);
     }
-  };
+  }, [draggedItem, clickedItem]);
 
-  const handleSliderMove = (clientX) => {
+  const handleSliderMove = useCallback((clientX) => {
     if (!draggedItem || !chartRef.current) return;
 
     const rect = chartRef.current.getBoundingClientRect();
@@ -596,22 +591,22 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       ...prev,
       [draggedItem.item]: percentage
     }));
-  };
+  }, [draggedItem, chartWidth]);
 
-  const handleSliderEnd = () => {
+  const handleSliderEnd = useCallback(() => {
     setDraggedItem(null);
-  };
+  }, []);
 
-  const handleSliderMouseMove = (e) => {
+  const handleSliderMouseMove = useCallback((e) => {
     handleSliderMove(e.clientX);
-  };
+  }, [handleSliderMove]);
 
-  const handleSliderTouchMove = (e) => {
+  const handleSliderTouchMove = useCallback((e) => {
     e.preventDefault();
     if (e.touches.length > 0) {
       handleSliderMove(e.touches[0].clientX);
     }
-  };
+  }, [handleSliderMove]);
 
   useEffect(() => {
     if (draggedItem) {
@@ -627,7 +622,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       document.removeEventListener('touchmove', handleSliderTouchMove);
       document.removeEventListener('touchend', handleSliderEnd);
     };
-  }, [draggedItem]);
+  }, [draggedItem, handleSliderMouseMove, handleSliderEnd, handleSliderTouchMove]);
 
   const filteredItems = itemLibrary.filter(food =>
     food.item.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -760,7 +755,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
             </div>
           </div>
           {/* X-axis Labels - outside the chart */}
-          <div Add commentMore actions
+          <div 
             className={`absolute left-1/2 transform -translate-x-1/2 flex justify-between text-xs text-gray-400`} 
             style={{ 
               width: chartWidth,
@@ -904,7 +899,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
 
           <div className="flex-1 overflow-y-auto food-grid">
             <div className={`grid gap-3 pb-6 grid-cols-3 justify-items-center pt-4`}>
-              {filteredItems.slice(0, itemLibrary.length).map((menuItem, index) => (
+              {filteredItems.slice(0, itemLibrary.length).map((menuItem) => (
                 <button
                   key={menuItem.item}
                   onClick={() => handleFoodSelect(menuItem)}
