@@ -1,26 +1,23 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Search, RotateCcw, ChevronDown, X} from 'lucide-react';
 import { itemLibrary } from './data/library';
 import { settings } from './data/settings';
 import ItemImage from './ItemImage';
 
 // Calculate heights based on screen size
-const getBottomSheetHeights = (screenHeight, isStandaloneMode = false) => {
+const getBottomSheetHeights = (screenHeight) => {
   // Calculate content above as percentages of screen height
   const headerHeightPercent = 0.08;        // ~8% for header
   const educationalTextPercent = 0.10;     // ~10% for educational text  
   const chartHeightPercent = 0.30;         // ~30% for chart area
   const spacingPercent = 0.05;             // ~5% for spacing/margins
   
-  // Only add browser UI buffer if we're actually in a browser (not standalone/PWA mode)
-  const browserUIBuffer = isStandaloneMode ? 0 : 0.05; // ~5% buffer for mobile browser UI only when needed
-  
-  const contentAbovePercent = headerHeightPercent + educationalTextPercent + chartHeightPercent + spacingPercent + browserUIBuffer;
-  const remainingPercent = Math.max(0.25, 1 - contentAbovePercent); // INCREASED: At least 25% for bottom sheet (was 15%)
+  const contentAbovePercent = headerHeightPercent + educationalTextPercent + chartHeightPercent + spacingPercent;
+  const remainingPercent = 1 - contentAbovePercent; // Whatever's left
   const remainingHeight = screenHeight * remainingPercent;
   
   return {
-    COLLAPSED_HEIGHT: isStandaloneMode ? Math.max(220, remainingHeight) : Math.max(200, Math.min(300, remainingHeight)), // INCREASED: 200-300px range (was 160-250px)
+    COLLAPSED_HEIGHT: Math.max(180, remainingHeight), // Minimum 180px, or percentage-based remaining space
   };
 };
 
@@ -36,35 +33,11 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const chartRef = useRef(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const [isStandaloneMode, setIsStandaloneMode] = useState(false);
-  const searchInputRef = useRef(null); // NEW: Add ref for search input
-  
-  // Performance optimization ref for throttling drag updates
-  const dragAnimationRef = useRef(null);
 
   const [windowHeight, setWindowHeight] = useState(() => {
     // Get the actual viewport height accounting for mobile URL bars
-    return window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    return window.innerHeight;
   });
-
-  // Detect if we're in standalone/PWA mode
-  useEffect(() => {
-    const checkStandaloneMode = () => {
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-                          window.navigator.standalone ||
-                          document.referrer.includes('android-app://');
-      setIsStandaloneMode(isStandalone);
-    };
-    
-    checkStandaloneMode();
-    
-    // Listen for display mode changes
-    if (window.matchMedia) {
-      const mediaQuery = window.matchMedia('(display-mode: standalone)');
-      mediaQuery.addEventListener('change', checkStandaloneMode);
-      return () => mediaQuery.removeEventListener('change', checkStandaloneMode);
-    }
-  }, []);
 
   // 1. Add a function to control body scroll
   const setBodyScrolling = (enabled) => {
@@ -72,46 +45,36 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       document.body.style.overflow = '';
       document.body.style.position = '';
       document.body.style.width = '';
-      document.body.style.height = '';
-      document.documentElement.style.overflow = '';
-      document.documentElement.style.position = '';
-      document.documentElement.style.height = '';
     } else {
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
       document.body.style.width = '100%';
-      document.body.style.height = '100%';
-      document.documentElement.style.overflow = 'hidden';
-      document.documentElement.style.position = 'fixed';
-      document.documentElement.style.height = '100%';
     }
   };
 
   // Function to get real viewport height
   const getRealViewportHeight = () => {
-    return window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    return window.innerHeight;
   };
 
-  // Enhanced keyboard detection - simplified
+  // Enhanced keyboard detection
   useEffect(() => {
+    let lastHeight = window.innerHeight;
+    
     const handleViewportChange = () => {
       const currentHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
       const windowHeight = window.innerHeight;
       
-      // Update window height to current visual viewport
-      setWindowHeight(currentHeight);
-      
-      // Adjust keyboard detection threshold based on mode
-      const keyboardThreshold = isStandaloneMode ? 100 : 150;
-      
       // If viewport height is significantly less than window height, keyboard is likely visible
-      if (windowHeight - currentHeight > keyboardThreshold) {
+      if (windowHeight - currentHeight > 100) {
         setIsKeyboardVisible(true);
         setKeyboardHeight(windowHeight - currentHeight);
       } else {
         setIsKeyboardVisible(false);
         setKeyboardHeight(0);
       }
+      
+      lastHeight = currentHeight;
     };
 
     // Set initial value
@@ -123,13 +86,33 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       window.visualViewport.addEventListener('scroll', handleViewportChange);
     }
 
+    // Also listen for focus/blur on inputs
+    const handleFocus = (e) => {
+      if (e.target.tagName === 'INPUT') {
+        // Small delay to let keyboard animation complete
+        setTimeout(handleViewportChange, 300);
+      }
+    };
+
+    const handleBlur = () => {
+      setTimeout(() => {
+        setIsKeyboardVisible(false);
+        setKeyboardHeight(0);
+      }, 100);
+    };
+
+    document.addEventListener('focusin', handleFocus);
+    document.addEventListener('focusout', handleBlur);
+
     return () => {
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', handleViewportChange);
         window.visualViewport.removeEventListener('scroll', handleViewportChange);
       }
+      document.removeEventListener('focusin', handleFocus);
+      document.removeEventListener('focusout', handleBlur);
     };
-  }, [isStandaloneMode]);
+  }, []);
 
   // Set CSS custom property for viewport height
   useEffect(() => {
@@ -144,19 +127,10 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     setViewportHeight();
 
     // Listen for viewport changes (better than just resize)
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', setViewportHeight);
-      window.visualViewport.addEventListener('scroll', setViewportHeight);
-    }
-    
     window.addEventListener('resize', setViewportHeight);
     window.addEventListener('orientationchange', setViewportHeight);
 
     return () => {
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', setViewportHeight);
-        window.visualViewport.removeEventListener('scroll', setViewportHeight);
-      }
       window.removeEventListener('resize', setViewportHeight);
       window.removeEventListener('orientationchange', setViewportHeight);
     };
@@ -169,7 +143,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const bottomSheetRef = useRef(null);
 
   // Calculate heights based on current window height
-  const getCurrentCollapsedHeight = () => getBottomSheetHeights(windowHeight, isStandaloneMode).COLLAPSED_HEIGHT;
+  const getCurrentCollapsedHeight = () => getBottomSheetHeights(windowHeight).COLLAPSED_HEIGHT;
   const FULL_SCREEN_HEIGHT = windowHeight;
 
   // Calculate the effective height when keyboard is visible
@@ -210,7 +184,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
         setBottomSheetHeight(currentCollapsedHeight);
       }
     }
-  }, [isKeyboardVisible, keyboardHeight, windowHeight, isStandaloneMode]); // Add isStandaloneMode dependency
+  }, [isKeyboardVisible, keyboardHeight, windowHeight]);
 
   // Initialize bottomSheetHeight with the calculated COLLAPSED_HEIGHT
   const [bottomSheetHeight, setBottomSheetHeight] = useState(() => getCurrentCollapsedHeight());
@@ -224,20 +198,11 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   // Track window height changes
   useEffect(() => {
     const handleResize = () => {
-      setWindowHeight(getRealViewportHeight());
+      setWindowHeight(window.innerHeight);
     };
     
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleResize);
-    }
     window.addEventListener('resize', handleResize);
-    
-    return () => {
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', handleResize);
-      }
-      window.removeEventListener('resize', handleResize);
-    };
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Handle clicks outside bottom sheet - modified to not trigger when keyboard is visible
@@ -260,7 +225,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
     };
-  }, [bottomSheetHeight, windowHeight, isKeyboardVisible, isStandaloneMode]); // Add isStandaloneMode dependency
+  }, [bottomSheetHeight, windowHeight, isKeyboardVisible]);
 
   // Generate initial flat line data
   useEffect(() => {
@@ -374,8 +339,8 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     return lowerGlucose + (upperGlucose - lowerGlucose) * fraction;
   };
 
-  // Function to generate line segments with appropriate colors - memoized for performance
-  const generateLineSegments = useMemo(() => {
+  // Function to generate line segments with appropriate colors
+  const generateLineSegments = () => {
     if (glucoseData.length < 2) return [];
     
     const segments = [];
@@ -419,7 +384,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     }
     
     return segments;
-  }, [glucoseData, chartWidth, settings.highGlucoseThreshold, settings.lowGlucoseThreshold, settings.highGlucoseColor, settings.normalGlucoseColor]);
+  };
 
   // Bottom sheet handlers - modified to prevent dragging when keyboard is visible
   const handleSheetTouchStart = (e) => {
@@ -518,10 +483,6 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     // Cleanup function to restore scrolling if component unmounts during drag
     return () => {
       setBodyScrolling(true);
-      // Cancel any pending animation frames
-      if (dragAnimationRef.current) {
-        cancelAnimationFrame(dragAnimationRef.current);
-      }
     };
   }, []);
 
@@ -590,31 +551,6 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     setSearchTerm('');
   };
 
-  // NEW: Handle search input focus to prevent scrolling
-  const handleSearchFocus = (e) => {
-    e.preventDefault();
-    setBodyScrolling(false);
-    
-    // Scroll to top of the input element without affecting the main page scroll
-    if (searchInputRef.current) {
-      searchInputRef.current.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'nearest',
-        inline: 'nearest'
-      });
-    }
-  };
-
-  const handleSearchBlur = () => {
-    // Only re-enable scrolling if keyboard is not visible
-    // The main keyboard detection will handle this, but this is a fallback
-    setTimeout(() => {
-      if (!isKeyboardVisible) {
-        setBodyScrolling(true);
-      }
-    }, 100);
-  };
-
   // Slider handlers
   const handleSliderStart = (e, food) => {
     e.preventDefault();
@@ -640,26 +576,13 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     const mouseX = clientX - chartRect.left;
     const percentage = Math.max(0, Math.min(1, mouseX / chartWidth));
     
-    // Throttle updates using requestAnimationFrame for smooth performance
-    if (dragAnimationRef.current) {
-      // Cancel the previous animation frame and schedule a new one
-      cancelAnimationFrame(dragAnimationRef.current);
-    }
-    
-    dragAnimationRef.current = requestAnimationFrame(() => {
-      setItemTimings(prev => ({
-        ...prev,
-        [draggedItem.item]: percentage
-      }));
-      dragAnimationRef.current = null;
-    });
+    setItemTimings(prev => ({
+      ...prev,
+      [draggedItem.item]: percentage
+    }));
   };
 
   const handleSliderEnd = () => {
-    if (dragAnimationRef.current) {
-      cancelAnimationFrame(dragAnimationRef.current);
-      dragAnimationRef.current = null;
-    }
     setDraggedItem(null);
   };
 
@@ -741,21 +664,9 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
 
       {/* Chart */}
       {!isFullScreen && (
-        <div 
-          className="bg-[#E7EEEB] relative"
-          style={{ 
-            marginBottom: `${getCurrentCollapsedHeight() + 40}px` // Increased margin to accommodate lower icon position
-          }}
-        >
+        <div className="bg-[#E7EEEB] relative mb-20">
             {/* Y-axis Labels - positioned at exact reference line positions */}
-            <div 
-              className={`absolute text-xs text-gray-400`} 
-              style={{ 
-                height: chartHeight, 
-                top: '20px',
-                left: '5px'
-              }}
-            >
+            <div className="absolute top-5 text-xs text-gray-400" style={{ height: chartHeight }}>
               <div 
                 className="absolute transform -translate-y-1/2" 
                 style={{ top: `${mapYValueToPixel(settings.highGlucoseThreshold)}px` }}
@@ -786,13 +697,13 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
             <div className="chart-area relative" style={{ height: chartHeight, width: chartWidth, margin: '20px auto' }}>
               
               {/* Custom SVG for everything - full control */}
-              <svg className="w-full" style={{ height: chartHeight + 85 }}> {/* Extended SVG height to include connection line area */}
+              <svg className="w-full h-full">
                 {/* Full-width reference lines */}
-                <line x1="0" x2="100%" y1={mapYValueToPixel(settings.lowGlucoseThreshold)} y2={mapYValueToPixel(settings.lowGlucoseThreshold)} stroke={settings.lowGlucoseReferenceLine} strokeWidth="2" />
-                <line x1="0" x2="100%" y1={mapYValueToPixel(settings.highGlucoseThreshold)} y2={mapYValueToPixel(settings.highGlucoseThreshold)} stroke={settings.highGlucoseReferenceLine} strokeWidth="2" />
+                <line x1="0" x2="100%" y1={mapYValueToPixel(settings.lowGlucoseThreshold)} y2={mapYValueToPixel(settings.lowGlucoseThreshold)} stroke="#FF7B7B" strokeWidth="2" />
+                <line x1="0" x2="100%" y1={mapYValueToPixel(settings.highGlucoseThreshold)} y2={mapYValueToPixel(settings.highGlucoseThreshold)} stroke="#B9BCF9" strokeWidth="2" />
                 
                 {/* Glucose line segments with appropriate colors */}
-                {generateLineSegments.map((segment, index) => (
+                {generateLineSegments().map((segment, index) => (
                   <polyline
                     key={`segment-${index}`}
                     points={segment.points.join(' ')}
@@ -816,7 +727,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
                       x1={x}
                       y1={y}
                       x2={x}
-                      y2={chartHeight + 85} // Extended to reach the icon at -85px
+                      y2={chartHeight + 40}
                       stroke={settings.connectionLineColor}
                       strokeWidth="2"
                     />
@@ -826,23 +737,17 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
             </div>
           </div>
           {/* X-axis Labels - outside the chart */}
-          <div 
-  className={`absolute left-1/2 transform -translate-x-1/2 flex justify-between text-xs text-gray-400`} 
-  style={{ 
-    width: chartWidth,
-    bottom: '-25px'
-  }}
->
-              <span className='ml-5'>{settings.startHour === 12 ? '12' : settings.startHour > 12 ? settings.startHour - 12 : settings.startHour} PM</span>
+            <div className="absolute left-1/2 transform -translate-x-1/2 flex justify-between text-xs text-gray-400" style={{ width: chartWidth }}>
+              <span>{settings.startHour === 12 ? '12' : settings.startHour > 12 ? settings.startHour - 12 : settings.startHour} PM</span>
               <span>{settings.startHour + 1 === 12 ? '12' : settings.startHour + 1 > 12 ? settings.startHour + 1 - 12 : settings.startHour + 1} PM</span>
               <span>{settings.startHour + 2 === 12 ? '12' : settings.startHour + 2 > 12 ? settings.startHour + 2 - 12 : settings.startHour + 2} PM</span>
               <span>{settings.startHour + 3 === 12 ? '12' : settings.startHour + 3 > 12 ? settings.startHour + 3 - 12 : settings.startHour + 3} PM</span>
               <span>{settings.startHour + 4 === 12 ? '12' : settings.startHour + 4 > 12 ? settings.startHour + 4 - 12 : settings.startHour + 4} PM</span>
-              <span className='mr-5'>{settings.endHour === 12 ? '12' : settings.endHour > 12 ? settings.endHour - 12 : settings.endHour} PM</span>
+              <span>{settings.endHour === 12 ? '12' : settings.endHour > 12 ? settings.endHour - 12 : settings.endHour} PM</span>
             </div>
             {/* Draggable Food Icons */}
             {selectedItems.length > 0 && (
-            <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 pointer-events-none"> {/* Changed this line */}
               {selectedItems.map((menuItem) => {
                 const timePosition = itemTimings[menuItem.item] || 0;
                 const x = timePosition * chartWidth;
@@ -853,7 +758,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
                     className="absolute pointer-events-auto"
                     style={{
                       left: `${x}px`,
-                      bottom: '-85px' // Moved further down to be below time labels
+                      bottom: '-60px'
                     }}
                   >
                     <div 
@@ -902,7 +807,6 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
         style={{ 
           height: `${bottomSheetHeight}px`,
           bottom: '0', // Always keep at bottom
-          paddingBottom: 'env(safe-area-inset-bottom)', // Account for home indicator on newer iPhones
           transform: isDraggingSheet ? 'none' : undefined,
           touchAction: 'none', // Add this to prevent default touch behaviors
           position: 'fixed'
@@ -940,13 +844,10 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500 w-4 h-4" />
               <input
-                ref={searchInputRef} // NEW: Add ref
                 type="text"
                 placeholder="Search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onFocus={handleSearchFocus} // NEW: Add focus handler
-                onBlur={handleSearchBlur} // NEW: Add blur handler
                 className="w-full pl-10 pr-3 py-2 border-0 bg-gray-100 rounded-2xl text-sm focus:outline-none"
                 style={{
                   WebkitAppearance: 'none',
@@ -974,9 +875,9 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
 
           <div className="flex-1 overflow-y-auto food-grid">
             <div className={`grid gap-3 pb-6 grid-cols-3 justify-items-center pt-4`}>
-              {filteredItems.slice(0, itemLibrary.length).map((menuItem) => (
+              {filteredItems.slice(0, itemLibrary.length).map((menuItem, index) => (
                 <button
-                  key={menuItem.item} // Use unique item name instead of index
+                  key={index}
                   onClick={() => handleFoodSelect(menuItem)}
                   disabled={selectedItems.length >= settings.maxSelectedItems && !selectedItems.find(f => f.item === menuItem.item)}
                   className={`
@@ -987,12 +888,14 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
                   style={{ width: '90px', height: '90px' }}
                 >
                   {/* Standardized Icon Container */}
-                  <div className="flex justify-center items-center mb-1" style={{ height: '36px', width: '36px' }}>
-                    <ItemImage 
-                      item={menuItem} 
-                      size="menu"
-                      className="rounded-lg"
-                    />
+                  <div className="flex justify-center items-center mb-1" style={{ height: '36px' }}>
+                    <div className="w-8 h-8 flex items-center justify-center">
+                      <ItemImage 
+                        item={menuItem} 
+                        size="medium"
+                        className="max-w-full max-h-full object-contain"
+                      />
+                    </div>
                   </div>
                   
                   {/* Text with wrapping */}
