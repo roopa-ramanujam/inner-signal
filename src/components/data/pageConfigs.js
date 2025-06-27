@@ -90,7 +90,7 @@ export const pageConfigs = {
   // Insulin Dosing Education
   'insulin-dosing': {
     component: 'LearningModule',
-    enabled: true, // true if you want it to be an option in the dropdown, false to say "Coming Soon"
+    enabled: false, // true if you want it to be an option in the dropdown, false to say "Coming Soon"
     props: {
       title: 'Insulin Dosing',
       modules: insulinDosingModulesData?.insulinDosingModules || [],

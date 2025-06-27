@@ -2,7 +2,7 @@
 
 export const settings = {
   // Display options
-  showServingSize: false,           // Show/hide serving size below food items
+  showServingSize: true,           // Show/hide serving size below food items
   
   // Glucose settings  
   baselineGlucose: 120,           // Default baseline glucose level (mg/dL)
