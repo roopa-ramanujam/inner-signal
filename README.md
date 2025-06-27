@@ -101,7 +101,7 @@ Copy the entire file, go to https://jsonlint.com/, paste the file, and click Val
 ```
 
 ⚠️ **Important**: 
-- The `id` must match your JSON filename (without .json)
+- The `id` must match the entry in pageConfigs (done in the next step, but important troubleshooting point)
 - Don't forget the comma after the closing `}`
 
 ### 2.3 Save the changes
