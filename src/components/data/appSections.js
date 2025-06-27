@@ -22,7 +22,12 @@ export const appSections = [
     id: 'ketones',
     name: 'Ketones',
     description: ''
-  }
+  },
+  // {
+  //   id: 'example-page',
+  //   name: 'Example Page',
+  //   description: 'Example description of page'
+  // }
 ];
 
 // TO ADD A NEW PAGE TO THE NAVIGATION:

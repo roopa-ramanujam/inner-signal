@@ -1,0 +1,30 @@
+
+📝 FIELD EXPLANATIONS:
+  
+  MODULE LEVEL:
+  - "id": Use lowercase letters and hyphens only (e.g., "my-new-module")
+  - "name": The display name users will see
+  - "icon": An emoji that represents this category
+  - "instructions": Brief description of what this module teaches
+  
+  DATA ITEM LEVEL:
+  - "id": Unique identifier (lowercase-with-hyphens)
+  - "name": What users see on the button
+  - "peakTime": Hours until maximum effect (0.1 to 72)
+  - "peakValue": Highest/lowest value reached (varies by data type)
+  - "duration": How long the effect lasts in hours (0.25 to 168)
+  - "description": Educational text explaining the effect
+  - "fallbackIcon": Emoji shown if no image is available
+  - "impactStart": When the effect begins in hours (0 to 48)
+  
+  VALUE RANGES BY DATA TYPE:
+  - Blood Glucose: 70-300 mg/dL (normal baseline ~120)
+  - Ketones: 0-5 mmol/L (normal baseline ~0.1)
+  - Blood Pressure: 80-200 mmHg
+  - Heart Rate: 50-200 BPM
+  
+  COMMON PATTERNS:
+  - Quick effects: peakTime 0.1-1.0, impactStart 0.1-0.5
+  - Medium effects: peakTime 1.0-3.0, impactStart 0.5-1.0  
+  - Slow effects: peakTime 3.0-12.0, impactStart 1.0-3.0
+  - Very slow: peakTime 12.0+, impactStart 3.0+

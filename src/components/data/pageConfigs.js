@@ -1,10 +1,12 @@
 // pageConfigs.js
 // This file controls what pages are available and how they behave
-// Non-coders can easily add new pages by adding entries here
 
-import { glycemicIndexModules } from './modules/glycemicIndexModules';
-import { insulinDosing } from './modules/insulinDosing';
-import { ketoneModules } from './modules/ketoneModules';
+import glycemicIndexModulesData from './modules/glycemicIndexModules.json'; // Direct JSON import
+import ketoneModulesData from './modules/ketoneModules.json'; // Direct JSON import
+import insulinDosingModulesData from './modules/insulinDosing.json'
+
+
+
 import { settings } from './settings'; // Import settings for consistency
 
 export const pageConfigs = {
@@ -23,7 +25,7 @@ export const pageConfigs = {
     enabled: true,
     props: {
       title: 'Glycemic Index',
-      modules: glycemicIndexModules,
+      modules: glycemicIndexModulesData?.glycemicIndexModules || [],
       chartConfig: {
         baselineValue: settings.baselineGlucose,
         chartHeight: settings.chartHeight,
@@ -47,13 +49,13 @@ export const pageConfigs = {
     }
   },
 
-  // Ketones Learning (properly configured)
+  // Ketones Learning (loaded from JSON)
   'ketones': {
     component: 'LearningModule',
-    enabled: false,
+    enabled: true, // Enable for testing
     props: {
       title: 'Ketones',
-      modules: ketoneModules,
+      modules: ketoneModulesData?.ketoneModules || [], // Now comes from JSON
       chartConfig: {
         baselineValue: 0.1,                    // Proper ketone baseline (mmol/L)
         chartHeight: 300,
@@ -70,7 +72,7 @@ export const pageConfigs = {
       },
       displayConfig: {
         showComparison: true,
-        backgroundColor: '#E7EEEB',            // Orange theme for ketones
+        backgroundColor: '#E7EEEB',          
         buttonStyle: 'teal',
         unitLabel: 'mmol/L',                   // Ketone units
         defaultLineColor: '#cbd5e1',           // Light gray for low ketones
@@ -93,7 +95,7 @@ export const pageConfigs = {
     enabled: false,
     props: {
       title: 'Insulin Dosing',
-      modules: insulinDosing,
+      modules: insulinDosingModulesData?.insulinDosingModules || [],
       chartConfig: {
         baselineValue: settings.baselineGlucose,  // 120 mg/dL
         chartHeight: 300,
@@ -109,7 +111,7 @@ export const pageConfigs = {
       },
       displayConfig: {
         showComparison: true,
-        backgroundColor: '#f0f9ff',            // Blue theme for medical
+        backgroundColor: '#E7EEEB',          
         buttonStyle: 'blue',
         unitLabel: 'mg/dL',
         defaultLineColor: '#22c55e',
@@ -126,8 +128,11 @@ export const pageConfigs = {
   }
 };
 
+// Debug: Log the final ketones config
+console.log('🔍 Debug ketones page config:', pageConfigs['ketones']);
+
 // TO ADD A NEW PAGE:
 // 1. Add a new entry to this object
-// 2. Create the content modules file (like exerciseModules.js)
+// 2. Create the content modules file (JSON or JS)
 // 3. Add the page to appSections.js
 // 4. That's it! No component changes needed.

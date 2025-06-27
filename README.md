@@ -4,231 +4,263 @@ An interactive web app for learning about what affects blood sugar and glucose, 
 
 Visit the app at https://inner-signal.vercel.app/ (works best on mobile, and if you add this page to your home screen.)
 
-## Adding New Foods To The Menu for Interactive Graph
+# 📝 Adding New Pages: GitHub Web Editor Guide
 
-Each food item requires 6 essential pieces of information. Use the template below and fill in your values in [library.js](./src/components/data/library.js/) .:
+## 🎯 Overview
+This guide shows you how to add a new learning module page to the app using only GitHub's web interface - no coding experience required!
 
+---
+
+## 📋 **STEP 1: Create Your Module Data File**
+
+### 1.1 Navigate to the modules folder
+1. **Go to your GitHub repository** in your web browser
+2. **Click on the `src` folder**
+3. **Click on the `modules` folder**
+4. **Click the "Add file" button** (top right)
+5. **Select "Create new file"**
+
+### 1.2 Create the new JSON file
+1. **In the filename box**, type: `yourModuleName.json`
+   - Replace `yourModuleName` with your actual module name
+   - Examples: `exercises.json`, `medications.json`, `foods.json`
+   - ⚠️ **Important**: Use lowercase letters and no spaces
+
+2. **Copy the entire content** from the `exampleModules.json` template above
+3. **Paste it into the file content area**
+
+### 1.3 Customize your data
+**Edit these parts to match your content:**
+
+1. **Change the main module name** (line 2):
+   ```json
+   "exampleModules": [
+   ```
+   To something like:
+   ```json
+   "exerciseModules": [
+   ```
+
+2. **Update each module section**:
+   - Change `"id"` (must be lowercase-with-hyphens)
+   - Change `"name"` (display name users see)
+   - Change `"icon"` (pick an emoji that fits)
+   - Change `"instructions"` (brief description)
+
+3. **Update each data item**:
+   - Change all the `"id"` values
+   - Change all the `"name"` values  
+   - Update `"description"` text
+   - Adjust numbers for your data type (see ranges in template)
+   - Pick appropriate `"fallbackIcon"` emojis
+
+4. **Validate the JSON you just createad**:
+Copy the entire file, go to https://jsonlint.com/, paste the file, and click Validate.
+
+### 1.4 Save the file
+1. **Scroll to bottom of page**
+2. **In "Commit new file" section**:
+   - Title: `Add [your module name] data`
+   - Description: `Added new learning module for [describe what it does]`
+3. **Click "Commit new file"**
+
+---
+
+## 📋 **STEP 2: Add to Navigation Menu**
+
+### 2.1 Open appSections.js
+1. **Go back to the main repository page**
+2. **Click on `src` folder**
+3. **Click on `appSections.js`**
+4. **Click the pencil icon (✏️)** to edit
+
+### 2.2 Add your page to the menu
+1. **Find this section** (around line 3):
+   ```javascript
+   export const appSections = [
+   ```
+
+2. **Scroll down to find the existing pages** (around line 15-25)
+
+3. **Add your new page BEFORE the closing `];`**:
+   ```javascript
+   {
+     id: 'your-module-name',
+     name: 'Your Module Display Name',
+     description: 'Brief description of what this page does'
+   },
+   ```
+
+**Example:**
 ```javascript
 {
-  item: "Food Name Here",
-  category: "food type",
-  serving_size: "amount and unit",
-  glucose_change: number,
-  educational_text: "Educational message about this food.",
-  image: "/images/foods/filename.jpg",
-  fallbackIcon: "🥕"
+  id: 'exercises',
+  name: 'Exercise Tracker', 
+  description: 'Learn how different exercises affect your health'
 },
 ```
 
-**Important:** Don't forget the comma `,` at the end!
+⚠️ **Important**: 
+- The `id` must match your JSON filename (without .json)
+- Don't forget the comma after the closing `}`
 
-## Field Reference
+### 2.3 Save the changes
+1. **Scroll to bottom**
+2. **Commit changes**:
+   - Title: `Add [module name] to navigation`
+   - Description: `Added new page to navigation menu`
+3. **Click "Commit changes"**
 
-### `item` - Food Name
-- **Format:** String in quotes
-- **Examples:** `"Apple"`, `"Whole Wheat Bread"`, `"Greek Yogurt"`
+---
 
-### `category` - Food Type  
-- **Format:** Lowercase string in quotes
-- **Options:** `"fruit"`, `"vegetable"`, `"grain"`, `"protein"`, `"dairy"`, `"snack"`, `"dessert"`, `"beverage"`
+## 📋 **STEP 3: Configure the Page**
 
-### `serving_size` - Portion Size
-- **Format:** String with amount and unit
-- **Examples:** `"1 medium"`, `"1 cup"`, `"1 slice"`, `"100g"`
+### 3.1 Open pageConfigs.js
+1. **Go back to the main repository page**
+2. **Click on `src` folder**  
+3. **Click on `pageConfigs.js`**
+4. **Click the pencil icon (✏️)** to edit
 
-### `glucose_change` - Blood Sugar Impact
-- **Format:** Number (no quotes)
-- **Range:** Represents mg/dL increase above baseline (120 mg/dL)
-- **Guidelines:**
-  - **Low impact:** 5-15 (vegetables, proteins)
-  - **Medium impact:** 15-40 (fruits, whole grains)  
-  - **High impact:** 40-80+ (refined carbs, sweets)
+### 3.2 Add import for your module
+1. **Find the import section** at the top (around lines 3-6):
+   ```javascript
+   import glycemicIndexModulesData from './modules/glycemicIndexModules.json';
+   import ketoneModulesData from './modules/ketoneModules.json';
+   ```
 
-### `educational_text` - Learning Message
-- **Format:** String with helpful information
-- **Purpose:** Educational facts about blood sugar impact
-- **Style:** Short, informative, diabetes-friendly
+2. **Add your import** (replace with your actual filename):
+   ```javascript
+   import yourModuleData from './modules/yourModuleName.json';
+   ```
 
-### `image` - Photo Path
-- **Format:** `"/images/foods/filename.jpg"`
-- **Naming:** Lowercase, underscores for spaces
-
-### `fallbackIcon` - Emoji Backup
-- **Format:** Single emoji in quotes
-- **Purpose:** Displays when image fails to load
-
-## Examples
-
-### Low Impact (Vegetable)
+**Example:**
 ```javascript
-{
-  item: "Broccoli",
-  category: "vegetable",
-  serving_size: "1 cup",
-  glucose_change: 6,
-  educational_text: "Broccoli is very low in carbs and high in fiber, causing minimal blood sugar rise.",
-  image: "/images/foods/broccoli.jpg",
-  fallbackIcon: "🥦"
-},
+import exerciseModulesData from './modules/exercises.json';
 ```
 
-### Medium Impact (Fruit)
-```javascript
-{
-  item: "Banana",
-  category: "fruit",
-  serving_size: "1 medium",
-  glucose_change: 30,
-  educational_text: "Bananas contain natural sugars and some fiber, creating a moderate glucose response.",
-  image: "/images/foods/banana.jpg",
-  fallbackIcon: "🍌"
-},
-```
+### 3.3 Add your page configuration
+1. **Scroll down to find `export const pageConfigs = {`** (around line 10)
 
-### High Impact (Refined Carb)
-```javascript
-{
-  item: "White Rice",
-  category: "grain",
-  serving_size: "1 cup cooked",
-  glucose_change: 55,
-  educational_text: "White rice is quickly digested and absorbed, causing a significant blood sugar spike.",
-  image: "/images/foods/white_rice.jpg",
-  fallbackIcon: "🍚"
-},
-```
+2. **Find the end of the existing pages** (look for the insulin-dosing section)
 
-## Blood Sugar Impact Guidelines
-
-| Food Type | Typical Range | Examples |
-|-----------|---------------|----------|
-| **Non-starchy vegetables** | 5-15 | Lettuce, broccoli, spinach |
-| **Proteins** | 0-10 | Chicken, fish, eggs |
-| **Nuts/Seeds** | 5-15 | Almonds, walnuts |
-| **Berries** | 15-25 | Strawberries, blueberries |
-| **Other fruits** | 20-35 | Apples, oranges, bananas |
-| **Whole grains** | 25-45 | Brown rice, oatmeal |
-| **Dairy** | 10-20 | Milk, yogurt |
-| **Refined carbs** | 40-70 | White bread, pasta |
-| **Sweets/Desserts** | 50-80+ | Cookies, candy, cake |
-
-## Common Mistakes
-
-❌ **Missing quotes around text:**
-```javascript
-item: Apple  // WRONG
-item: "Apple"  // CORRECT
-```
-
-❌ **Missing comma:**
-```javascript
-fallbackIcon: "🍎"  // WRONG
-fallbackIcon: "🍎",  // CORRECT
-```
-
-❌ **Quotes around numbers:**
-```javascript
-glucose_change: "25"  // WRONG
-glucose_change: 25  // CORRECT
-```
-
-❌ **Incorrect category format:**
-```javascript
-category: "Fruit"  // WRONG
-category: "fruit"  // CORRECT
-```
-
-## Adding Learning Modules 
-
-Learning modules are organized into categories with multiple food items. Each category contains detailed glucose response data for educational purposes. Add learning modules or items to [learningModules.js](./src/components/data/learningModules.js/) .
-
-### Category Structure
+3. **Add your new page BEFORE the closing `};`**:
 
 ```javascript
-{
-  key: 'category-name',                       // Lowercase, no spaces, use dashes for multiple words
-  name: 'Category Name',                      // Display name for the category
-  image: '/images/categories/category.jpg',   // Optional, must be in public/images/categories/
-  fallbackIcon: '🥬',                         // Emoji backup if image fails
-  data: [
-    // Array of food items (see Item Structure below)
-  ]
-}
-```
-
-### Item Structure
-
-```javascript
-{
-  id: 'food-item',                            // Lowercase, no spaces, use dashes for multiple words
-  item: 'Food Item',                          // Used for alt text
-  name: 'Food Item',                          // Display name
-  image: '/images/foods/food-item.jpg',       // Optional, must be in public/images/foods/
-  fallbackIcon: '🥬',                         // Emoji backup if image fails
-  peakTime: 1.0,                              // Hours to reach maximum glucose impact
-  peakValue: 135,                             // Peak glucose level in mg/dL
-  description: 'Educational text about this food item and its glucose impact.'
-}
-```
-
-### Complete Learning Module Example
-
-```javascript
-{
-  key: 'vegetables',
-  name: 'Vegetables',
-  image: '/images/categories/vegetables.jpg',
-  fallbackIcon: '🥬',
-  data: [
-    {
-      id: 'broccoli',
-      item: 'Broccoli',
-      name: 'Broccoli',
-      image: '/images/foods/broccoli.jpg',
-      fallbackIcon: '🥦',
-      peakTime: 1.5,
-      peakValue: 125,
-      description: 'Broccoli is very low in carbs and high in fiber, causing minimal blood sugar rise.'
+// Your New Page
+'your-page-id': {
+  component: 'LearningModule',
+  enabled: true,
+  props: {
+    title: 'Your Page Title',
+    modules: yourModuleData?.yourModulesArrayName || [],
+    chartConfig: {
+      baselineValue: 120,              // Starting value for your data type
+      chartHeight: 300,
+      chartWidth: settings.chartWidth,
+      yMin: 70,                        // Minimum chart value
+      yMax: 200,                       // Maximum chart value  
+      timeRange: { start: settings.startHour, end: settings.endHour },
+      dangerZones: [
+        { value: 70, color: '#ef4444', label: 'Low' },
+        { value: 120, color: '#22c55e', label: 'Normal' },
+        { value: 180, color: '#f59e0b', label: 'High' }
+      ]
     },
-    {
-      id: 'carrots',
-      item: 'Carrots',
-      name: 'Carrots',
-      image: '/images/foods/carrots.jpg',
-      fallbackIcon: '🥕',
-      peakTime: 1.0,
-      peakValue: 130,
-      description: 'Carrots contain natural sugars but also fiber, creating a mild glucose response.'
+    displayConfig: {
+      showComparison: true,
+      backgroundColor: '#E7EEEB',          
+      buttonStyle: 'blue',             // Color theme: 'blue', 'teal', 'green'
+      unitLabel: 'mg/dL',              // Unit shown on chart
+      defaultLineColor: '#22c55e',
+      showLegend: false,               // Set to true if you want a legend
+      legendTitle: 'Your Data Ranges',
+      legendItems: [
+        { color: '#ef4444', label: 'Low range description' },
+        { color: '#22c55e', label: 'Normal range description' },
+        { color: '#f59e0b', label: 'High range description' }
+      ]
     }
-  ]
-}
+  }
+},
 ```
 
-### Peak Time Guidelines
+### 3.4 Customize your configuration
 
-| Food Type | Typical Peak Time | Examples |
-|-----------|------------------|----------|
-| **Refined carbs** | 0.5-0.75 hours | White bread, white rice, potatoes |
-| **Fruits** | 0.75-1.25 hours | Apples, bananas, berries |
-| **Whole grains** | 1.0-1.5 hours | Brown rice, quinoa, oats |
-| **Proteins** | 1.5-2.0 hours | Chicken, fish, beans |
-| **Vegetables** | 1.0-1.5 hours | Most non-starchy vegetables |
+**REQUIRED Changes:**
+- `'your-page-id'`: Must match the `id` in appSections.js
+- `title`: Display name for the page
+- `yourModuleData`: Must match your import name
+- `yourModulesArrayName`: Must match the array name in your JSON
 
-### Peak Value Guidelines
+**OPTIONAL Changes:**
+- `baselineValue`: Starting point for your data type
+- `yMin/yMax`: Chart range for your data
+- `buttonStyle`: 'blue', 'teal', 'green', 'purple'
+- `unitLabel`: What units to show (mg/dL, mmol/L, BPM, etc.)
+- `dangerZones`: Colored ranges on your chart
 
-| Food Type | Typical Peak Range | Examples |
-|-----------|-------------------|----------|
-| **Proteins** | 120-130 mg/dL | Chicken, fish, eggs |
-| **Non-starchy vegetables** | 125-135 mg/dL | Broccoli, spinach, peppers |
-| **Berries** | 125-140 mg/dL | Strawberries, blueberries |
-| **Other fruits** | 135-160 mg/dL | Apples, oranges, bananas |
-| **Whole grains** | 140-170 mg/dL | Brown rice, quinoa, oats |
-| **Refined carbs** | 170-200+ mg/dL | White bread, white rice, potatoes |
+### 3.5 Save the changes
+1. **Scroll to bottom**
+2. **Commit changes**:
+   - Title: `Add [module name] page configuration`
+   - Description: `Configured new learning module page`
+3. **Click "Commit changes"**
 
-## Notes
+---
 
-- Glucose impact values are estimates and may vary based on individual metabolism, portion size, and food combinations
-- All educational text should be accurate and helpful for diabetes management
-- Images should be high-quality and representative of the food item
-- Peak times and values should be researched or estimated based on glycemic index data
-- Learning modules are designed for educational visualization of glucose response curves
+## ✅ **STEP 4: Test Your New Page**
+
+After completing all steps:
+
+1. **Wait a few minutes** for the site to rebuild
+2. **Visit your live website**
+3. **Click the navigation dropdown**
+4. **Look for your new page** in the menu
+5. **Click it to test** that it loads correctly
+
+---
+
+## 🛠️ **Common Issues & Fixes**
+
+### ❌ **Page doesn't appear in menu**
+- Check that the `id` in appSections.js matches exactly
+- Make sure you didn't forget a comma
+
+### ❌ **Page shows "No modules available"**
+- Check that your import path is correct in pageConfigs.js
+- Verify the array name matches between JSON and pageConfigs
+- Use browser developer tools to check for import errors
+
+### ❌ **Chart looks wrong**
+- Adjust `yMin` and `yMax` to fit your data range
+- Check that `baselineValue` is within your min/max range
+- Verify your data values make sense for the chart type
+
+### ❌ **JSON validation errors**
+- Use the JSON validator tool to check your file
+- Common issues: missing commas, extra commas, unmatched quotes
+- Make sure all `id` fields use lowercase-with-hyphens format
+
+---
+
+## 💡 **Pro Tips**
+
+1. **Start small**: Create just one module with 2-3 items first
+2. **Copy existing patterns**: Look at ketoneModules.json for examples
+3. **Use the validator**: Always check your JSON before committing
+4. **Test frequently**: Make small changes and test each step
+5. **Keep backups**: GitHub keeps version history, but be careful with changes
+
+---
+
+## 📞 **Getting Help**
+
+If you run into issues:
+
+1. **Check the browser console** for error messages
+2. **Compare your code** to the working examples
+3. **Use the JSON validator** to check for syntax errors
+4. **Look at GitHub commit history** to see what changed
+5. **Ask for help** with specific error messages
+
+Remember: GitHub saves every change, so you can always go back if something breaks!
