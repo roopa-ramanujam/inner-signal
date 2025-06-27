@@ -23,10 +23,10 @@ export const settings = {
   
   // Visual settings
   normalGlucoseColor: '#629C47',  // Green color for normal glucose range
-  highGlucoseColor: '#FF7B7B',    // Red color for out-of-range glucose
+  highGlucoseColor: '#FF7B7B',    // Red color for out-of-range glucose values
   connectionLineColor: '#0891b2', // Blue color for connection lines
-  highGlucoseReferenceLine: '#B9BCF9',
-  lowGlucoseReferenceLine: '#FF7B7B',
+  highGlucoseReferenceLine: '#B9BCF9', // Blue color for high glucose reference line
+  lowGlucoseReferenceLine: '#FF7B7B', // Red color for high glucose reference line
   
   // Glucose range thresholds
   lowGlucoseThreshold: 70,        // Below this is considered low

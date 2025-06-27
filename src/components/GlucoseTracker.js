@@ -722,8 +722,8 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
               {/* Custom SVG for everything - full control */}
               <svg className="w-full h-full">
                 {/* Full-width reference lines */}
-                <line x1="0" x2="100%" y1={mapYValueToPixel(settings.lowGlucoseThreshold)} y2={mapYValueToPixel(settings.lowGlucoseThreshold)} stroke="#FF7B7B" strokeWidth="2" />
-                <line x1="0" x2="100%" y1={mapYValueToPixel(settings.highGlucoseThreshold)} y2={mapYValueToPixel(settings.highGlucoseThreshold)} stroke="#B9BCF9" strokeWidth="2" />
+                <line x1="0" x2="100%" y1={mapYValueToPixel(settings.lowGlucoseThreshold)} y2={mapYValueToPixel(settings.lowGlucoseThreshold)} stroke={settings.lowGlucoseReferenceLine} strokeWidth="2" />
+                <line x1="0" x2="100%" y1={mapYValueToPixel(settings.highGlucoseThreshold)} y2={mapYValueToPixel(settings.highGlucoseThreshold)} stroke={settings.highGlucoseReferenceLine} strokeWidth="2" />
                 
                 {/* Glucose line segments with appropriate colors */}
                 {generateLineSegments().map((segment, index) => (
