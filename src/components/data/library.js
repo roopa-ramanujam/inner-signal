@@ -116,7 +116,7 @@ export const itemLibrary = [
     glucose_change: 5,
     peakTime: 2.5,
     duration: 4.0,
-    educational_text: "Bacon's high fat content minimizes glucose impact, though cured meats may affect insulin sensitivity.",
+    educational_text: "Bacon's high fat content minimizes glucose impact.",
     image: "/images/foods/bacon.png",
     fallbackIcon: "🥓"
   },

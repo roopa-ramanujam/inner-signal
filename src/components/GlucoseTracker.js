@@ -16,11 +16,11 @@ const getBottomSheetHeights = (screenHeight, isStandaloneMode = false) => {
   const browserUIBuffer = isStandaloneMode ? 0 : 0.05; // ~5% buffer for mobile browser UI only when needed
   
   const contentAbovePercent = headerHeightPercent + educationalTextPercent + chartHeightPercent + spacingPercent + browserUIBuffer;
-  const remainingPercent = Math.max(0.15, 1 - contentAbovePercent); // At least 15% for bottom sheet, or whatever's left
+  const remainingPercent = Math.max(0.25, 1 - contentAbovePercent); // INCREASED: At least 25% for bottom sheet (was 15%)
   const remainingHeight = screenHeight * remainingPercent;
   
   return {
-    COLLAPSED_HEIGHT: isStandaloneMode ? Math.max(160, Math.min(250, remainingHeight)) : Math.max(180, remainingHeight), // Between 160-250px based on available space
+    COLLAPSED_HEIGHT: isStandaloneMode ? Math.max(220, remainingHeight) : Math.max(180, Math.min(200, remainingHeight)), // INCREASED: 200-300px range (was 160-250px)
   };
 };
 
@@ -37,6 +37,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isStandaloneMode, setIsStandaloneMode] = useState(false);
+  const searchInputRef = useRef(null); // NEW: Add ref for search input
 
   const [windowHeight, setWindowHeight] = useState(() => {
     // Get the actual viewport height accounting for mobile URL bars
@@ -68,10 +69,18 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       document.body.style.overflow = '';
       document.body.style.position = '';
       document.body.style.width = '';
+      document.body.style.height = '';
+      document.documentElement.style.overflow = '';
+      document.documentElement.style.position = '';
+      document.documentElement.style.height = '';
     } else {
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
       document.body.style.width = '100%';
+      document.body.style.height = '100%';
+      document.documentElement.style.overflow = 'hidden';
+      document.documentElement.style.position = 'fixed';
+      document.documentElement.style.height = '100%';
     }
   };
 
@@ -96,9 +105,11 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       if (windowHeight - currentHeight > keyboardThreshold) {
         setIsKeyboardVisible(true);
         setKeyboardHeight(windowHeight - currentHeight);
+        setBodyScrolling(false); // NEW: Prevent scrolling when keyboard appears
       } else {
         setIsKeyboardVisible(false);
         setKeyboardHeight(0);
+        setBodyScrolling(true); // NEW: Re-enable scrolling when keyboard disappears
       }
     };
 
@@ -114,6 +125,10 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     // Also listen for focus/blur on inputs
     const handleFocus = (e) => {
       if (e.target.tagName === 'INPUT') {
+        // NEW: Prevent default scroll behavior
+        e.preventDefault();
+        setBodyScrolling(false);
+        
         // Small delay to let keyboard animation complete
         setTimeout(handleViewportChange, 300);
       }
@@ -123,6 +138,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       setTimeout(() => {
         setIsKeyboardVisible(false);
         setKeyboardHeight(0);
+        setBodyScrolling(true); // NEW: Re-enable scrolling when input loses focus
         // Update height after keyboard closes
         setWindowHeight(getRealViewportHeight());
       }, 100);
@@ -138,6 +154,9 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       }
       document.removeEventListener('focusin', handleFocus);
       document.removeEventListener('focusout', handleBlur);
+      
+      // NEW: Cleanup - ensure scrolling is re-enabled when component unmounts
+      setBodyScrolling(true);
     };
   }, [isStandaloneMode]); // Add dependency on standalone mode
 
@@ -596,6 +615,31 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
     setSearchTerm('');
   };
 
+  // NEW: Handle search input focus to prevent scrolling
+  const handleSearchFocus = (e) => {
+    e.preventDefault();
+    setBodyScrolling(false);
+    
+    // Scroll to top of the input element without affecting the main page scroll
+    if (searchInputRef.current) {
+      searchInputRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest',
+        inline: 'nearest'
+      });
+    }
+  };
+
+  const handleSearchBlur = () => {
+    // Only re-enable scrolling if keyboard is not visible
+    // The main keyboard detection will handle this, but this is a fallback
+    setTimeout(() => {
+      if (!isKeyboardVisible) {
+        setBodyScrolling(true);
+      }
+    }, 100);
+  };
+
   // Slider handlers
   const handleSliderStart = (e, food) => {
     e.preventDefault();
@@ -712,7 +756,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
         <div 
           className="bg-[#E7EEEB] relative"
           style={{ 
-            marginBottom: `${getCurrentCollapsedHeight() + 20}px` // Ensure chart is always above bottom sheet
+            marginBottom: `${getCurrentCollapsedHeight() + 40}px` // Increased margin to accommodate lower icon position
           }}
         >
             {/* Y-axis Labels - positioned at exact reference line positions */}
@@ -810,7 +854,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
             </div>
             {/* Draggable Food Icons */}
             {selectedItems.length > 0 && (
-            <div className="absolute inset-0 pointer-events-none"> {/* Changed this line */}
+            <div className="absolute inset-0 pointer-events-none">
               {selectedItems.map((menuItem) => {
                 const timePosition = itemTimings[menuItem.item] || 0;
                 const x = timePosition * chartWidth;
@@ -821,7 +865,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
                     className="absolute pointer-events-auto"
                     style={{
                       left: `${x}px`,
-                      bottom: '-60px'
+                      bottom: '-85px' // Moved further down to be below time labels
                     }}
                   >
                     <div 
@@ -908,10 +952,13 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500 w-4 h-4" />
               <input
+                ref={searchInputRef} // NEW: Add ref
                 type="text"
                 placeholder="Search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={handleSearchFocus} // NEW: Add focus handler
+                onBlur={handleSearchBlur} // NEW: Add blur handler
                 className="w-full pl-10 pr-3 py-2 border-0 bg-gray-100 rounded-2xl text-sm focus:outline-none"
                 style={{
                   WebkitAppearance: 'none',
