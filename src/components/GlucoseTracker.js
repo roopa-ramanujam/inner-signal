@@ -4,23 +4,40 @@ import { itemLibrary } from './data/library';
 import { settings } from './data/settings';
 import ItemImage from './ItemImage';
 
-// Calculate heights based on screen size
+// // Calculate heights based on screen size
+// const getBottomSheetHeights = (screenHeight, isStandaloneMode = false) => {
+//   // Calculate content above as percentages of screen height
+//   const headerHeightPercent = 0.08;        // ~8% for header
+//   const educationalTextPercent = 0.10;     // ~10% for educational text  
+//   const chartHeightPercent = 0.30;         // ~30% for chart area
+//   const spacingPercent = 0.05;             // ~5% for spacing/margins
+  
+//   // Only add browser UI buffer if we're actually in a browser (not standalone/PWA mode)
+//   const browserUIBuffer = isStandaloneMode ? 0 : 0.05; // ~5% buffer for mobile browser UI only when needed
+  
+//   const contentAbovePercent = headerHeightPercent + educationalTextPercent + chartHeightPercent + spacingPercent + browserUIBuffer;
+//   const remainingPercent = Math.max(0.15, 1 - contentAbovePercent); // At least 15% for bottom sheet, or whatever's left
+//   const remainingHeight = screenHeight * remainingPercent;
+  
+//   return {
+//     COLLAPSED_HEIGHT: isStandaloneMode ? Math.max(200, remainingHeight) : Math.max(160, Math.min(500, remainingHeight)), // Between 160-250px based on available space
+//   };
+// };
+
 const getBottomSheetHeights = (screenHeight, isStandaloneMode = false) => {
-  // Calculate content above as percentages of screen height
-  const headerHeightPercent = 0.08;        // ~8% for header
-  const educationalTextPercent = 0.10;     // ~10% for educational text  
-  const chartHeightPercent = 0.30;         // ~30% for chart area
-  const spacingPercent = 0.05;             // ~5% for spacing/margins
+  const isMobileBrowser = !isStandaloneMode && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   
-  // Only add browser UI buffer if we're actually in a browser (not standalone/PWA mode)
-  const browserUIBuffer = isStandaloneMode ? 0 : 0.05; // ~5% buffer for mobile browser UI only when needed
-  
-  const contentAbovePercent = headerHeightPercent + educationalTextPercent + chartHeightPercent + spacingPercent + browserUIBuffer;
-  const remainingPercent = Math.max(0.15, 1 - contentAbovePercent); // At least 15% for bottom sheet, or whatever's left
-  const remainingHeight = screenHeight * remainingPercent;
+  let targetHeight;
+  if (isMobileBrowser) {
+    // 35-40% for mobile browsers, but ensure minimum usability
+    targetHeight = screenHeight * 0.35;
+  } else {
+    // 50% for standalone/desktop
+    targetHeight = screenHeight * 0.5;
+  }
   
   return {
-    COLLAPSED_HEIGHT: isStandaloneMode ? Math.max(200, remainingHeight) : Math.max(160, Math.min(250, remainingHeight)), // Between 160-250px based on available space
+    COLLAPSED_HEIGHT: targetHeight,
   };
 };
 
