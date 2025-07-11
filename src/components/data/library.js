@@ -72,7 +72,7 @@ export const itemLibrary = [
     glucose_change: 8,
     peakTime: 1.5,
     duration: 3.5,
-    educational_text: "Artichokes have moderate fiber and carbs, causing minimal glucose rise in diabetes.",
+    educational_text: "Artichokes have moderate fiber and carbs, causing minimal glucose rise.",
     image: "/images/foods/artichoke.png",
     fallbackIcon: "🥬"
   },
@@ -182,7 +182,7 @@ export const itemLibrary = [
     glucose_change: 15,
     peakTime: 1.0,
     duration: 2.5,
-    educational_text: "Beets contain natural sugars, potentially raising glucose 15-20 mg/dL in diabetes.",
+    educational_text: "Beets contain natural sugars, potentially raising glucose 15-20 mg/dL.",
     image: "/images/foods/beets.png",
     fallbackIcon: "🟣"
   },
@@ -215,7 +215,7 @@ export const itemLibrary = [
     glucose_change: 35,
     peakTime: 1.0,
     duration: 4.0,
-    educational_text: "Brown rice has fiber but still contains significant carbs, raising glucose 35-45 mg/dL in diabetes.",
+    educational_text: "Brown rice has fiber but still contains significant carbs, raising glucose 35-45 mg/dL.",
     image: "/images/foods/brown_rice.png",
     fallbackIcon: "🟤"
   },
@@ -325,7 +325,7 @@ export const itemLibrary = [
     glucose_change: 45,
     peakTime: 0.75,
     duration: 3.0,
-    educational_text: "Cassava is very high in starch, causing significant glucose spikes in diabetes.",
+    educational_text: "Cassava is very high in starch, causing significant glucose spikes.",
     image: "/images/foods/cassava.png",
     fallbackIcon: "🥔"
   },
@@ -435,7 +435,7 @@ export const itemLibrary = [
     glucose_change: 25,
     peakTime: 1.0,
     duration: 3.0,
-    educational_text: "Corn is high in starch and natural sugars, raising glucose 25-35 mg/dL in diabetes.",
+    educational_text: "Corn is high in starch and natural sugars, raising glucose 25-35 mg/dL.",
     image: "/images/foods/corn.png",
     fallbackIcon: "🌽"
   },
@@ -446,7 +446,7 @@ export const itemLibrary = [
     glucose_change: 10,
     peakTime: 2.5,
     duration: 4.0,
-    educational_text: "Cured beef contains some sugar from processing, causing mild glucose elevation in diabetes.",
+    educational_text: "Cured beef contains some sugar from processing, causing mild glucose elevation.",
     image: "/images/foods/corned-beef.png",
     fallbackIcon: "🥩"
   },
@@ -457,7 +457,7 @@ export const itemLibrary = [
     glucose_change: 10,
     peakTime: 1.5,
     duration: 3.0,
-    educational_text: "Low-fat cottage cheese contains some lactose, mildly raising glucose in diabetes.",
+    educational_text: "Low-fat cottage cheese contains some lactose, mildly raising glucose.",
     image: "/images/foods/cottage-cheese.png",
     fallbackIcon: "🥛"
   },
@@ -479,7 +479,7 @@ export const itemLibrary = [
     glucose_change: 35,
     peakTime: 0.75,
     duration: 3.0,
-    educational_text: "Hot wheat cereal raises glucose similarly to other wheat products in diabetes.",
+    educational_text: "Hot wheat cereal raises glucose similarly to other wheat products.",
     image: "/images/foods/cream-wheat.png",
     fallbackIcon: "🥣"
   },
@@ -534,7 +534,7 @@ export const itemLibrary = [
     glucose_change: 8,
     peakTime: 2.0,
     duration: 3.5,
-    educational_text: "Deli meats often contain dextrose and starches, causing small glucose rises in diabetes.",
+    educational_text: "Deli meats often contain dextrose and starches, causing small glucose rises.",
     image: "/images/foods/deli-meat.png",
     fallbackIcon: "🥪"
   },
@@ -600,7 +600,7 @@ export const itemLibrary = [
     glucose_change: 8,
     peakTime: 2.0,
     duration: 4.0,
-    educational_text: "Fish has zero carbs but protein can still raise glucose mildly in diabetes. Fatty fish like salmon may have less impact than lean fish.",
+    educational_text: "Fish has zero carbs but protein can still raise glucose mildly. Fatty fish like salmon may have less impact than lean fish.",
     image: "/images/foods/fish-tuna.png",
     fallbackIcon: "🐟"
   },
@@ -721,7 +721,7 @@ export const itemLibrary = [
     glucose_change: 40,
     peakTime: 0.75,
     duration: 2.5,
-    educational_text: "Ice cream's high sugar content (20g+) causes significant glucose spike in diabetes.",
+    educational_text: "Ice cream's high sugar content (20g+) causes significant glucose spike.",
     image: "/images/foods/ice-cream.png",
     fallbackIcon: "🍨"
   },
@@ -732,7 +732,7 @@ export const itemLibrary = [
     glucose_change: 12,
     peakTime: 1.0,
     duration: 2.5,
-    educational_text: "Skyr is high in protein with moderate lactose, causing controlled glucose rise in diabetes.",
+    educational_text: "Skyr is high in protein with moderate lactose, causing controlled glucose rise.",
     image: "/images/foods/icelandic-yogurt.png",
     fallbackIcon: "🥛"
   },
@@ -787,7 +787,7 @@ export const itemLibrary = [
     glucose_change: 15,
     peakTime: 2.5,
     duration: 5.0,
-    educational_text: "Lamb's higher fat content may slow protein conversion to glucose, but still expect a 10-20 mg/dL rise in diabetes.",
+    educational_text: "Lamb's higher fat content may slow protein conversion to glucose, but still expect a 10-20 mg/dL rise.",
     image: "/images/foods/lamb.png",
     fallbackIcon: "🍖"
   },
@@ -952,7 +952,7 @@ export const itemLibrary = [
     glucose_change: 8,
     peakTime: 1.0,
     duration: 2.5,
-    educational_text: "Onions contain some natural sugars, mildly raising glucose in diabetes.",
+    educational_text: "Onions contain some natural sugars, mildly raising glucose.",
     image: "/images/foods/onions.png",
     fallbackIcon: "🧅"
   },
@@ -963,7 +963,7 @@ export const itemLibrary = [
     glucose_change: 15,
     peakTime: 1.5,
     duration: 4.0,
-    educational_text: "Liver contains stored glycogen (carbs), potentially raising glucose 15-20 mg/dL in diabetes.",
+    educational_text: "Liver contains stored glycogen (carbs), potentially raising glucose 15-20 mg/dL.",
     image: "/images/foods/organ-meat.png",
     fallbackIcon: "🫀"
   },
@@ -974,7 +974,7 @@ export const itemLibrary = [
     glucose_change: 40,
     peakTime: 1.5,
     duration: 4.0,
-    educational_text: "Refined pasta causes rapid glucose elevation of 40-50 mg/dL in diabetes.",
+    educational_text: "Refined pasta causes rapid glucose elevation of 40-50 mg/dL.",
     image: "/images/foods/pasta.png",
     fallbackIcon: "🍝"
   },
@@ -1073,7 +1073,7 @@ export const itemLibrary = [
     glucose_change: 40,
     peakTime: 0.75,
     duration: 3.0,
-    educational_text: "Potatoes rapidly convert to glucose, causing spikes of 40-60 mg/dL in diabetes.",
+    educational_text: "Potatoes rapidly convert to glucose, causing spikes of 40-60 mg/dL.",
     image: "/images/foods/potatoes.png",
     fallbackIcon: "🥔"
   },
@@ -1150,7 +1150,7 @@ export const itemLibrary = [
     glucose_change: 22,
     peakTime: 1.0,
     duration: 3.5,
-    educational_text: "Rye bread typically has a lower glycemic impact than wheat bread in diabetes.",
+    educational_text: "Rye bread typically has a lower glycemic impact than wheat bread.",
     image: "/images/foods/rye.png",
     fallbackIcon: "🍞"
   },
@@ -1172,7 +1172,7 @@ export const itemLibrary = [
     glucose_change: 15,
     peakTime: 1.5,
     duration: 3.5,
-    educational_text: "Many sausages contain fillers and sugars that can raise glucose 15-20 mg/dL in diabetes.",
+    educational_text: "Many sausages contain fillers and sugars that can raise glucose 15-20 mg/dL.",
     image: "/images/foods/sausage.png",
     fallbackIcon: "🌭"
   },
@@ -1194,7 +1194,7 @@ export const itemLibrary = [
     glucose_change: 12,
     peakTime: 2.0,
     duration: 4.0,
-    educational_text: "Shellfish like shrimp contain small amounts of carbs plus protein effects, potentially raising glucose 10-15 mg/dL in diabetes.",
+    educational_text: "Shellfish like shrimp contain small amounts of carbs plus protein effects, potentially raising glucose 10-15 mg/dL.",
     image: "/images/foods/seafood.png",
     fallbackIcon: "🦐"
   },
@@ -1227,7 +1227,7 @@ export const itemLibrary = [
     glucose_change: 20,
     peakTime: 1.0,
     duration: 2.5,
-    educational_text: "Low-fat milk contains 12g lactose (milk sugar) per cup, raising glucose 20-30 mg/dL in diabetes.",
+    educational_text: "Low-fat milk contains 12g lactose (milk sugar) per cup, raising glucose 20-30 mg/dL.",
     image: "/images/foods/skim-milk.png",
     fallbackIcon: "🥛"
   },
@@ -1271,7 +1271,7 @@ export const itemLibrary = [
     glucose_change: 55,
     peakTime: 0.5,
     duration: 2.0,
-    educational_text: "Sugary cereals cause rapid glucose spikes of 55-70 mg/dL in diabetes.",
+    educational_text: "Sugary cereals cause rapid glucose spikes of 55-70 mg/dL.",
     image: "/images/foods/sugary-cereal.png",
     fallbackIcon: "🥣"
   },
@@ -1282,7 +1282,7 @@ export const itemLibrary = [
     glucose_change: 50,
     peakTime: 0.5,
     duration: 2.0,
-    educational_text: "Chocolate milk contains 25-30g sugar, causing rapid glucose spike of 50+ mg/dL in diabetes.",
+    educational_text: "Chocolate milk contains 25-30g sugar, causing rapid glucose spike of 50+ mg/dL.",
     image: "/images/foods/flavored-milk.png",
     fallbackIcon: "🍫"
   },
@@ -1293,7 +1293,7 @@ export const itemLibrary = [
     glucose_change: 45,
     peakTime: 0.75,
     duration: 2.5,
-    educational_text: "Fruit yogurts contain 20-30g sugar, spiking glucose 40-60 mg/dL in diabetes.",
+    educational_text: "Fruit yogurts contain 20-30g sugar, spiking glucose 40-60 mg/dL.",
     image: "/images/foods/sugary-yogurt.png",
     fallbackIcon: "🍓"
   },
@@ -1337,7 +1337,7 @@ export const itemLibrary = [
     glucose_change: 20,
     peakTime: 1.5,
     duration: 4.0,
-    educational_text: "Tempeh has about 10g carbs per serving, which combined with protein can raise glucose 20-30 mg/dL in diabetes.",
+    educational_text: "Tempeh has about 10g carbs per serving, which combined with protein can raise glucose 20-30 mg/dL.",
     image: "/images/foods/tempeh.png",
     fallbackIcon: "🟫"
   },
@@ -1348,7 +1348,7 @@ export const itemLibrary = [
     glucose_change: 15,
     peakTime: 2.0,
     duration: 4.0,
-    educational_text: "Tofu contains 2-3g carbs per serving plus protein effects, potentially raising glucose 15-20 mg/dL in diabetes.",
+    educational_text: "Tofu contains 2-3g carbs per serving plus protein effects, potentially raising glucose 15-20 mg/dL.",
     image: "/images/foods/tofu.png",
     fallbackIcon: "🧈"
   },
@@ -1414,7 +1414,7 @@ export const itemLibrary = [
     glucose_change: 35,
     peakTime: 0.5,
     duration: 2.0,
-    educational_text: "White bread quickly converts to glucose, spiking levels 35-45 mg/dL in diabetes.",
+    educational_text: "White bread quickly converts to glucose, spiking levels 35-45 mg/dL.",
     image: "/images/foods/white_bread.png",
     fallbackIcon: "🍞"
   },
@@ -1491,7 +1491,7 @@ export const itemLibrary = [
     glucose_change: 35,
     peakTime: 1.0,
     duration: 3.5,
-    educational_text: "Yams are starchy tubers that significantly raise glucose 35-45 mg/dL in diabetes.",
+    educational_text: "Yams are starchy tubers that significantly raise glucose 35-45 mg/dL.",
     image: "/images/foods/yam.png",
     fallbackIcon: "🍠"
   },
