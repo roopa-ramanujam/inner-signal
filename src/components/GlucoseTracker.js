@@ -39,7 +39,7 @@ const getBottomSheetHeights = (screenHeight, isStandaloneMode = false) => {
 
   else {
     // 50% for desktop
-    targetHeight = screenHeight * 0.5;
+    targetHeight = screenHeight * 0.49;
   }
   
   return {
@@ -754,8 +754,23 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
                     strokeDasharray="4 4"
                   />
                 ))}
+              </svg>
+            </div>
+          </div>
 
-                {/* Connection lines from food icons to glucose curve */}
+          {/* Connection Lines Overlay - NEW SVG OVERLAY */}
+          {selectedItems.length > 0 && (
+            <div className="absolute left-1/2 transform -translate-x-1/2 pointer-events-none" style={{ top: '20px', width: `${chartWidth}px` }}>
+              <svg 
+                className="w-full h-full absolute"
+                style={{ 
+                  width: `${chartWidth}px`,
+                  height: `${chartHeight + 125}px`,
+                  left: '0',
+                  top: '0'
+                }}
+                viewBox={`0 0 ${chartWidth} ${chartHeight + 125}`}
+              >
                 {selectedItems.map((food) => {
                   const timePosition = itemTimings[food.item] || 0;
                   const x = timePosition * chartWidth;
@@ -768,15 +783,17 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
                       x1={x}
                       y1={y}
                       x2={x}
-                      y2={chartHeight + 40}
+                      y2={chartHeight + 25} // Line extends to food icon level
                       stroke={settings.connectionLineColor}
                       strokeWidth="2"
+                      opacity="0.6"
                     />
                   );
                 })}
               </svg>
             </div>
-          </div>
+          )}
+
           {/* X-axis Labels - outside the chart */}
           <div 
             className={`absolute left-1/2 transform -translate-x-1/2 flex justify-between text-xs text-gray-400`} 
@@ -794,7 +811,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
             </div>
             {/* Draggable Food Icons */}
             {selectedItems.length > 0 && (
-            <div className="absolute inset-0 pointer-events-none"> {/* Changed this line */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 pointer-events-none" style={{ width: `${chartWidth}px`, top: `${chartHeight + 15}px` }}>
               {selectedItems.map((menuItem) => {
                 const timePosition = itemTimings[menuItem.item] || 0;
                 const x = timePosition * chartWidth;
@@ -805,7 +822,8 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
                     className="absolute pointer-events-auto"
                     style={{
                       left: `${x}px`,
-                      bottom: '-60px'
+                      top: '0px',
+                      transform: 'translateX(-50%)' // Center the icon on the line
                     }}
                   >
                     <div 
