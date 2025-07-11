@@ -690,7 +690,7 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
       {/* Educational Text */}
       {!isFullScreen && (
         <div className="bg-[#E7EEEB] p-4 text-center">
-          <p className="text-gray-700 text-md font-semibold leading-relaxed">
+          <p className="text-gray-700 text-sm font-semibold leading-relaxed">
             {getEducationalText()}
           </p>
         </div>
