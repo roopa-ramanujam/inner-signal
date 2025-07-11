@@ -31,8 +31,14 @@ const getBottomSheetHeights = (screenHeight, isStandaloneMode = false) => {
   if (isMobileBrowser) {
     // 35-40% for mobile browsers, but ensure minimum usability
     targetHeight = screenHeight * 0.35;
-  } else {
-    // 50% for standalone/desktop
+  } 
+
+  else if (isStandaloneMode) {
+    targetHeight = screenHeight * 0.45;
+  }
+
+  else {
+    // 50% for desktop
     targetHeight = screenHeight * 0.5;
   }
   
