@@ -15,14 +15,14 @@
         "baselineValue": "settings.baselineGlucose",
         "chartHeight": "settings.chartHeight",
         "chartWidth": "settings.chartWidth",
-        "yMin": "settings.yMin",
-        "yMax": "settings.yMax",
+        "yMin": 20,
+        "yMax": 220,
         "timeRange": {
-          "start": "settings.startHour",
-          "end": "settings.endHour"
+          "start": 12,
+          "end": 17
         },
         "dangerZones": [
-          { "value": 70, "color": "settings.highGlucoseColor", "label": "Low" },
+          { "value": 70, "color": "settings.lowGlucoseColor", "label": "Low" },
           { "value": 120, "color": "settings.normalGlucoseColor", "label": "Normal" },
           { "value": 180, "color": "settings.highGlucoseColor", "label": "High" }
         ]
@@ -44,14 +44,14 @@
       "moduleFile": "ketoneModules",
       "moduleKey": "ketoneModules",
       "chartConfig": {
-        "baselineValue": 0.1,
+        "baselineValue": -0.1,
         "chartHeight": 300,
         "chartWidth": "settings.chartWidth",
-        "yMin": 0,
+        "yMin": -0.1,
         "yMax": 3.0,
         "timeRange": {
-          "start": "settings.startHour",
-          "end": "settings.endHour"
+          "start": 9,
+          "end": 18
         },
         "dangerZones": [
           { "value": 0.3, "color": "#94a3b8", "label": "Light" },
@@ -113,8 +113,7 @@
           { "color": "#ef4444", "label": "<70: Hypoglycemia Risk", "isWarning": true },
           { "color": "#22c55e", "label": "70-180: Target Range" },
           { "color": "#f59e0b", "label": ">180: High Glucose" }
-        ],
-        "disclaimerText": "IMPORTANT: Educational content only. Never adjust insulin without healthcare provider guidance."
+        ]
       }
     }
   }

@@ -1,29 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, RotateCcw, ChevronDown, X} from 'lucide-react';
-import { itemLibrary } from './data/library';
 import { settings } from './data/settings';
 import ItemImage from './ItemImage';
 
-// // Calculate heights based on screen size
-// const getBottomSheetHeights = (screenHeight, isStandaloneMode = false) => {
-//   // Calculate content above as percentages of screen height
-//   const headerHeightPercent = 0.08;        // ~8% for header
-//   const educationalTextPercent = 0.10;     // ~10% for educational text  
-//   const chartHeightPercent = 0.30;         // ~30% for chart area
-//   const spacingPercent = 0.05;             // ~5% for spacing/margins
-  
-//   // Only add browser UI buffer if we're actually in a browser (not standalone/PWA mode)
-//   const browserUIBuffer = isStandaloneMode ? 0 : 0.05; // ~5% buffer for mobile browser UI only when needed
-  
-//   const contentAbovePercent = headerHeightPercent + educationalTextPercent + chartHeightPercent + spacingPercent + browserUIBuffer;
-//   const remainingPercent = Math.max(0.15, 1 - contentAbovePercent); // At least 15% for bottom sheet, or whatever's left
-//   const remainingHeight = screenHeight * remainingPercent;
-  
-//   return {
-//     COLLAPSED_HEIGHT: isStandaloneMode ? Math.max(200, remainingHeight) : Math.max(160, Math.min(500, remainingHeight)), // Between 160-250px based on available space
-//   };
-// };
+// Import the JSON data (you'll need to fetch this or import it)
+// For now, assuming you have a way to import it
+import libraryData from './data/library.json';
 
+// Calculate heights based on screen size
 const getBottomSheetHeights = (screenHeight, isStandaloneMode = false) => {
   const isMobileBrowser = !isStandaloneMode && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   
@@ -60,6 +44,9 @@ const GlucoseTracker = ({ onNavigate = () => {} }) => {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isStandaloneMode, setIsStandaloneMode] = useState(false);
+
+  // Extract itemLibrary from the JSON data
+  const itemLibrary = libraryData.itemLibrary;
 
   const [windowHeight, setWindowHeight] = useState(() => {
     // Get the actual viewport height accounting for mobile URL bars

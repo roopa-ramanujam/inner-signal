@@ -11,7 +11,7 @@
           "name": "Keto Meal",
           "peakTime": 3.0,
           "peakValue": 1.2,
-          "duration": 6.0,
+          "duration": 8.0,
           "description": "High-fat, low-carb meals can increase ketone production over several hours.",
           "image": "/images/ketones/keto-meal.png",
           "fallbackIcon": "🥑",
@@ -20,20 +20,20 @@
         {
           "id": "intermittent-fasting",
           "name": "Intermittent Fasting",
-          "peakTime": 12.0,
-          "peakValue": 0.8,
-          "duration": 16.0,
+          "peakTime": 6.0,
+          "peakValue": 0.9,
+          "duration": 9.0,
           "description": "Extended fasting periods naturally increase ketone production.",
           "image": "/images/ketones/fasting.png",
           "fallbackIcon": "⏰",
-          "impactStart": 8.0
+          "impactStart": 2.0
         },
         {
           "id": "carb-meal",
           "name": "High-Carb Meal",
           "peakTime": 2.0,
-          "peakValue": 0.1,
-          "duration": 8.0,
+          "peakValue": 0.2,
+          "duration": 6.0,
           "description": "Carbohydrate intake suppresses ketone production significantly.",
           "image": "/images/ketones/carb-meal.png",
           "fallbackIcon": "🍞",
@@ -42,13 +42,13 @@
         {
           "id": "mct-oil",
           "name": "MCT Oil",
-          "peakTime": 1.0,
-          "peakValue": 0.6,
-          "duration": 3.0,
+          "peakTime": 1.5,
+          "peakValue": 0.8,
+          "duration": 4.0,
           "description": "Medium-chain triglycerides can rapidly increase ketone levels.",
           "image": "/images/ketones/mct-oil.png",
           "fallbackIcon": "🥥",
-          "impactStart": 0.25
+          "impactStart": 0.5
         }
       ]
     },
@@ -61,9 +61,9 @@
         {
           "id": "aerobic-exercise",
           "name": "Aerobic Exercise",
-          "peakTime": 1.5,
-          "peakValue": 0.4,
-          "duration": 4.0,
+          "peakTime": 2.0,
+          "peakValue": 0.6,
+          "duration": 5.0,
           "description": "Steady aerobic exercise can modestly increase ketone production.",
           "image": "/images/ketones/running.png",
           "fallbackIcon": "🏃‍♀️",
@@ -72,31 +72,31 @@
         {
           "id": "hiit-workout",
           "name": "HIIT Workout",
-          "peakTime": 2.0,
-          "peakValue": 0.3,
-          "duration": 3.0,
+          "peakTime": 1.5,
+          "peakValue": 0.5,
+          "duration": 4.0,
           "description": "High-intensity training may temporarily increase ketones.",
           "image": "/images/ketones/hiit.png",
           "fallbackIcon": "💪",
-          "impactStart": 1.0
+          "impactStart": 0.5
         },
         {
           "id": "strength-training",
           "name": "Strength Training",
           "peakTime": 1.0,
-          "peakValue": 0.2,
-          "duration": 2.0,
+          "peakValue": 0.4,
+          "duration": 3.0,
           "description": "Weight training has minimal impact on ketone production.",
           "image": "/images/ketones/weights.png",
           "fallbackIcon": "🏋️‍♀️",
-          "impactStart": 0.5
+          "impactStart": 0.25
         },
         {
           "id": "yoga",
           "name": "Yoga/Meditation",
-          "peakTime": 0.5,
-          "peakValue": 0.25,
-          "duration": 2.0,
+          "peakTime": 1.0,
+          "peakValue": 0.45,
+          "duration": 3.5,
           "description": "Gentle movement and stress reduction may support ketosis.",
           "image": "/images/ketones/yoga.png",
           "fallbackIcon": "🧘‍♀️",
@@ -113,19 +113,19 @@
         {
           "id": "nutritional-ketosis",
           "name": "Nutritional Ketosis",
-          "peakTime": 24.0,
-          "peakValue": 1.5,
-          "duration": 48.0,
+          "peakTime": 5.0,
+          "peakValue": 1.8,
+          "duration": 9.0,
           "description": "Sustained ketogenic diet maintains steady ketone levels.",
           "fallbackIcon": "📊",
-          "impactStart": 12.0
+          "impactStart": 1.0
         },
         {
           "id": "dawn-phenomenon",
           "name": "Morning Rise",
-          "peakTime": 1.0,
-          "peakValue": 0.6,
-          "duration": 3.0,
+          "peakTime": 1.5,
+          "peakValue": 0.7,
+          "duration": 4.0,
           "description": "Natural morning hormone changes can affect ketone levels.",
           "fallbackIcon": "🌅",
           "impactStart": 0.0
@@ -133,9 +133,9 @@
         {
           "id": "stress-response",
           "name": "Stress Response",
-          "peakTime": 0.5,
-          "peakValue": 0.3,
-          "duration": 2.0,
+          "peakTime": 1.0,
+          "peakValue": 0.5,
+          "duration": 3.0,
           "description": "Acute stress can temporarily alter ketone production.",
           "fallbackIcon": "😰",
           "impactStart": 0.0
@@ -143,12 +143,12 @@
         {
           "id": "sleep-deprivation",
           "name": "Sleep Deprivation",
-          "peakTime": 6.0,
-          "peakValue": 0.15,
-          "duration": 12.0,
+          "peakTime": 4.0,
+          "peakValue": 0.3,
+          "duration": 8.0,
           "description": "Poor sleep can disrupt metabolic processes including ketosis.",
           "fallbackIcon": "😴",
-          "impactStart": 2.0
+          "impactStart": 1.0
         }
       ]
     }

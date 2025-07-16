@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import ItemImage from './ItemImage';
 
 const LearningModule = ({ 
@@ -34,7 +34,6 @@ const LearningModule = ({
     showLegend = false,
     legendTitle = '',
     legendItems = [],
-    disclaimerText = ''
   } = displayConfig;
 
   const currentModule = modules[selectedCategory];
@@ -235,11 +234,7 @@ const LearningModule = ({
             <ChevronDown className="w-4 h-4" />
           </button>
         </div>
-        <Settings className="w-5 h-5 text-gray-600" />
       </div>
-
-      {/* Medical Disclaimer */}
-      {disclaimerText && <MedicalDisclaimer text={disclaimerText} />}
 
       {/* Category Navigation */}
       <div className="p-4" style={{ backgroundColor }}>
