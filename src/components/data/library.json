@@ -89,17 +89,6 @@
          "fallbackIcon":"🥬"
       },
       {
-         "item":"Asparagus",
-         "category":"vegetable",
-         "serving_size":"1 cup cooked",
-         "glucose_change":10,
-         "peakTime":2.0,
-         "duration":3.0,
-         "educational_text":"Cooked greens like asparagus have almost no carbs, keeping glucose stable.",
-         "image":"/images/foods/asparagus.png",
-         "fallbackIcon":"🥬"
-      },
-      {
          "item":"Avocado",
          "category":"healthy-fat",
          "serving_size":"1/2 avocado",
