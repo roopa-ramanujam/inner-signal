@@ -38,7 +38,7 @@
   },
   "ketones": {
     "component": "LearningModule",
-    "enabled": true,
+    "enabled": false,
     "props": {
       "title": "Ketones",
       "moduleFile": "ketoneModules",
@@ -80,7 +80,7 @@
   },
   "insulin-dosing": {
     "component": "LearningModule",
-    "enabled": true,
+    "enabled": false,
     "props": {
       "title": "Insulin Dosing",
       "moduleFile": "insulinDosing",
