@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import GlucoseTracker from './components/GlucoseTracker';
 import LearningModule from './components/LearningModule';
 
@@ -10,6 +10,7 @@ import { settings } from './components/data/settings';
 const App = () => {
   const [currentPage, setCurrentPage] = useState('blood-sugar');
   const [showDropdown, setShowDropdown] = useState(false);
+  const [processedConfig, setProcessedConfig] = useState(null);
 
   const appSections = appSectionsData;
   const pageConfigs = pageConfigsData;
@@ -89,18 +90,20 @@ const App = () => {
     return processedConfig;
   };
 
+  // Use useEffect to process config when page changes
+  useEffect(() => {
+    if (currentPageConfig) {
+      processPageConfig(currentPageConfig).then(setProcessedConfig);
+    } else {
+      setProcessedConfig(null);
+    }
+  }, [currentPageConfig]);
+
   // Render the appropriate component based on configuration
   const renderCurrentPage = () => {
     if (!currentPageConfig) {
       return <div>Page not found</div>;
     }
-
-    // Use React.lazy for async loading
-    const [processedConfig, setProcessedConfig] = useState(null);
-    
-    React.useEffect(() => {
-      processPageConfig(currentPageConfig).then(setProcessedConfig);
-    }, [currentPageConfig]);
 
     if (!processedConfig) {
       return <div>Loading...</div>;
