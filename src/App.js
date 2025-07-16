@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
 import GlucoseTracker from './components/GlucoseTracker';
 import LearningModule from './components/LearningModule';
-import { appSections } from './components/data/appSections';
-import { pageConfigs } from './components/data/pageConfigs';
+
+// Import JSON files
+import appSectionsData from './components/data/appSections.json';
+import pageConfigsData from './components/data/pageConfigs.json';
+import { settings } from './components/data/settings';
 
 const App = () => {
   const [currentPage, setCurrentPage] = useState('blood-sugar');
   const [showDropdown, setShowDropdown] = useState(false);
+
+  const appSections = appSectionsData;
+  const pageConfigs = pageConfigsData;
 
   const handleNavigate = (page) => {
     if (page === currentPage) {
@@ -20,13 +26,87 @@ const App = () => {
   // Get the current page configuration
   const currentPageConfig = pageConfigs[currentPage];
 
+  // Dynamic module loading function
+  const loadModuleData = async (moduleFileName) => {
+    try {
+      const moduleData = await import(`./components/data/modules/${moduleFileName}.json`);
+      return moduleData.default;
+    } catch (error) {
+      console.warn(`Could not load module: ${moduleFileName}`, error);
+      return {};
+    }
+  };
+
+  // Helper function to resolve settings references
+  const resolveConfigValue = (value) => {
+    if (typeof value === 'string' && value.startsWith('settings.')) {
+      const settingKey = value.replace('settings.', '');
+      return settings[settingKey] || value;
+    }
+    return value;
+  };
+
+  // Process configuration to resolve all references
+  const processPageConfig = async (config) => {
+    if (!config || !config.props) return config;
+
+    const processedConfig = JSON.parse(JSON.stringify(config));
+
+    // Load modules if specified
+    if (processedConfig.props.moduleFile) {
+      const moduleData = await loadModuleData(processedConfig.props.moduleFile);
+      const moduleKey = processedConfig.props.moduleKey;
+      processedConfig.props.modules = moduleData[moduleKey] || [];
+    }
+
+    // Resolve chart config values
+    if (processedConfig.props.chartConfig) {
+      Object.keys(processedConfig.props.chartConfig).forEach(key => {
+        if (key === 'timeRange' && typeof processedConfig.props.chartConfig[key] === 'object') {
+          processedConfig.props.chartConfig[key] = {
+            start: resolveConfigValue(processedConfig.props.chartConfig[key].start),
+            end: resolveConfigValue(processedConfig.props.chartConfig[key].end)
+          };
+        } else if (key === 'dangerZones' && Array.isArray(processedConfig.props.chartConfig[key])) {
+          processedConfig.props.chartConfig[key] = processedConfig.props.chartConfig[key].map(zone => ({
+            value: zone.value,
+            color: resolveConfigValue(zone.color),
+            label: zone.label
+          }));
+        } else {
+          processedConfig.props.chartConfig[key] = resolveConfigValue(processedConfig.props.chartConfig[key]);
+        }
+      });
+    }
+
+    // Resolve display config values
+    if (processedConfig.props.displayConfig) {
+      Object.keys(processedConfig.props.displayConfig).forEach(key => {
+        processedConfig.props.displayConfig[key] = resolveConfigValue(processedConfig.props.displayConfig[key]);
+      });
+    }
+
+    return processedConfig;
+  };
+
   // Render the appropriate component based on configuration
   const renderCurrentPage = () => {
     if (!currentPageConfig) {
       return <div>Page not found</div>;
     }
 
-    const { component, props = {} } = currentPageConfig;
+    // Use React.lazy for async loading
+    const [processedConfig, setProcessedConfig] = useState(null);
+    
+    React.useEffect(() => {
+      processPageConfig(currentPageConfig).then(setProcessedConfig);
+    }, [currentPageConfig]);
+
+    if (!processedConfig) {
+      return <div>Loading...</div>;
+    }
+
+    const { component, props = {} } = processedConfig;
 
     switch (component) {
       case 'GlucoseTracker':

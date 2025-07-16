@@ -1,0 +1,22 @@
+[
+  {
+    "id": "blood-sugar",
+    "name": "Blood Sugar Tracker",
+    "description": "Track and monitor your glucose levels"
+  },
+  {
+    "id": "glycemic-index",
+    "name": "Glycemic Index",
+    "description": "Learn how foods affect your blood sugar"
+  },
+  {
+    "id": "insulin-dosing",
+    "name": "Insulin Dosing",
+    "description": ""
+  },
+  {
+    "id": "ketones",
+    "name": "Ketones",
+    "description": ""
+  }
+]
