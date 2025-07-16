@@ -1,120 +1,188 @@
 {
-  "blood-sugar": {
-    "component": "GlucoseTracker",
-    "enabled": true,
-    "props": {}
-  },
-  "glycemic-index": {
-    "component": "LearningModule",
-    "enabled": true,
-    "props": {
-      "title": "Glycemic Index",
-      "moduleFile": "glycemicIndexModules",
-      "moduleKey": "glycemicIndexModules",
-      "chartConfig": {
-        "baselineValue": "settings.baselineGlucose",
-        "chartHeight": "settings.chartHeight",
-        "chartWidth": "settings.chartWidth",
-        "yMin": 20,
-        "yMax": 220,
-        "timeRange": {
-          "start": 12,
-          "end": 17
-        },
-        "dangerZones": [
-          { "value": 70, "color": "settings.lowGlucoseColor", "label": "Low" },
-          { "value": 120, "color": "settings.normalGlucoseColor", "label": "Normal" },
-          { "value": 180, "color": "settings.highGlucoseColor", "label": "High" }
-        ]
-      },
-      "displayConfig": {
-        "showComparison": true,
-        "backgroundColor": "#E7EEEB",
-        "buttonStyle": "teal",
-        "unitLabel": "mg/dL",
-        "defaultLineColor": "settings.normalGlucoseColor"
+   "blood-sugar":{
+      "component":"GlucoseTracker",
+      "enabled":true,
+      "props":{
+         
       }
-    }
-  },
-  "ketones": {
-    "component": "LearningModule",
-    "enabled": false,
-    "props": {
-      "title": "Ketones",
-      "moduleFile": "ketoneModules",
-      "moduleKey": "ketoneModules",
-      "chartConfig": {
-        "baselineValue": -0.1,
-        "chartHeight": 300,
-        "chartWidth": "settings.chartWidth",
-        "yMin": -0.1,
-        "yMax": 3.0,
-        "timeRange": {
-          "start": 9,
-          "end": 18
-        },
-        "dangerZones": [
-          { "value": 0.3, "color": "#94a3b8", "label": "Light" },
-          { "value": 0.5, "color": "#22c55e", "label": "Nutritional" },
-          { "value": 1.5, "color": "#f59e0b", "label": "Deep" },
-          { "value": 3.0, "color": "#ef4444", "label": "DKA Risk" }
-        ]
-      },
-      "displayConfig": {
-        "showComparison": true,
-        "backgroundColor": "#E7EEEB",
-        "buttonStyle": "teal",
-        "unitLabel": "mmol/L",
-        "defaultLineColor": "#cbd5e1",
-        "showLegend": true,
-        "legendTitle": "Ketone Levels (mmol/L)",
-        "legendItems": [
-          { "color": "#cbd5e1", "label": "0.0-0.3: No ketosis" },
-          { "color": "#94a3b8", "label": "0.3-0.5: Light ketosis" },
-          { "color": "#22c55e", "label": "0.5-1.5: Nutritional ketosis" },
-          { "color": "#f59e0b", "label": "1.5-3.0: Deep ketosis" },
-          { "color": "#ef4444", "label": ">3.0: DKA Risk", "isWarning": true }
-        ]
+   },
+   "glycemic-index":{
+      "component":"LearningModule",
+      "enabled":true,
+      "props":{
+         "title":"Glycemic Index",
+         "moduleFile":"glycemicIndexModules",
+         "moduleKey":"glycemicIndexModules",
+         "chartConfig":{
+            "baselineValue":"settings.baselineGlucose",
+            "chartHeight":"settings.chartHeight",
+            "chartWidth":"settings.chartWidth",
+            "yMin":20,
+            "yMax":220,
+            "timeRange":{
+               "start":12,
+               "end":17
+            },
+            "dangerZones":[
+               {
+                  "value":70,
+                  "color":"settings.lowGlucoseColor",
+                  "label":"Low"
+               },
+               {
+                  "value":120,
+                  "color":"settings.normalGlucoseColor",
+                  "label":"Normal"
+               },
+               {
+                  "value":180,
+                  "color":"settings.highGlucoseColor",
+                  "label":"High"
+               }
+            ]
+         },
+         "displayConfig":{
+            "showComparison":true,
+            "backgroundColor":"#E7EEEB",
+            "buttonStyle":"teal",
+            "unitLabel":"mg/dL",
+            "defaultLineColor":"settings.normalGlucoseColor"
+         }
       }
-    }
-  },
-  "insulin-dosing": {
-    "component": "LearningModule",
-    "enabled": false,
-    "props": {
-      "title": "Insulin Dosing",
-      "moduleFile": "insulinDosing",
-      "moduleKey": "insulinDosingModules",
-      "chartConfig": {
-        "baselineValue": "settings.baselineGlucose",
-        "chartHeight": 300,
-        "chartWidth": "settings.chartWidth",
-        "yMin": 50,
-        "yMax": 200,
-        "timeRange": {
-          "start": 9,
-          "end": 18
-        },
-        "dangerZones": [
-          { "value": 70, "color": "#ef4444", "label": "Hypo Risk" },
-          { "value": 120, "color": "#22c55e", "label": "Target" },
-          { "value": 180, "color": "#f59e0b", "label": "High" }
-        ]
-      },
-      "displayConfig": {
-        "showComparison": true,
-        "backgroundColor": "#E7EEEB",
-        "buttonStyle": "teal",
-        "unitLabel": "mg/dL",
-        "defaultLineColor": "#22c55e",
-        "showLegend": true,
-        "legendTitle": "Glucose Response (mg/dL)",
-        "legendItems": [
-          { "color": "#ef4444", "label": "<70: Hypoglycemia Risk", "isWarning": true },
-          { "color": "#22c55e", "label": "70-180: Target Range" },
-          { "color": "#f59e0b", "label": ">180: High Glucose" }
-        ]
+   },
+   "ketones":{
+      "component":"LearningModule",
+      "enabled":true,
+      "props":{
+         "title":"Ketones",
+         "moduleFile":"ketoneModules",
+         "moduleKey":"ketoneModules",
+         "chartConfig":{
+            "baselineValue":-0.1,
+            "chartHeight":300,
+            "chartWidth":"settings.chartWidth",
+            "yMin":-0.1,
+            "yMax":3.0,
+            "timeRange":{
+               "start":9,
+               "end":18
+            },
+            "dangerZones":[
+               {
+                  "value":0.3,
+                  "color":"#94a3b8",
+                  "label":"Light"
+               },
+               {
+                  "value":0.5,
+                  "color":"#22c55e",
+                  "label":"Nutritional"
+               },
+               {
+                  "value":1.5,
+                  "color":"#f59e0b",
+                  "label":"Deep"
+               },
+               {
+                  "value":3.0,
+                  "color":"#ef4444",
+                  "label":"DKA Risk"
+               }
+            ]
+         },
+         "displayConfig":{
+            "showComparison":true,
+            "backgroundColor":"#E7EEEB",
+            "buttonStyle":"teal",
+            "unitLabel":"mmol/L",
+            "defaultLineColor":"#cbd5e1",
+            "showLegend":true,
+            "legendTitle":"Ketone Levels (mmol/L)",
+            "legendItems":[
+               {
+                  "color":"#cbd5e1",
+                  "label":"0.0-0.3: No ketosis"
+               },
+               {
+                  "color":"#94a3b8",
+                  "label":"0.3-0.5: Light ketosis"
+               },
+               {
+                  "color":"#22c55e",
+                  "label":"0.5-1.5: Nutritional ketosis"
+               },
+               {
+                  "color":"#f59e0b",
+                  "label":"1.5-3.0: Deep ketosis"
+               },
+               {
+                  "color":"#ef4444",
+                  "label":">3.0: DKA Risk",
+                  "isWarning":true
+               }
+            ]
+         }
       }
-    }
-  }
+   },
+   "insulin-dosing":{
+      "component":"LearningModule",
+      "enabled":false,
+      "props":{
+         "title":"Insulin Dosing",
+         "moduleFile":"insulinDosing",
+         "moduleKey":"insulinDosingModules",
+         "chartConfig":{
+            "baselineValue":"settings.baselineGlucose",
+            "chartHeight":300,
+            "chartWidth":"settings.chartWidth",
+            "yMin":50,
+            "yMax":200,
+            "timeRange":{
+               "start":9,
+               "end":18
+            },
+            "dangerZones":[
+               {
+                  "value":70,
+                  "color":"#ef4444",
+                  "label":"Hypo Risk"
+               },
+               {
+                  "value":120,
+                  "color":"#22c55e",
+                  "label":"Target"
+               },
+               {
+                  "value":180,
+                  "color":"#f59e0b",
+                  "label":"High"
+               }
+            ]
+         },
+         "displayConfig":{
+            "showComparison":true,
+            "backgroundColor":"#E7EEEB",
+            "buttonStyle":"teal",
+            "unitLabel":"mg/dL",
+            "defaultLineColor":"#22c55e",
+            "showLegend":true,
+            "legendTitle":"Glucose Response (mg/dL)",
+            "legendItems":[
+               {
+                  "color":"#ef4444",
+                  "label":"<70: Hypoglycemia Risk",
+                  "isWarning":true
+               },
+               {
+                  "color":"#22c55e",
+                  "label":"70-180: Target Range"
+               },
+               {
+                  "color":"#f59e0b",
+                  "label":">180: High Glucose"
+               }
+            ]
+         }
+      }
+   }
 }
