@@ -208,27 +208,5 @@
           }
         ]
       }
-    ],
-    "glucoseReference": {
-      "ranges": [
-        {"min": null, "max": 70, "level": "Hypoglycemia (Emergency)", "color": "#ef4444"},
-        {"min": 70, "max": 99, "level": "Normal/Target", "color": "#22c55e"},
-        {"min": 100, "max": 125, "level": "Slightly Elevated", "color": "#22c55e"},
-        {"min": 126, "max": 180, "level": "Elevated", "color": "#f59e0b"},
-        {"min": 181, "max": 250, "level": "High", "color": "#f59e0b"},
-        {"min": 251, "max": null, "level": "Very High (Seek Medical Care)", "color": "#ef4444"}
-      ],
-      "units": "mg/dL",
-      "targetRange": {
-        "min": 70,
-        "max": 180,
-        "optimal": 120
-      },
-      "criticalValues": {
-        "severeHypoglycemia": 54,
-        "hypoglycemia": 70,
-        "hyperglycemia": 180,
-        "severeHyperglycemia": 250
-      }
-    }
+    ]
   }

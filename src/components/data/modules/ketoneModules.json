@@ -29,17 +29,6 @@
           "impactStart": 2.0
         },
         {
-          "id": "carb-meal",
-          "name": "High-Carb Meal",
-          "peakTime": 2.0,
-          "peakValue": 0.2,
-          "duration": 6.0,
-          "description": "Carbohydrate intake suppresses ketone production significantly.",
-          "image": "/images/ketones/carb-meal.png",
-          "fallbackIcon": "🍞",
-          "impactStart": 0.5
-        },
-        {
           "id": "mct-oil",
           "name": "MCT Oil",
           "peakTime": 1.5,
@@ -152,15 +141,5 @@
         }
       ]
     }
-  ],
-  "ketoneReference": {
-    "ranges": [
-      {"min": 0.0, "max": 0.3, "level": "No ketosis"},
-      {"min": 0.3, "max": 0.5, "level": "Light ketosis"},
-      {"min": 0.5, "max": 1.5, "level": "Nutritional ketosis"},
-      {"min": 1.5, "max": 3.0, "level": "Deep ketosis"},
-      {"min": 3.0, "max": null, "level": "Possible diabetic ketoacidosis (medical emergency)"}
-    ],
-    "units": "mmol/L"
-  }
+  ]
 }

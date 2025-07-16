@@ -2,14 +2,10 @@
 📝 FIELD EXPLANATIONS:
   
   MODULE LEVEL:
-  - "id": Use lowercase letters and hyphens only (e.g., "my-new-module")
-  - "name": The display name users will see
   - "icon": An emoji that represents this category
   - "instructions": Brief description of what this module teaches
   
   DATA ITEM LEVEL:
-  - "id": Unique identifier (lowercase-with-hyphens)
-  - "name": What users see on the button
   - "peakTime": Hours until maximum effect (0.1 to 72)
   - "peakValue": Highest/lowest value reached (varies by data type)
   - "duration": How long the effect lasts in hours (0.25 to 168)

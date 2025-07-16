@@ -123,14 +123,5 @@
         }
       ]
     }
-  ],
-  "glucoseReference": {
-    "ranges": [
-      {"min": 70, "max": 100, "level": "Normal fasting"},
-      {"min": 100, "max": 140, "level": "Normal post-meal"},
-      {"min": 140, "max": 180, "level": "Elevated"},
-      {"min": 180, "max": null, "level": "High"}
-    ],
-    "units": "mg/dL"
-  }
+  ]
 }
