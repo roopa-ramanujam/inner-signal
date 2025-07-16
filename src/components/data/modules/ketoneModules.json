@@ -31,13 +31,13 @@
             {
                "id":"high-carb-meals",
                "name":"High-Carb Meals",
-               "peakTime":3.0,
-               "peakValue":0.1,
+               "peakTime":2.0,
+               "peakValue":0.2,
                "duration":6.0,
                "description":"High carb meals usually remove you from a state of ketosis or make it hard to maintain it.",
                "image":"/images/ketones/keto-meal.png",
                "fallbackIcon":"⏰",
-               "impactStart":2.0
+               "impactStart":0.5
             }
          ]
       },
