@@ -1,266 +1,220 @@
-# Inner Signal
+# Configuration Guide
 
-An interactive web app for learning about what affects blood sugar and glucose, designed to help people with diabetes make informed dietary, lifestyle, and medication choices.
+This guide explains how to modify the JSON configuration files for the blood glucose tracking application.
 
-Visit the app at https://inner-signal.vercel.app/ (works best on mobile, and if you add this page to your home screen.)
+## Table of Contents
 
-# 📝 Adding New Pages: GitHub Web Editor Guide
+- [Adding Items to Library](#adding-items-to-library)
+- [Managing Page Sections](#managing-page-sections)
+- [Managing Learning Module Content](#managing-learning-module-content)
+- [Understanding Module Data Values](#understanding-module-data-values)
 
-## 🎯 Overview
-This guide shows you how to add a new learning module page to the app using only GitHub's web interface - no coding experience required!
+## Adding Items to Library
 
----
+The `library.json` file contains all food, exercise, and medication items that users can select to track their blood glucose impact.
 
-## 📋 **STEP 1: Create Your Module Data File**
+### Structure
 
-### 1.1 Navigate to the modules folder
-1. **Go to your GitHub repository** in your web browser
-2. **Click on the `src` folder**
-3. **Click on the `modules` folder**
-4. **Click the "Add file" button** (top right)
-5. **Select "Create new file"**
+Items are stored in the `itemLibrary` array. Each item has the following properties:
 
-### 1.2 Create the new JSON file
-1. **In the filename box**, type: `yourModuleName.json`
-   - Replace `yourModuleName` with your actual module name
-   - Examples: `exercises.json`, `insulinDosing.json`, `foods.json`
-   - ⚠️ **Important**: Use lowercase letters and no spaces. For filenames with multiple words, use camelcase (firstSecondThird).
-
-2. **Copy the entire content** from the `exampleModules.json` template above
-3. **Paste it into the file content area**
-
-### 1.3 Customize your data
-**Edit these parts to match your content:**
-
-1. **Change the main module name** (line 2):
-   ```json
-   "exampleModules": [
-   ```
-   To something like:
-   ```json
-   "exerciseModules": [
-   ```
-
-2. **Update each module section**:
-   - Change `"id"` (must be lowercase-with-hyphens)
-   - Change `"name"` (display name users see)
-   - Change `"icon"` (pick an emoji that fits)
-   - Change `"instructions"` (brief description)
-
-3. **Update each data item**:
-   - Change all the `"id"` values
-   - Change all the `"name"` values  
-   - Update `"description"` text
-   - Adjust numbers for your data type (see ranges in template)
-   - Pick appropriate `"fallbackIcon"` emojis
-
-4. **Validate the JSON you just createad**:
-Copy the entire file, go to https://jsonlint.com/, paste the file, and click Validate.
-
-### 1.4 Save the file
-1. **Scroll to bottom of page**
-2. **In "Commit new file" section**:
-   - Title: `Add [your module name] data`
-   - Description: `Added new learning module for [describe what it does]`
-3. **Click "Commit new file"**
-
----
-
-## 📋 **STEP 2: Add to Navigation Menu**
-
-### 2.1 Open appSections.js
-1. **Go back to the main repository page**
-2. **Click on `src` folder**
-3. **Click on `appSections.js`**
-4. **Click the pencil icon (✏️)** to edit
-
-### 2.2 Add your page to the menu
-1. **Find this section** (around line 3):
-   ```javascript
-   export const appSections = [
-   ```
-
-2. **Scroll down to find the existing pages** (around line 15-25)
-
-3. **Add your new page BEFORE the closing `];`**:
-   ```javascript
-   {
-     id: 'your-module-name',
-     name: 'Your Module Display Name',
-     description: 'Brief description of what this page does'
-   },
-   ```
-
-**Example:**
-```javascript
+```json
 {
-  id: 'exercises',
-  name: 'Exercise Tracker', 
-  description: 'Learn how different exercises affect your health'
-},
+  "item": "Apple",
+  "category": "fruit",
+  "serving_size": "1 medium",
+  "glucose_change": 25,
+  "peakTime": 1.5,
+  "duration": 3.0,
+  "educational_text": "Apples have fructose and fiber which helps offset the blood sugar increase.",
+  "image": "/images/foods/apple.png",
+  "fallbackIcon": "🍎"
+}
 ```
 
-⚠️ **Important**: 
-- The `id` must match the entry in pageConfigs (done in the next step, but important troubleshooting point)
-- Don't forget the comma after the closing `}`
+### Adding a New Item
 
-### 2.3 Save the changes
-1. **Scroll to bottom**
-2. **Commit changes**:
-   - Title: `Add [module name] to navigation`
-   - Description: `Added new page to navigation menu`
-3. **Click "Commit changes"**
+1. Open `library.json`
+2. Add a new object to the `itemLibrary` array with these required fields:
+   - **item**: Display name (string)
+   - **category**: One of: fruit, vegetable, grain, meat, dairy, exercise, medication, etc.
+   - **serving_size**: Typical portion (string)
+   - **glucose_change**: Blood glucose impact in mg/dL (positive = increase, negative = decrease)
+   - **peakTime**: Hours until maximum effect (decimal)
+   - **duration**: Total hours of effect (decimal)
+   - **educational_text**: Explanation of the glucose impact (string)
+   - **image**: Path to image file (string)
+   - **fallbackIcon**: Emoji as backup if image fails (string)
 
----
+### Categories
 
-## 📋 **STEP 3: Configure the Page**
+Common categories include:
 
-### 3.1 Open pageConfigs.js
-1. **Go back to the main repository page**
-2. **Click on `src` folder**  
-3. **Click on `pageConfigs.js`**
-4. **Click the pencil icon (✏️)** to edit
+- **Foods**: fruit, vegetable, grain, meat, dairy, legume, healthy-fat, sweets, snack
+- **Exercise**: exercise
+- **Medications**: medication
+- **Special**: processed-meat, fried-food, starchy-vegetable, refined-grain
 
-### 3.2 Add import for your module
-1. **Find the import section** at the top (around lines 3-6):
-   ```javascript
-   import glycemicIndexModulesData from './modules/glycemicIndexModules.json';
-   import ketoneModulesData from './modules/ketoneModules.json';
-   ```
+## Managing Page Sections
 
-2. **Add your import** (replace with your actual filename):
-   ```javascript
-   import yourModuleData from './modules/yourModuleName.json';
-   ```
+The `pageConfigs.json` file controls which sections appear in the application and their settings.
 
-**Example:**
-```javascript
-import exerciseModulesData from './modules/exercises.json';
+### Enabling/Disabling Sections
+
+To disable a section, set `enabled` to `false`:
+
+```json
+"ketones": {
+  "component": "LearningModule",
+  "enabled": false,
+  "props": { ... }
+}
 ```
 
-### 3.3 Add your page configuration
-1. **Scroll down to find `export const pageConfigs = {`** (around line 10)
+To enable a section, set `enabled` to `true`:
 
-2. **Find the end of the existing pages** (look for the insulin-dosing section)
+```json
+"ketones": {
+  "component": "LearningModule",
+  "enabled": true,
+  "props": { ... }
+}
+```
 
-3. **Add your new page BEFORE the closing `};`**:
+### Available Sections
 
-```javascript
-// Your New Page
-'your-page-id': {
-  component: 'LearningModule',
-  enabled: true,
-  props: {
-    title: 'Your Page Title',
-    modules: yourModuleData?.yourModulesArrayName || [],
-    chartConfig: {
-      baselineValue: 120,              // Starting value for your data type
-      chartHeight: 300,
-      chartWidth: settings.chartWidth,
-      yMin: 70,                        // Minimum chart value
-      yMax: 200,                       // Maximum chart value  
-      timeRange: { start: settings.startHour, end: settings.endHour },
-      dangerZones: [
-        { value: 70, color: '#ef4444', label: 'Low' },
-        { value: 120, color: '#22c55e', label: 'Normal' },
-        { value: 180, color: '#f59e0b', label: 'High' }
-      ]
-    },
-    displayConfig: {
-      showComparison: true,
-      backgroundColor: '#E7EEEB',          
-      buttonStyle: 'teal',             // Default is teal; Color theme: 'blue', 'teal', 'green'
-      unitLabel: 'mg/dL',              // Unit shown on chart
-      defaultLineColor: '#22c55e',
-      showLegend: false,               // Set to true if you want a legend
-      legendTitle: 'Your Data Ranges',
-      legendItems: [
-        { color: '#ef4444', label: 'Low range description' },
-        { color: '#22c55e', label: 'Normal range description' },
-        { color: '#f59e0b', label: 'High range description' }
-      ]
+- **blood-sugar**: Main glucose tracking interface
+- **glycemic-index**: Learning module about how foods affect blood sugar
+- **ketones**: Learning module about ketone levels
+- **insulin-dosing**: Learning module about insulin effects
+
+## Managing Learning Module Content
+
+Learning modules (glycemic-index, ketones, insulin-dosing) have their content stored in separate JSON files.
+
+### File Structure
+
+Each module file contains an array of module groups:
+
+```json
+{
+  "moduleName": [
+    {
+      "id": "unique-group-id",
+      "name": "Display Name",
+      "icon": "🔬",
+      "instructions": "Description of what users will learn",
+      "data": [ ... ] // Array of scenarios
     }
-  }
-},
+  ]
+}
 ```
 
-### 3.4 Customize your configuration
+### Adding/Removing Module Groups
 
-**REQUIRED Changes:**
-- `'your-page-id'`: Must match the `id` in appSections.js
-- `title`: Display name for the page
-- `yourModuleData`: Must match your import name
-- `yourModulesArrayName`: Must match the array name in your JSON
+**To add a new group:**
 
-**OPTIONAL Changes:**
-- `baselineValue`: Starting point for your data type
-- `yMin/yMax`: Chart range for your data
-- `buttonStyle`: 'blue', 'teal', 'green', 'purple'
-- `unitLabel`: What units to show (mg/dL, mmol/L, BPM, etc.)
-- `dangerZones`: Colored ranges on your chart
+1. Open the appropriate module file (`ketoneModules.json`, `glycemicIndexModules.json`, etc.)
+2. Add a new object to the main array with:
+   - Unique id
+   - Display name
+   - Representative icon (emoji)
+   - Clear instructions
+   - Array of data scenarios
 
-### 3.5 Save the changes
-1. **Scroll to bottom**
-2. **Commit changes**:
-   - Title: `Add [module name] page configuration`
-   - Description: `Configured new learning module page`
-3. **Click "Commit changes"**
+**To remove a group:**
 
----
+- Delete the entire group object from the array
 
-## ✅ **STEP 4: Test Your New Page**
+### Adding/Removing Scenarios
 
-After completing all steps:
+**To add a scenario to an existing group:**
 
-1. **Wait a few minutes** for the site to rebuild
-2. **Visit your live website**
-3. **Click the navigation dropdown**
-4. **Look for your new page** in the menu
-5. **Click it to test** that it loads correctly
+- Add a new object to the group's `data` array (see values explanation below)
 
----
+**To remove a scenario:**
 
-## 🛠️ **Common Issues & Fixes**
+- Delete the scenario object from the `data` array
 
-### ❌ **Page doesn't appear in menu**
-- Check that the `id` in appSections.js matches exactly
-- Make sure you didn't forget a comma
+## Understanding Module Data Values
 
-### ❌ **Page shows "No modules available"**
-- Check that your import path is correct in pageConfigs.js
-- Verify the array name matches between JSON and pageConfigs
-- Use browser developer tools to check for import errors
+Each scenario in a learning module has these properties:
 
-### ❌ **Chart looks wrong**
-- Adjust `yMin` and `yMax` to fit your data range
-- Check that `baselineValue` is within your min/max range
-- Verify your data values make sense for the chart type
+### Core Properties
 
-### ❌ **JSON validation errors**
-- Use the JSON validator tool to check your file
-- Common issues: missing commas, extra commas, unmatched quotes
-- Make sure all `id` fields use lowercase-with-hyphens format
+- **id**: Unique identifier for the scenario (string)
+- **name**: Display name shown to users (string)
+- **description**: Explanation of what happens (string)
+- **image**: Path to illustration image (string)
+- **fallbackIcon**: Emoji backup if image unavailable (string)
 
----
+### Timing & Effect Properties
 
-## 💡 **Pro Tips**
+#### For Blood Glucose Modules (glycemic-index, insulin-dosing)
 
-1. **Start small**: Create just one module with 2-3 items first
-2. **Copy existing patterns**: Look at ketoneModules.json for examples
-3. **Use the validator**: Always check your JSON before committing
-4. **Test frequently**: Make small changes and test each step
-5. **Keep backups**: GitHub keeps version history, but be careful with changes
+- **peakTime**: Hours from start until maximum glucose effect (decimal)
+  - Example: 1.5 = effect peaks 1.5 hours after consumption
 
----
+- **peakValue**: Maximum blood glucose level in mg/dL (number)
+  - Example: 160 = glucose rises to 160 mg/dL at peak
 
-## 📞 **Getting Help**
+- **duration**: Total hours the effect lasts (decimal)
+  - Example: 3.0 = effect continues for 3 hours total
 
-If you run into issues:
+- **impactStart**: Hours until effect begins (decimal)
+  - Example: 0.25 = effect starts 15 minutes after consumption
 
-1. **Check the browser console** for error messages
-2. **Compare your code** to the working examples
-3. **Use the JSON validator** to check for syntax errors
-4. **Look at GitHub commit history** to see what changed
-5. **Ask for help** with specific error messages
+#### For Ketone Modules
 
-Remember: GitHub saves every change, so you can always go back if something breaks!
+- **peakTime**: Hours until maximum ketone level (decimal)
+- **peakValue**: Maximum ketone level in mmol/L (decimal)
+  - Range: 0.0-3.0+ (higher = deeper ketosis)
+- **duration**: Hours ketones remain elevated (decimal)
+- **impactStart**: Hours until ketones begin rising (decimal)
+
+### Value Guidelines
+
+#### Blood Glucose (mg/dL)
+
+- Normal fasting: 80-100
+- Target range: 70-180
+- High: 180+
+- Dangerous low: <70
+
+#### Ketones (mmol/L)
+
+- No ketosis: 0.0-0.3
+- Light ketosis: 0.3-0.5
+- Nutritional ketosis: 0.5-1.5
+- Deep ketosis: 1.5-3.0
+- DKA risk: >3.0
+
+#### Timing Examples
+
+- Rapid effect: peakTime 0.5-1.0 hours
+- Moderate effect: peakTime 1.0-2.0 hours
+- Slow effect: peakTime 2.0+ hours
+- Short duration: 1-3 hours
+- Long duration: 4+ hours
+
+### Example: Adding a New Ketone Scenario
+
+```json
+{
+  "id": "coconut-oil",
+  "name": "Coconut Oil",
+  "peakTime": 2.0,
+  "peakValue": 0.7,
+  "duration": 5.0,
+  "description": "Coconut oil contains MCTs that can moderately increase ketone production.",
+  "image": "/images/ketones/coconut-oil.png",
+  "fallbackIcon": "🥥",
+  "impactStart": 0.5
+}
+```
+
+This scenario shows coconut oil:
+
+- Starts affecting ketones after 30 minutes
+- Peaks at 0.7 mmol/L after 2 hours
+- Effects last 5 hours total
+- Represents light to moderate ketosis
