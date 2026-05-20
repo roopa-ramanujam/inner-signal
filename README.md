@@ -1,4 +1,8 @@
-# Configuration Guide
+# About
+
+Inner Signal is an app that helps users learn more about the factors affecting their blood sugar through an interactive graph simulation and learning modules.
+
+# Open Source Configuration Guide
 
 This guide explains how to modify the JSON configuration files for the blood glucose tracking application.
 
