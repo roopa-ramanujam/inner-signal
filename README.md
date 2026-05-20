@@ -2,6 +2,8 @@
 
 Inner Signal is an app that helps users learn more about the factors affecting their blood sugar through an interactive graph simulation and learning modules.
 
+View the app here: [Inner Signal](https://inner-signal.vercel.app/)
+
 # Open Source Configuration Guide
 
 This guide explains how to modify the JSON configuration files for the blood glucose tracking application.
